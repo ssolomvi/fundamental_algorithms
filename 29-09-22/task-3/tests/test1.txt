@@ -1,0 +1,4 @@
+For technical reasons, you need to know the seed of your world to use Seed Map, unless, of course, 
+you want to find a seed for a new world. If you're playing SSP, the app is able to fetch the seed from your savegame. 
+Alternatively, you can use the /seed command ingame. In SMP, you can use the same command if you have sufficient rights. 
+Otherwise, however, you're dependent on the server owner, who started the world and has access to the savegame and config files.
