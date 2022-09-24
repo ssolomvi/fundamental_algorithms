@@ -15,6 +15,7 @@ read_number_statuses read_number(char** number_x, FILE* file_r,  int* is_double)
 		c = fgetc(file_r);
 
 		// number starts
+		// ERROR: error reading characters of string
 		if (isalnum(c) && (prev == 0 || isspace(prev))) {
 			(*number_x)[size++] = c;
 		}
