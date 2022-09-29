@@ -44,7 +44,7 @@ double gen_double_negative()
 
 gen_arr_statuses gen_arr(double** array, int size)
 {
-	int i, rand_case, range_length, shift, tmp, min, max;
+	int i, rand_case;
 
 	if (!((*array) = (double*)malloc(sizeof(double) * size))) {
 		return gen_arr_malloc_error;
