@@ -11,7 +11,7 @@ int main()
 	int l;
 	printf("Enter precision:\n");
 	scanf("%d", &l);
-	eps = pow(1, -l);
+	eps = pow(10, -l);
 	printf("Enter range limits [a;b]:\n");
 	scanf("%lf %lf", &a, &b);
 
