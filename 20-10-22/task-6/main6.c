@@ -21,18 +21,21 @@ int main(void)
 		return 0;
 	}
 
-	find_substr_statuses find_substr_s = find_substr(substr, &found_substrs, &found_count, file_count, filepath1, filepath2, filepath3);
+	find_substr_statuses find_substr_s = find_substr("", &found_substrs, &found_count, file_count, filepath1, filepath2, filepath3);
 	switch (find_substr_s)
 	{
 	case find_substr_malloc_error:
 		printf("Memory allocation error happened\n");
-		return 0;
+		return -1;
 	case find_substr_realloc_error:
 		printf("Memory reallocation error happened\n");
-		return 0;
+		return -2;
 	case find_substr_open_file_error:
 		printf("Open file error\n");
-		return 0;
+		return -3;
+	case find_substr_incorrect_substr:
+		printf("Empty string passed to the function as an argument\n");
+		return -4;
 	default:
 		print_found(found_substrs, found_count);
 		break;
