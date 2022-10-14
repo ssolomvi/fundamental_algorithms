@@ -34,8 +34,13 @@ void read_substring(char** substring)
 		substring_len += lexeme_len;
 		lexeme_count++;
 	}
-	(*substring)[substring_len + lexeme_count - 1] = '\0'; // realloc to precise size
-	if (!(tmp = (char*)realloc((*substring), sizeof(char) * (substring_len + lexeme_count)))) {
+	if (substring_len == 0) {
+		(*substring)[substring_len] = '\0';
+	}
+	else {
+		(*substring)[substring_len + lexeme_count - 1] = '\0'; // realloc to precise size
+	}
+	if (!(tmp = (char*)realloc((*substring), sizeof(char) * (substring_len + lexeme_count + 1)))) {
 		free(*substring);
 		(*substring) = NULL;
 	}
@@ -48,7 +53,6 @@ find_substr_statuses find_substr_in_file(char* substr, int substr_len, found** f
 	char ch;
 	FILE* file;
 	found* tmp = NULL;
-
 
 	if (!(file = fopen(filename, "r"))) {
 		return find_substr_open_file_error;
@@ -99,6 +103,10 @@ find_substr_statuses find_substr(char* substr, found** found_substrs, int* found
 	int i, substr_len = strlen(substr), found_size = 2;
 	found* tmp = NULL;
 	find_substr_statuses find_substr_s;
+
+	if (!(strcmp(substr, ""))) {
+		return find_substr_incorrect_substr;
+	}
 
 	if (!((*found_substrs) = (found*)malloc(sizeof(found) * 4))) {
 		return find_substr_malloc_error;
