@@ -29,11 +29,11 @@ int main(void)
 	printf("\tas limit value: %.*lf\n", l, sqrt2_lim(eps));
 	printf("\tas row product: %.*lf\n", l, mult(sqrt2_mult, eps, 2));
 	printf("\tas solution of an equation: %.*lf\n\n", l, equation_dichotomy(sqrt2_equation, 1, 2, eps));
-
+	
 	printf("Euler's constant:\n");
 	printf("\tas limit value: %.*lf\n", l, euler_lim(eps));
 	double constant_pi = M_PI * M_PI / 6;
-	printf("\tas row sum: %.*lf\n", l, sum(gamma_row, eps, 2) - constant_pi);
+	printf("\tas row sum: %.*lf\n", l, gamma_row(eps, 2) - constant_pi);
 	printf("\tas solution of an equation: %.*lf\n\n", l, euler_equation(eps));
 
 	return 0;
