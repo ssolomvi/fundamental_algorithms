@@ -10,6 +10,7 @@ typedef enum is_convex_statuses {
 	is_convex_not_poligon,
 	is_convex_incorrect_arguments,
 	is_convex_is_convex_poligon,
+	is_convex_one_line,
 } is_convex_statuses;
 
 typedef enum find_polinom_statuses {
@@ -102,10 +103,6 @@ is_convex_statuses is_convex(int count, ...)
 		return is_convex_not_poligon;
 	}
 
-	if (count == 3) {
-		return is_convex_is_convex_poligon;
-	}
-
 	short turn, direction = 0;
 	va_list ptr;
 	va_start(ptr, count);
@@ -113,11 +110,19 @@ is_convex_statuses is_convex(int count, ...)
 	if (!ptr)
 		return is_convex_incorrect_arguments;
 
+	double is_convex_in_one_row_denum_x = 0, is_convex_in_one_row_denum_y = 0, is_convex_in_one_row_num_x = 0, is_convex_in_one_row_num_y = 0;
+	double _eps = 1e-10;
+
 	double first_vector_x = -va_arg(ptr, double);
 	double first_vector_y = -va_arg(ptr, double);
 
+	is_convex_in_one_row_denum_x += first_vector_x; is_convex_in_one_row_num_x += first_vector_x;
+	is_convex_in_one_row_denum_y += first_vector_y; is_convex_in_one_row_num_y += first_vector_y;
+
 	double prev_x = va_arg(ptr, double);
 	double prev_y = va_arg(ptr, double);
+
+	is_convex_in_one_row_denum_x += prev_x; is_convex_in_one_row_denum_y += prev_y;
 
 	first_vector_x += prev_x;
 	first_vector_y += prev_y;
@@ -129,6 +134,19 @@ is_convex_statuses is_convex(int count, ...)
 	{
 		curr_x = va_arg(ptr, double);
 		curr_y = va_arg(ptr, double);
+
+		if (i == 1) {
+			is_convex_in_one_row_num_x = curr_x;
+			is_convex_in_one_row_num_y += curr_y;
+
+			if (fabs(is_convex_in_one_row_num_x / is_convex_in_one_row_denum_x - is_convex_in_one_row_num_y / is_convex_in_one_row_denum_y) < _eps) {
+				va_end(ptr);
+				return is_convex_one_line;
+			}
+			if (count == 3) {
+				return is_convex_is_convex_poligon;
+			}
+		}
 
 		bc_x = curr_x - prev_x;
 		bc_y = curr_y - prev_y;
@@ -160,10 +178,6 @@ is_convex_statuses is_convex(int count, ...)
 
 find_polinom_statuses find_polinom_value(long double* res, double x, int power, ...)
 {
-	if (x == 0) {
-		return find_polinom_num_error;
-	}
-
 	if (!power) {
 		return find_polinom_pow_error;
 	}
@@ -185,9 +199,6 @@ find_polinom_statuses find_polinom_value(long double* res, double x, int power, 
 			(*res) += to_add;
 		else
 			return find_polinom_overflow;
-		if (i == power - 1) {
-
-		}
 		if (i == power) {
 			num_in_pow = 1;
 		}
