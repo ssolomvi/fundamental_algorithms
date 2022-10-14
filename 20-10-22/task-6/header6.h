@@ -15,6 +15,7 @@ typedef enum find_substr_statuses {
 	find_substr_malloc_error,
 	find_substr_realloc_error,
 	find_substr_open_file_error,
+	find_substr_incorrect_substr,
 	find_substr_ok
 } find_substr_statuses;
 
