@@ -40,19 +40,20 @@ double dichotomy(double function(double), double a, double b, double eps)
 	while (fabs(a - b) > eps) {
 		funct_result_middle = function((a + b) / 2);
 
-		if (!funct_result_middle) {
+		if (fabs(funct_result_middle) < eps) {
 			break;
 		}
 
 		if (f_a * funct_result_middle > 0) {
 			a = (a + b) / 2;
-			f_a = function(a);
+			f_a = funct_result_middle;
 		}
 
 		if (f_b * funct_result_middle > 0) {
 			b = (a + b) / 2;
-			f_b = function(b);
+			f_b = funct_result_middle;
 		}
 	}
+
 	return (a + b) / 2;
 }
