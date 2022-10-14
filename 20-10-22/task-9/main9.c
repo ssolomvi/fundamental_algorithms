@@ -44,8 +44,8 @@ do_sum_statuses do_sum(char** sum, char* str1, char* str2, int size1, int size2,
 
 int main()
 {
-	char s1[] = "F0F", s2[] = "56", s3[] = "-1", s4[] = "-56", s5[] = "-F0A", s6[] = "-f9", * sum = NULL;
-	int notation = 10;
+	char s1[] = "F0F", s2[] = "-1", s3[] = "-1", s4[] = "-56", s5[] = "-F0A", s6[] = "-f9", * sum = NULL;
+	int notation = 2;
 
 	sum_statuses sum_s = _sum(&sum, notation, 2, s2, s2);
 	switch (sum_s)
@@ -176,10 +176,14 @@ do_sum_statuses do_sum(char** sum, char* str1, char* str2, int size1, int size2,
 			res[res_ind++] = '1';
 		}
 
-		if (str1_is_neg) {
+		res_ind = check_nulls(res_ind, res);
+
+		if (str1_is_neg && res_ind) {
 			res[res_ind++] = '-';
 		}
 
+		!res_ind ? res_ind += 1 : res_ind;
+		
 		if (!(tmp = (char*)realloc(res, sizeof(char) * (res_ind + 1)))) {
 			free(res);
 			return do_sum_realloc_error;
