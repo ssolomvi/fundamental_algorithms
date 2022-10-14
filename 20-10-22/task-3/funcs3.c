@@ -16,11 +16,11 @@ long double limit(long double lim(int n), double eps)
 
 long double sum(long double function(int n), double eps, int start)
 {
-	long double res = 0, func_returned = 1, eps_func = eps * eps, prev_res = 0;
+	long double res = 0, eps_func = eps * eps, prev_res = 0;
 	
-	for (start; fabs(func_returned) > eps_func || func_returned == 0; start++) {
-		func_returned = function(start);
-		res += func_returned;
+	for (start; (fabs(res - prev_res) > eps || fabs(prev_res) < eps || (res - prev_res == 0)); start++) {
+		prev_res = res;
+		res += function(start);
 	}
 	return res;
 }
@@ -28,7 +28,7 @@ long double sum(long double function(int n), double eps, int start)
 long double mult(long double function(int n), double eps, int start)
 {
 	long double res = 1, prev_res = 0, eps_func = eps / 10;
-	for (start; fabs(prev_res - res) > eps_func || prev_res == 0; start++) {
+	for (start; fabs(prev_res - res) > eps_func || fabs(prev_res) < eps; start++) {
 		prev_res = res;
 		res *= function(start);
 	}
@@ -104,9 +104,16 @@ long double sqrt2_mult(int k)
 	return pow(2, pow(2, -k));
 }
 
-long double gamma_row(int k)
+long double gamma_row(double eps, int start)
 {
-	return 1.0 / pow(floor(sqrt(k)), 2) - 1.0 / k;
+	long double res = 0, eps_func = 1e-15, prev_res = 0, func_returned = 0;
+
+	for (start; (fabs(res - prev_res) > eps_func || fabs(prev_res) < eps || (res - prev_res == 0)); start++) {
+		prev_res = res;
+		func_returned = 1.0 / pow(floor(sqrt(start)), 2) - 1.0 / start;
+		res += func_returned;
+	}
+	return res;
 }
 
 double equation_dichotomy(double equation(double x), double a, double b, double eps)
