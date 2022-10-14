@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define euler 0.57721566490153286060
 
 /// <summary>
 /// Finds an aproximate number as a limit of an expression with given epsilon
@@ -40,7 +39,7 @@ long double e_row(int n);
 long double pi_row(int n);
 long double ln2_row(int n);
 long double sqrt2_mult(int k);
-long double gamma_row(int k);
+long double gamma_row(double eps, int start);
 
 double equation_dichotomy(double equation(double x), double a, double b, double eps);
 double e_equation(double x);
