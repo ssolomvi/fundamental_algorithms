@@ -355,4 +355,3 @@ fibonacci_heap_sort_statuses fibonacci_heap_sort(char operation, employee* array
 
 	return fibonacci_heap_sort_ok;
 }
-//
