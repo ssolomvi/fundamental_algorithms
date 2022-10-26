@@ -35,26 +35,29 @@ int main(int argc, char** argv)
 		printf("Error reallocting memory for an array of employees\n");
 		return -5;
 	default:
-		printf("An array of employees was read successfully!\n");
+		printf("An array of employees was read successfully!\nRead employees:\n");
 		print_employees(stdout, employee_arr, count);
 		break;
 	}
 
-
+	fibonacci_heap_sort_statuses fib_heap_sort_s = -1;
 	if (!strcmp(argv[2], "-a") || !strcmp(argv[2], "/a")) {
-		//fibonacci_heap_sort('>', &employee_arr, count, out);
-
+		fib_heap_sort_s = fibonacci_heap_sort('>', employee_arr, count, out);
 		printf("The array of employees was sorted ascending. The result was put in file %s\n", argv[3]);
 	}
+
 	else if (!strcmp(argv[2], "-d") || !strcmp(argv[2], "/d")) {
-		//fibonacci_heap_sort('<', &employee_arr, count, out);
+		fib_heap_sort_s = fibonacci_heap_sort('<', employee_arr, count, out);
 		printf("The array of employees was sorted descending. The result was put in file %s\n", argv[3]);
 	}
+
 	else {
 		printf("Incorrect flag in commang line arguments!\n");
 		return -6;
 	}
 
+	fclose(in);
+	fclose(out);
 	free(employee_arr);
 	return 0;
 }
