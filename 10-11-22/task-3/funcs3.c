@@ -10,7 +10,7 @@ void print_employees(FILE* stream, employee* array, int size)
 
 void print_employee(FILE* stream, employee to_print)
 {
-	fprintf("%u %s %s %lf\n", to_print.id, to_print.name, to_print.surname, to_print.wage);
+	fprintf(stream, "%u %s %s %lf\n", to_print.id, to_print.name, to_print.surname, to_print.wage);
 }
 
 int is_valid_str(char* str)
@@ -68,8 +68,9 @@ employee* read_employees(FILE* fi, int* actual_size, read_employees_statuses* re
 		return NULL;
 	}
 
-	char name[80] = { 0 }, surname[80] = { 0 };
 	double salary = 0;
+	char ch = 0;
+
 
 	while (!feof(fi)) {
 		if ((*actual_size) >= size - 1) {
@@ -85,9 +86,9 @@ employee* read_employees(FILE* fi, int* actual_size, read_employees_statuses* re
 		}
 		
 
-		char ch;
 		if (fscanf(fi, "%u %s %s %lf\n", &id, employee_array[(*actual_size)].name, employee_array[(*actual_size)].surname, &salary) != 4) {
-			ch = fgetc(fi);
+			while (ch != '\n') 
+				ch = fgetc(fi);
 			continue;
 		}
 
@@ -154,15 +155,9 @@ fibonacci_insert_statuses fibonacci_insert_node(char operation, fibonacci_heap* 
 		heap->root = new_node;
 	}
 
+	heap->size++;
 	return fibonacci_insert_ok;
 }
-
-typedef enum fibonacci_heap_sort_statuses {
-	fibonacci_heap_sort_unexpected_error,
-	fibonacci_heap_sort_malloc_error,
-	fibonacci_heap_sort_ok
-} fibonacci_heap_sort_statuses;
-
 
 void fibonacci_union_trees(heapNode* first, heapNode* second)
 {
@@ -184,6 +179,7 @@ void fibonacci_link(fibonacci_heap* heap, heapNode* parent_node, heapNode* child
 	// make child_node a son node of parent_node
 	(parent_node->degree)++;
 	if (parent_node->child != NULL) {
+		child_node->parent = parent_node;
 		child_node->right = parent_node->child->right;
 		child_node->left = parent_node->child;
 		parent_node->child->right->left = child_node;
@@ -191,6 +187,7 @@ void fibonacci_link(fibonacci_heap* heap, heapNode* parent_node, heapNode* child
 	}
 	else {
 		parent_node->child = child_node;
+		child_node->parent = parent_node;
 		child_node->left = child_node;
 		child_node->right = child_node;
 	}
@@ -217,14 +214,18 @@ fibonacci_extract_n_consolidate_statuses fibonacci_consolidate(char operation, f
 	}
 
 	// do for every node in root circular list
-	heapNode* curr_node = heap->root;
+	heapNode* curr_node = heap->root, *another_node = NULL;
 	int curr_degree = curr_node->degree;
 
 	do {
-		// check if some other tree has the same degree
+		// check if any other tree has the same degree
 		while (array_of_trees_degrees[curr_degree] != NULL) {
 			// found another tree with the same degree as current
-			heapNode* another_node = array_of_trees_degrees[curr_degree];
+			another_node = array_of_trees_degrees[curr_degree];
+
+			if (another_node == curr_node) {
+				break;
+			}
 
 			if ((operation == '<' && (curr_node->key->wage > another_node->key->wage)) || operation == '>' && (curr_node->key->wage < another_node->key->wage)) {
 				SWAP(heapNode*, curr_node, another_node);
@@ -236,7 +237,11 @@ fibonacci_extract_n_consolidate_statuses fibonacci_consolidate(char operation, f
 			curr_degree++;
 		}
 
-		array_of_trees_degrees[curr_degree] = curr_node;
+		if (((operation == '<' && (curr_node->key->wage < heap->root->key->wage)) || operation == '>' && (curr_node->key->wage > heap->root->key->wage)) && curr_node != heap->root) {
+			heap->root = curr_node;
+		}
+		if (another_node != curr_node)
+			array_of_trees_degrees[curr_degree] = curr_node;
 
 		curr_node = curr_node->right;
 		curr_degree = curr_node->degree;
@@ -300,7 +305,7 @@ fibonacci_extract_n_consolidate_statuses fibonacci_extract_root_node(char operat
 		root->right->left = root->left;
 		
 		// if pyramid consists of 1 element
-		if (root->right = root) {
+		if (root->right == root) {
 			heap->root = NULL;
 		}
 		else {
@@ -319,7 +324,6 @@ fibonacci_extract_n_consolidate_statuses fibonacci_extract_root_node(char operat
 	return fibonacci_extract_n_consolidate_ok;
 }
 
-// TODO: free all allocated elements before returning malloc_error status
 fibonacci_heap_sort_statuses fibonacci_heap_sort(char operation, employee* array, int arr_size, FILE* fi)
 {
 	fibonacci_heap heap;
@@ -340,9 +344,9 @@ fibonacci_heap_sort_statuses fibonacci_heap_sort(char operation, employee* array
 		}
 	}
 
+	heapNode* extracted = NULL;
+	fibonacci_extract_n_consolidate_statuses fib_extr_n_con_s = -1;
 	for (i = 0; i < arr_size; i++) {
-		heapNode* extracted = NULL;
-		fibonacci_extract_n_consolidate_statuses fib_extr_n_con_s = -1;
 		fib_extr_n_con_s = fibonacci_extract_root_node(operation, &heap, &extracted);
 
 		if (fib_extr_n_con_s == fibonacci_extract_n_consolidate_malloc_error) {
@@ -351,6 +355,7 @@ fibonacci_heap_sort_statuses fibonacci_heap_sort(char operation, employee* array
 
 		print_employee(fi, *(extracted->key));
 		free(extracted);
+		extracted = NULL;
 	}
 
 	return fibonacci_heap_sort_ok;
