@@ -43,6 +43,11 @@ typedef enum fibonacci_insert_statuses {
 	fibonacci_insert_ok,
 } fibonacci_insert_statuses;
 
+typedef enum fibonacci_heap_sort_statuses {
+	fibonacci_heap_sort_unexpected_error,
+	fibonacci_heap_sort_malloc_error,
+	fibonacci_heap_sort_ok
+} fibonacci_heap_sort_statuses;
 
 void print_employees(FILE* stream, employee* array, int size);
 
@@ -58,7 +63,7 @@ employee* read_employees(FILE* fi, int* count, read_employees_statuses* read_emp
 /// <summary>
 /// Sortes an array of employees using fibonacci heap and prints sorted array in stream "fi"
 /// </summary>
-/// <param name="operation">- '<' if root element must be min or '>' if root element must be max</param>
+/// <param name="operation">- '>' if root element must be max, the opposite char if root must be min</param>
 /// <param name="array">- a read dynamic array of employees</param>
 /// <param name="arr_size">- count of elements in employee array</param>
 /// <param name="fi">- stream to output the results of sorting</param>
