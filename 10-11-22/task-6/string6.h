@@ -1,5 +1,6 @@
 #ifndef STRING_6
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,14 +34,6 @@ void print_string(FILE* stream, string str);
 /// <param name="divider">- char which divides string from another data, e.g. '\n'</param>
 /// <returns>new string</returns>
 string create_string(FILE* stream, size_t to_allocate, char divider);
-
-/// <summary>
-/// Makes a new struct string object
-/// </summary>
-/// <param name="str">- a dynamic array of char type</param>
-/// <param name="length">- length of the dynamic array of char type</param>
-/// <returns>new struct string object</returns>
-string create_string_v2(char* str, size_t length);
 
 /// <summary>
 /// If memory for dynamic array in struct string allocated, cleans it, changes the length

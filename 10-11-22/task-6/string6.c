@@ -5,6 +5,7 @@ size_t length_string(char* str)
 	size_t counter = 0;
 	while (*str != '\0') {
 		counter++;
+		str++;
 	}
 	return counter;
 }
@@ -44,8 +45,8 @@ string create_string(FILE* stream, size_t to_allocate, char divider)
 		}
 
 		new_str.length = length_string(new_str.str);
-		
-		if (new_str.str[new_str.length] == divider) {
+
+		if (new_str.str[new_str.length - 1] == divider) {
 			if (!(tmp = (char*)realloc(new_str.str, sizeof(char) * new_str.length))) {
 				free(new_str.str);
 				new_str.str = NULL;
@@ -104,16 +105,11 @@ string create_string(FILE* stream, size_t to_allocate, char divider)
 	return new_str;
 }
 
-string create_string_v2(char* str, size_t length)
-{
-	string new_str;
-	new_str.str = str;
-	new_str.length = length;
-	return new_str;
-}
-
 void delete_string(string* str)
 {
+	if (!str) {
+		return;
+	}
 	str->length = 0;
 
 	if (!(str->str)) {
@@ -148,7 +144,7 @@ void copy_string(string* copy, string original)
 		return;
 	}
 
-	if (!(copy_new_str = (char*)malloc(sizeof(char) * original.length))) {
+	if (!(copy_new_str = (char*)malloc(sizeof(char) * (original.length + 1)))) {
 		copy->length = nan;
 		copy->str = NULL;
 		return;
@@ -160,6 +156,7 @@ void copy_string(string* copy, string original)
 
 	copy->length = original.length;
 	copy->str = copy_new_str;
+	copy->str[original.length] = '\0';
 }
 
 string cat_strings(int num_strings, ...)
@@ -168,23 +165,33 @@ string cat_strings(int num_strings, ...)
 	catted_string.length = 0;
 	catted_string.str = NULL;
 	char* tmp = NULL;
-	
+
 	va_list ptr = NULL;
 	va_start(ptr, num_strings);
 
 	int i, j, k;
 	size_t total_length = 0;
-	
+
+	if (!(catted_string.str = (char*)malloc(sizeof(char)))) {
+		catted_string.length = nan;
+
+		if (catted_string.str) {
+			delete_string(&catted_string);
+		}
+
+		return catted_string;
+	}
+
 	for (i = 0; i < num_strings; i++) {
 		another_string = va_arg(ptr, string*);
 		total_length += another_string->length;
-		if (!(tmp = (char*)realloc(catted_string.str, total_length * sizeof(char)))) {
+		if (!(tmp = (char*)realloc(catted_string.str, (total_length + 1) * sizeof(char)))) {
 			catted_string.length = nan;
 
 			if (catted_string.str) {
 				delete_string(&catted_string);
 			}
-		
+
 			return catted_string;
 		}
 		catted_string.str = tmp;
@@ -195,6 +202,8 @@ string cat_strings(int num_strings, ...)
 
 		catted_string.length = total_length;
 	}
+
+	catted_string.str[total_length] = '\0';
 
 	return catted_string;
 }
@@ -212,7 +221,7 @@ string double_string(string original)
 		return double_new;
 	}
 
-	if (!(double_str = (char*)malloc(sizeof(char) * original.length))) {
+	if (!(double_str = (char*)malloc(sizeof(char) * (original.length + 1)))) {
 		double_new.length = nan;
 		return double_new;
 	}
@@ -221,7 +230,9 @@ string double_string(string original)
 		double_str[i] = original.str[i];
 	}
 
-	double_new = create_string(double_str, original.length);
+	double_new.length = original.length;
+	double_new.str = double_str;
+	double_new.str[original.length] = '\0';
 
 	return double_new;
 }
@@ -239,7 +250,7 @@ int lexic_comparator(string first, string second)
 		}
 	}
 
-	if (second.length >= i) {
+	if (second.length > i) {
 		return -1;
 	}
 
