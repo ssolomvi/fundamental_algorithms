@@ -12,6 +12,44 @@ void init_address(address* my_init)
 
 int main(int argc, char** argv)
 {
+	printf("Demonstration of my string.h functionality:\n");
+	string my_str, copy_str, _new_str, double_str, catted_string;
+	printf("Enter something for my_str:\n>>> ");
+	my_str = create_string(stdin, 0, '\n');
+	printf("Enter something once more for copy_str:\n>>> ");
+	copy_str = create_string(stdin, 0, '\n');
+	printf("my_str data:\n");
+	print_string(stdout, my_str);
+	printf("copy_str data:\n");
+	print_string(stdout, copy_str);
+	int strs_diff = 0;
+	if ((strs_diff = compare_strings(my_str, copy_str, lexic_comparator) == 0)) {
+		printf("my_str is equal to copy_str!\n");
+	}
+	else if (strs_diff > 0) {
+		printf("my_str is lexicographically greater than copy_str!\n");
+	}
+	else {
+		printf("my_str is lexicographically less than copy_str!\n");
+	}
+	printf("Enter something once again for _new_str:\n>>> ");
+	_new_str = create_string(stdin, 0, '\n');
+	printf("Let's concatenate my_str, copy_str and _new_str:\n");
+	catted_string = cat_strings(3, &my_str, &copy_str, &_new_str);
+	print_string(stdout, catted_string);
+	printf("Let's copy my_str data to copy_str:\n");
+	copy_string(&copy_str, my_str);
+	print_string(stdout, copy_str);
+	printf("Let's double _new_str:\n");
+	double_str = double_string(_new_str);
+	print_string(stdout, _new_str);
+	delete_string(&my_str);
+	delete_string(&copy_str);
+	delete_string(&_new_str);
+	delete_string(&double_str);
+	delete_string(&catted_string);
+	printf("That's all. Now the post functionality!\n\n");
+
 	if (argc != 3) {
 		printf("Incorrect count of command line arguments.\nPass only the current time date in format {day}.{month}.{year} {hour}:{minutes}:{seconds}\n");
 		return -1;
@@ -363,6 +401,7 @@ Labs Ilya 7 6 434241
 			break; 
 		case 7:
 			delete_post(&my_post);
+			printf("Your post was deleted\n");
 			break; 
 		case 8:
 			exited++;
@@ -410,10 +449,4 @@ void help_file_format()
 	printf("{city} {street} {house} {flat} {index}\n");
 	printf("{weigth} {mail_id} {time_of_creation} {delivery_time}\n\n");
 	printf("...\n\n");
-	/*
-	Kak Sdat 8 19 561324
-Labs Ilya 7 6 434241
-36.56 12151417181920 12.10.2022 15:15:23 18.10.2022 18:19:22
-	*/
-
 }
