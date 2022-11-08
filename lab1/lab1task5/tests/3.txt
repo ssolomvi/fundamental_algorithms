@@ -1,0 +1,5 @@
+If your in-game world doesn't match the map here at all, it's most likely due to one of the following:
+you entered the wrong seed or coordinates;
+you selected the wrong edition or version (the one used to generate the region you look at);
+you used mods or resource packs that affect world generation;
+(for slime chunks) you didn't wait long enough, since they have a very low spawn rate even in slime chunks;
