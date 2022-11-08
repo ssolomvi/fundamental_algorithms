@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 ""
 aboba
 
 ketchunez
+=======
+""
+aboba
+
+ketchunez
+>>>>>>> origin/main
 stop
