@@ -178,7 +178,7 @@ string cat_strings(int num_strings, ...)
 		if (catted_string.str) {
 			delete_string(&catted_string);
 		}
-
+		va_end(ptr);
 		return catted_string;
 	}
 
@@ -191,7 +191,7 @@ string cat_strings(int num_strings, ...)
 			if (catted_string.str) {
 				delete_string(&catted_string);
 			}
-
+			va_end(ptr);
 			return catted_string;
 		}
 		catted_string.str = tmp;
@@ -204,6 +204,7 @@ string cat_strings(int num_strings, ...)
 	}
 
 	catted_string.str[total_length] = '\0';
+	va_end(ptr);
 
 	return catted_string;
 }

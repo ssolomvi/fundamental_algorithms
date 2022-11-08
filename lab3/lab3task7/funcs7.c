@@ -1,22 +1,19 @@
 ﻿#include "header7.h"
-#include <stdlib.h>
 #include <stdarg.h>
+#include <ctype.h>
 
-void free_multi(void* ptr, ...)
+void free_multi(size_t num, ...)
 {
 	va_list v;
+	va_start(v, num);
+	
+	void* to_free = NULL;
 
-	void* to_free = ptr;
-
-	va_start(v, ptr);
-
-	while (to_free)
-	{
-		free(to_free);
-
+	while (num) {
 		to_free = va_arg(v, void*);
+		free(to_free);
+		num--;
 	}
-
 	va_end(v);
 }
 
@@ -28,6 +25,14 @@ read_citizens_statuses read_string(FILE* in, char** str, char divider)
 	if (!((*str) = (char*)malloc(sizeof(char) * size))) {
 		*str = NULL;
 		return read_citizens_malloc_error;
+	}
+	while (isspace((ch = fgetc(in))));
+	if (isspace(ch)) {
+		(**str) = '\0';
+		return read_citizens_incorrect_data;
+	}
+	else {
+		(*str)[actual_size++] = ch;
 	}
 
 	while ((ch = fgetc(in)) != EOF && ch != divider) {
@@ -119,15 +124,11 @@ int is_valid_citizen(citizen* to_val)
 read_citizens_statuses read_citizen(FILE* input, citizen** data)
 {
 	if (!((*data) = (citizen*)malloc(sizeof(citizen)))) {
-		// (*data) = NULL; - оно и так NULL же :)
 		return read_citizens_malloc_error;
 	}
 
 	// никогда так не делай (наврал, простите)
 	// (**data) = (citizen){ .average_income = 0 };
-
-	// так наверное попроще:
-	(*data)->average_income = 0; // не правда ли? (=
 
 	read_citizens_statuses read_citizens_s = -1;
 
@@ -138,12 +139,7 @@ read_citizens_statuses read_citizen(FILE* input, citizen** data)
 	{
 		// тут очень опасно так чистить
 		// если указатели не равны NULL перед вызовом read_string или не инициализируются внутри, можешь получить ошибки
-		// free((*data)->surname);
-		// free((*data)->name);
-		// free((*data)->patronymic);
-
-		free_multi((*data)->surname, (*data)->name, (*data)->patronymic, *data, NULL);
-
+		free_multi(4, (*data)->surname, (*data)->name, (*data)->patronymic, *data);
 		return read_citizens_s;
 	}
 
@@ -151,20 +147,12 @@ read_citizens_statuses read_citizen(FILE* input, citizen** data)
 		!((*data)->sex = read_sex(input)) ||
 		fscanf(input, "%f\n", &(*data)->average_income) != 1)
 	{
-		// free((*data)->surname);
-		// free((*data)->name);
-		// free((*data)->patronymic);
-
 		free_multi((*data)->surname, (*data)->name, (*data)->patronymic, *data, NULL);
 
 		return read_citizens_incorrect_data;
 	}
 
 	if (!is_valid_citizen(*data)) {
-		// free((*data)->surname);
-		// free((*data)->name);
-		// free((*data)->patronymic);
-
 		free_multi((*data)->surname, (*data)->name, (*data)->patronymic, *data, NULL);
 
 		return read_citizens_incorrect_data;
@@ -172,7 +160,6 @@ read_citizens_statuses read_citizen(FILE* input, citizen** data)
 	return read_citizens_ok;
 }
 
-// тут всё норм
 read_citizens_statuses copy_citizen(citizen* to_copy, citizen** copy)
 {
 	if (!to_copy)
@@ -293,8 +280,9 @@ read_citizens_statuses read_citizens(FILE* input, list_cit** head)
 			*head = (list_cit*)malloc(sizeof(list_cit));
 			if (!*head)
 			{
-				// TODO: ну разберёшься тут чё делац
+				// ну разберёшься тут чё делац
 				// return не забудь
+				return read_citizens_malloc_error;
 			}
 
 			(*head)->next = NULL;
@@ -309,24 +297,32 @@ read_citizens_statuses read_citizens(FILE* input, list_cit** head)
 				return status;
 			}
 
-			new_element_date = date_converter(new->birthday); // birthd to insert
-			current_element_date = date_converter(curr->data->birthday); // birthd of current element
+			new_element_date = date_converter(new->birthday);
+			current_element_date = date_converter(curr->data->birthday);
 
 #pragma region new element alloc
 			new_element = (list_cit*)malloc(sizeof(list_cit));
 			if (!new_element)
 			{
-				// TODO: memory allocation error handling
+				// free new, destroy list
+				delete_citizen(new);
+				delete_citizens(head);
+				return read_citizens_malloc_error;
 			}
 
 			new_element->data = NULL;
 
 			status = copy_citizen(new, &new_element->data);
-			// TODO: handle status
+			if (status != read_citizens_ok) {
+				free(new_element);
+				delete_citizen(new);
+				delete_citizens(head);
+				return status;
+			}
 #pragma endregion
 
 			// возможно, вставить нужно будет в начало списка
-			if (new_element_date < current_element_date)
+			if (new_element_date > current_element_date)
 			{
 				new_element->next = *head;
 				*head = new_element;
@@ -338,7 +334,7 @@ read_citizens_statuses read_citizens(FILE* input, list_cit** head)
 				{
 					// нашли нужное место
 					// если чувак самый олд, тогда остановимся на последнем элементе списка и после него добавим
-					if (new_element_date < date_converter(curr->next->data->birthday))
+					if (new_element_date > date_converter(curr->next->data->birthday))
 					{
 						break;
 					}
@@ -350,66 +346,95 @@ read_citizens_statuses read_citizens(FILE* input, list_cit** head)
 				curr->next = new_element;
 				new_element->next = temp;
 			}
-			
-
-			/*if (date1 > date2)
-			{
-				tmp = (*head)->data;
-				curr = (*head)->next;
-				status = copy_citizen(new, &((*head)->data));
-				if (status != read_citizens_ok) {
-					delete_citizens(head);
-					return status;
-				}
-				// ля чё это такое ._.
-				// head->next = &(list_cit) { .data = NULL };
-				
-				(*head)->next->data = tmp;
-				(*head)->next->next = curr;
-			}
-			else {
-				while (curr->next && curr->data && curr->next->data) {
-					date3 = date_converter(curr->next->data->birthday);
-					//date3 = curr->next->data->birthday.year * 10000 + curr->next->data->birthday.month * 100 + curr->next->data->birthday.day; // birthd of next to current 
-					if (date1 <= date2 && date1 >= date3)
-					{
-						break;
-					}
-					
-					curr = curr->next;
-					date2 = date3; // ну по сути так и есть же... зачем дважды считать
-					//date2 = curr->data->birthday.year * 10000 + curr->data->birthday.month * 100 + curr->data->birthday.day;
-				}
-				insert_node(new, curr);
-			}*/
 
 			delete_citizen(new);
 		}
 
 		// тут тоже нужно не просто выйти, а память подчистить ._.
-		switch (status)
-		{
-		case read_citizens_malloc_error:
-			return read_citizens_malloc_error;
-		case read_citizens_incorrect_data:
-			return read_citizens_incorrect_data;
-		case read_citizens_incorrect_ptr_to_value:
-			return read_citizens_incorrect_ptr_to_value;
-		default:
-			break;
+		if (status != read_citizens_ok) {
+			delete_citizens(head);
+			return status;
 		}
 	}
 	return read_citizens_ok;
 }
 
+void print_citizen(FILE* stream, citizen* to_print)
+{
+	fprintf(stream, "%s %s %s\n", to_print->surname, to_print->name, to_print->patronymic);
+	fprintf(stream, "%02u.%02u.%4u %s %.2f\n\n", to_print->birthday.day, to_print->birthday.month, to_print->birthday.year,
+		(to_print->sex == male ? "male" : "female"), to_print->average_income);
+}
+
 void print_list(FILE* stream, list_cit* to_print)
 {
+	if (!stream)
+		return;
+	if (!to_print || !to_print->data) {
+		fprintf(stream, "Your list is empty!\n");
+	}
 	list_cit* tmp = to_print;
 	while (tmp) {
-		fprintf(stream, "%s %s %s\n", tmp->data->surname, tmp->data->name, tmp->data->patronymic);
-		fprintf(stream, "%02u.%02u.%4u %s %.2f\n\n", tmp->data->birthday.day, tmp->data->birthday.month, tmp->data->birthday.year,
-			(tmp->data->sex == male ? "male" : "female"), tmp->data->average_income);
-		
+		print_citizen(stream, tmp->data);
 		tmp = (tmp->next);
 	}
+}
+
+int lexic_compare_snp(const void* ptr1, const void* ptr2)
+{
+	int diff = 0;
+	citizen* first = ((citizen*)ptr1), * second = ((citizen*)ptr2);
+	if ((diff = strcmp(((citizen*)ptr1)->surname, ((citizen*)ptr2)->surname))) {
+		return diff;
+	}
+	
+	if ((diff = strcmp(((citizen*)ptr1)->name, ((citizen*)ptr2)->name))) {
+		return diff;
+	}
+	
+	if ((diff = strcmp(((citizen*)ptr1)->patronymic, ((citizen*)ptr2)->patronymic))) {
+		return diff;
+	}
+	return 0;
+}
+
+int delete_n_find_citizen(list_cit** head, citizen* to_delete, int comparator(const void*, const void*))
+{
+	list_cit* ptr = (*head), * tmp_next = NULL;
+
+	if (!comparator((*head)->data, to_delete)) {
+		(*head) = (*head)->next;
+		delete_citizen(ptr->data);
+		free(ptr);
+		return 1;
+	}
+
+	// redo if it's the last element in the list
+	while (ptr->next != NULL) {
+		if (!comparator(ptr->next->data, to_delete)) {
+			tmp_next = ptr->next->next;
+			delete_citizen(ptr->next->data);
+			free(ptr->next);
+			ptr->next = tmp_next;
+			return 1;
+		}
+		ptr = ptr->next;
+	}
+
+	return 0;
+}
+
+citizen* search(list_cit* head, citizen* to_find, int comparator(const void*, const void*))
+{
+	if (!head || !to_find)
+		return NULL;
+	list_cit* tmp = head;
+
+	while (tmp) {
+		if (!comparator(to_find, tmp->data)) {
+			return tmp->data;
+		}
+		tmp = tmp->next;
+	}
+	return NULL;
 }

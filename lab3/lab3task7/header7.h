@@ -45,6 +45,12 @@ typedef enum read_citizens_statuses {
 
 void delete_citizens(list_cit** to_del);
 read_citizens_statuses read_citizens(FILE* input, list_cit** head);
+void print_citizen(FILE* stream, citizen* to_print);
 void print_list(FILE* stream, list_cit* to_print);
+read_citizens_statuses read_string(FILE* in, char** str, char divider);
+void free_multi(size_t num, ...);
+int delete_n_find_citizen(list_cit** head, citizen* to_delete, int comparator(const void*, const void*));
+citizen* search(list_cit* head, citizen* to_find, int comparator(const void*, const void*));
+int lexic_compare_snp(const void* ptr1, const void* ptr2);
 
 #endif // !HEADER_7
