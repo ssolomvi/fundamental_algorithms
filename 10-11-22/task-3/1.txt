@@ -3,3 +3,10 @@
 50 Dora Dura -2500
 12 Vaka 300
 ba ivan zolo12 lok
+14 Svetik Semicvetik 23000
+17 Abra Kodabra 17550.23
+18 Albert Einstein 89250
+23 Ilya Krolov 50505
+101 Kotik Obormotik 18060
+16 Elena Travkova 26750
+19 Artificial Intelligence 42890.89
