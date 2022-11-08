@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 		if (!VALID_USER_INPUT(*(user_input.str)) || user_input.length != 1) {
 			printf("Invalid input! Try again...\n\n");
 			delete_string(&user_input);
-			delete_post(&my_post);
+			// delete_post(&my_post);
 			continue;
 		}
 
