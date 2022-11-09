@@ -130,7 +130,11 @@
     <ClInclude Include="header8.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="funcs8.c" />
     <ClCompile Include="main8.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
