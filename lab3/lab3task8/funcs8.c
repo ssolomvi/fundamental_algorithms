@@ -147,7 +147,7 @@ char to_lower(char ch)
 read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tree* bin_tree)
 {
 	char ch = 0, * lexeme = NULL, * tmp = NULL;
-	size_t size = 16, actual_size = 0, i, size_of_current_node_lexeme = 0;
+	size_t size = 16, actual_size = 0, size_of_current_node_lexeme = 0;
 	int compare_respond = 0, turn = 0; // turn is a flag, showing which subtree in bintree is a subtree to insert new lexeme
 
 	if (!(lexeme = (char*)malloc(sizeof(char) * size))) {
@@ -371,14 +371,15 @@ typedef struct find_min_max_str {
 
 int compare_lexemes_min_max(char* lex1, char* lex2)
 {
-	size_t lex1_len = strlen(lex1), lex2_len = strlen(lex2), res_comp_chars = 0;
+	size_t lex1_len = strlen(lex1), lex2_len = strlen(lex2);
+	int res_comp_chars = 0;
 	if (lex1_len != lex2_len)
 		return lex1_len - lex2_len;
 
 	int i;
 	for (i = 0; i < lex1_len; i++) {
 		if (res_comp_chars = to_lower(lex1[i]) - to_lower(lex2[i])) {
-			return -res_comp_chars;
+			return (-res_comp_chars);
 		}
 	}
 	return 0;
@@ -399,12 +400,8 @@ int define_min_max(binary_tree_node* node, void* structure)
 			my_str->min = node->lexeme;
 		}
 	}
+	return 1;
 }
-
-typedef enum find_min_max_statuses {
-	find_min_max_tree_is_empty,
-	find_min_max_ok
-} find_min_max_statuses;
 
 find_min_max_statuses find_min_max(binary_tree tree)
 {

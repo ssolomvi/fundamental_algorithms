@@ -9,8 +9,8 @@
 typedef struct binary_tree_node {
 	char* lexeme;
 	size_t count_occured;
-	struct tree_node* left;
-	struct tree_node* right;
+	struct binary_tree_node* left;
+	struct binary_tree_node* right;
 } binary_tree_node;
 
 typedef struct binary_tree {
