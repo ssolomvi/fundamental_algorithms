@@ -6,6 +6,11 @@ int is_lexeme_char(char ch)
 	return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '-'));
 }
 
+int is_first_letter_in_lexeme(char ch)
+{
+	return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
+}
+
 void init_prefix_tree_node(prefix_tree_node** init)
 {
 	(*init)->allocated = 0;
@@ -19,7 +24,7 @@ void init_binary_tree_node(binary_tree_node** init)
 	(*init)->count_occured = 0;
 	(*init)->left = NULL;
 	(*init)->right = NULL;
-	(*init)->lexeme = NULL;
+	// (*init)->lexeme = NULL;
 }
 
 prefix_tree_statuses init_prefix_tree(prefix_tree* pref_tree)
@@ -133,6 +138,11 @@ int compare_lexemes(char* first, char* second, size_t second_size)
 	return 0;
 }
 
+char to_lower(char ch)
+{
+	return ((ch >= 'A' && ch <= 'Z') ? ch - ' ' : ch);
+}
+
 read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tree* bin_tree)
 {
 	char ch = 0, * lexeme = NULL, * tmp = NULL;
@@ -145,9 +155,9 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 		return read_lexeme_malloc_error;
 	}
 
-	while (!is_lexeme_char((ch = fgetc(stream))) && ch != EOF);
+	while (!is_first_letter_in_lexeme((ch = fgetc(stream))) && ch != EOF);
 
-	if (!is_lexeme_char(ch)) {
+	if (!is_first_letter_in_lexeme(ch)) {
 		free(lexeme);
 		return read_lexeme_eof_reached;
 	}
@@ -161,7 +171,7 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 	if (bin_tree->root)
 		size_of_current_node_lexeme = strlen(current_bin_node->lexeme);
 
-	while (is_lexeme_char((ch = fgetc(stream)))) {
+	do {
 		if (actual_size >= size - 1) {
 			size *= 2;
 			if (!(tmp = (char*)realloc(lexeme, sizeof(char) * size))) {
@@ -174,7 +184,7 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 		}
 
 		// make a new node in the prefix tree is needed, get address of a tree with last read symbol as a key
-		pref_statuses = insert_into_prefix_tree(&current_prefix_node, ch, &node_with_key);
+		pref_statuses = insert_into_prefix_tree(&current_prefix_node, to_lower(ch), &node_with_key);
 		if (pref_statuses != pref_ok) {
 			delete_binary_tree(&(bin_tree->root));
 			delete_prefix_tree(&(pref_tree->root));
@@ -187,8 +197,10 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 				return read_lexeme_realloc_error;
 			}
 		}
+
 		current_prefix_node = node_with_key;
 		node_with_key = NULL;
+		lexeme[actual_size++] = ch;
 
 		// we start with binary tree uninitialized (root IS nullptr)
 		if (current_bin_node) {
@@ -218,7 +230,7 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 				}
 			}
 		}
-	}
+	} while (is_lexeme_char((ch = fgetc(stream))));
 
 	lexeme[actual_size] = '\0';
 
@@ -252,9 +264,6 @@ read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_b
 {
 	if (!stream)
 		return read_in_binary_tree_incorrect_ptr_to_file;
-
-	if (my_bin_tree)
-		return read_in_binary_tree_incorrect_ptr_to_tree;
 
 	prefix_tree my_prefix_tree;
 	prefix_tree_statuses prefix_tree_s = -1;

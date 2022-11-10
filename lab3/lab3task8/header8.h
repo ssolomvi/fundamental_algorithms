@@ -41,7 +41,6 @@ typedef enum binary_tree_statuses {
 
 typedef enum read_in_binary_tree_statuses {
 	read_in_binary_tree_incorrect_ptr_to_file,
-	read_in_binary_tree_incorrect_ptr_to_tree,
 	read_in_binary_tree_malloc_error,
 	read_in_binary_tree_realloc_error,
 	read_in_binary_tree_ok,
@@ -56,5 +55,6 @@ typedef enum read_lexeme_statuses {
 
 void delete_binary_tree(binary_tree_node** bin);
 void delete_prefix_tree(prefix_tree_node** pref);
+read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_bin_tree);
 
 #endif // !HEADER_8
