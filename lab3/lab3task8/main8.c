@@ -35,25 +35,7 @@ int main(int argc, char** argv)
 			break;
 		}
 	}
-	
 
-	/*
-	- times_met
-	read string, find it in binary tree, return count_occurance
-
-	- first n elements the most often used
-	read n, make an array of n elements, make sure count of elements in binary tree is >= n; 
-	while detour the binary tree, compare with min
-
-	- find the biggest and the smallest lexeme
-	compare by 1. length 2. lexico
-
-	- recursive search in depth
-	easy
-
-	- save in file / read from file (the same struct) (straight order ? )
-	root - left - right ? 
-	*/
 
 	delete_binary_tree(&(bin_tree.root));
 	return 0;

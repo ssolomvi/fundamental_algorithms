@@ -57,4 +57,13 @@ void delete_binary_tree(binary_tree_node** bin);
 void delete_prefix_tree(prefix_tree_node** pref);
 read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_bin_tree);
 
+typedef enum find_min_max_statuses {
+	find_min_max_tree_is_empty,
+	find_min_max_ok
+} find_min_max_statuses;
+
+find_min_max_statuses find_min_max(binary_tree tree);
+
+void bin_tree_detour_in_depth(binary_tree_node* node, void* structure, int traverse(binary_tree_node*, void*));
+
 #endif // !HEADER_8
