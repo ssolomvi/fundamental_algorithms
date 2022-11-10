@@ -9,8 +9,8 @@
 typedef struct binary_tree_node {
 	char* lexeme;
 	size_t count_occured;
-	struct tree_node* left;
-	struct tree_node* right;
+	struct binary_tree_node* left;
+	struct binary_tree_node* right;
 } binary_tree_node;
 
 typedef struct binary_tree {
@@ -41,7 +41,6 @@ typedef enum binary_tree_statuses {
 
 typedef enum read_in_binary_tree_statuses {
 	read_in_binary_tree_incorrect_ptr_to_file,
-	read_in_binary_tree_incorrect_ptr_to_tree,
 	read_in_binary_tree_malloc_error,
 	read_in_binary_tree_realloc_error,
 	read_in_binary_tree_ok,
@@ -56,5 +55,15 @@ typedef enum read_lexeme_statuses {
 
 void delete_binary_tree(binary_tree_node** bin);
 void delete_prefix_tree(prefix_tree_node** pref);
+read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_bin_tree);
+
+typedef enum find_min_max_statuses {
+	find_min_max_tree_is_empty,
+	find_min_max_ok
+} find_min_max_statuses;
+
+find_min_max_statuses find_min_max(binary_tree tree);
+
+void bin_tree_detour_in_depth(binary_tree_node* node, void* structure, int traverse(binary_tree_node*, void*));
 
 #endif // !HEADER_8
