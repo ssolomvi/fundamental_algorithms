@@ -106,7 +106,7 @@ string create_string(FILE* stream, size_t to_allocate, char divider)
 		return new_str;
 	}
 
-	while ((ch = fgetc(stream)) != divider) {
+	while ((ch = fgetc(stream)) != divider && ch != EOF) {
 		if (actual_size >= size - 1) {
 			size *= 2;
 			if (!(tmp = (char*)realloc(new_str.str, sizeof(char) * size))) {
