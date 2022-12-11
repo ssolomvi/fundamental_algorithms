@@ -1,10 +1,9 @@
+#ifndef HEADER_9
 #define _CRT_SECURE_NO_WARNINGS
 
-#ifndef HEADER_9
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "string6.h"
 
 typedef struct data {
@@ -12,14 +11,22 @@ typedef struct data {
 	int priority;
 } T;
 
-typedef struct doubly_linked_list {
-	T* data;
-	struct doubly_linked_list* next;
-	struct doubly_linked_list* prev;
-} doubl_list;
+typedef struct container {
+	T data;
+	long bytes_read;
+	int is_read;
+} container;
 
-typedef struct binary_heap {
-	int a;
-} bin_heap;
+typedef enum read_argv_statuses {
+	read_argv_error_readind_data_prior,
+	read_argv_error_readind_data_text,
+	read_argv_malloc_error,
+	read_argv_incorrect_arr_ptr,
+	read_argv_ok
+} read_argv_statuses;
 
-# endif // HEADER_9
+read_argv_statuses read_argv(int argc, char** argv, container** arr, size_t* allocated);
+void free_container_arr(container** arr, size_t* allocated);
+
+
+#endif // !HEADER_9

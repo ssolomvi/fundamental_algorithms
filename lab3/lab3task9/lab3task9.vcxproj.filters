@@ -18,19 +18,39 @@
     <ClCompile Include="main9.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="funcs9.c">
+    <ClCompile Include="dbl_list_funcs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="string6.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="funcs9.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header9.h">
+    <ClInclude Include="dbl_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="string6.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bin_heap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="header9.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
