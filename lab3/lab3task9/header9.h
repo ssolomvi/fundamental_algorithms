@@ -27,6 +27,8 @@ typedef enum read_argv_statuses {
 
 read_argv_statuses read_argv(int argc, char** argv, container** arr, size_t* allocated);
 void free_container_arr(container** arr, size_t* allocated);
-
+int compare_prior(T* first, T* second);
+int make_new_T(FILE* fi, int priority, T** to_create);
+void print_T(FILE* stream, T* data);
 
 #endif // !HEADER_9

@@ -27,6 +27,9 @@
     <ClCompile Include="funcs9.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bin_heap_funcs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbl_list.h">

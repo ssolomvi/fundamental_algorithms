@@ -11,17 +11,6 @@ void free_container_arr(container** arr, size_t* allocated)
 	(*allocated) = 0;
 }
 
-void free_T_arr(T** arr, size_t* allocated)
-{
-	size_t i;
-	for (i = 0; i < (*allocated); i++) {
-		delete_string(&(*arr)[i].text);
-	}
-	free(*arr);
-	(*arr) = NULL;
-	(*allocated) = 0;
-}
-
 read_argv_statuses read_argv(int argc, char** argv, container** arr, size_t* allocated)
 {
 	if (*arr) {
@@ -69,6 +58,34 @@ read_argv_statuses read_argv(int argc, char** argv, container** arr, size_t* all
 	}
 	return read_argv_ok;
 }
+
+int compare_prior(T* first, T* second)
+{
+	return first->priority - second->priority;
+}
+
+int make_new_T(FILE* fi, int priority, T** to_create)
+{
+	if (!((*to_create) = (T*)malloc(sizeof(T)))) {
+		return -1;
+	}
+
+	(*to_create)->text = create_string(fi, 0, '\n');
+	if ((*to_create)->text.length == 0) {
+		delete_string(&(*to_create)->text);
+		(*to_create) = NULL;
+		return -2;  // file read
+	}
+
+	(*to_create)->priority = priority;
+	return 0;
+}
+
+void print_T(FILE* stream, T* data)
+{
+	fprintf(stream, "Priority: %d\n%s\n\n", data->priority, data->text.str);
+}
+
 
 /*
 read_argv_statuses read_argv(int argc, char** argv, T** arr, size_t* allocated)

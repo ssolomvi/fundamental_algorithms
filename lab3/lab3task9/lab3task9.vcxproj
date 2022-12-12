@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bin_heap_funcs.c" />
     <ClCompile Include="dbl_list_funcs.c" />
     <ClCompile Include="funcs9.c" />
     <ClCompile Include="main9.c" />

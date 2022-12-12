@@ -22,7 +22,7 @@ typedef enum read_from_file_dbl_list_statuses {
 	read_from_file_dbl_list_ok
 } read_from_file_dbl_list_statuses;
 
-void extract_n_print(FILE* stream, dbl_list* list);
 read_from_file_dbl_list_statuses read_from_file_dbl_list(dbl_list* list, container* input_arguments, size_t count_of_files);
+void extract_n_print_dbl_list(FILE* stream, dbl_list* list);
 
 # endif // DBL_LIST
