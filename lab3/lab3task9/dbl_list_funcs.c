@@ -31,11 +31,6 @@ dbl_list_statuses init_dbl_list(dbl_list* list, T* data)
 	return dbl_list_ok;
 }
 
-int compare_dbl_prior(T* first, T* second)
-{
-	return first->priority - second->priority;
-}
-
 dbl_list_statuses insert_dbl_list(dbl_list* list, T* data, int compare(T*, T*))
 {
 	if (!list->head) {
@@ -145,23 +140,6 @@ dbl_elem* exctract_max_dbl_list(dbl_list* list)
 	return to_return;
 }
 
-int make_new_T(FILE* fi, int priority, T** to_create)
-{
-	if (!((*to_create) = (T*)malloc(sizeof(T)))) {
-		return -1;
-	}
-
-	(*to_create)->text = create_string(fi, 0, '\n');
-	if ((*to_create)->text.length == 0) {
-		delete_string(&(*to_create)->text);
-		(*to_create) = NULL;
-		return -2;  // file read
-	}
-
-	(*to_create)->priority = priority;
-	return 0;
-}
-
 read_from_file_dbl_list_statuses read_from_file_dbl_list(dbl_list* list, container* input_arguments, size_t count_of_files)
 {
 	FILE* curr_fi = NULL;
@@ -171,8 +149,13 @@ read_from_file_dbl_list_statuses read_from_file_dbl_list(dbl_list* list, contain
 	dbl_list_statuses dbl_list_s = 1;
 
 	while (count_of_read_files != count_of_files) {
-		if (input_arguments[curr_reading_number].is_read)
+		if (input_arguments[curr_reading_number].is_read) {
+			curr_reading_number++;
+			if (curr_reading_number == count_of_files) {
+				curr_reading_number = 0;
+			}
 			continue;
+		}
 
 		if (!(curr_fi = fopen(input_arguments[curr_reading_number].data.text.str, "r"))) {
 			delete_dbl_list(list);
@@ -199,7 +182,7 @@ read_from_file_dbl_list_statuses read_from_file_dbl_list(dbl_list* list, contain
 			continue;
 		}
 
-		if ((dbl_list_s = insert_dbl_list(list, new_T, compare_dbl_prior)) == dbl_list_malloc_error) {
+		if ((dbl_list_s = insert_dbl_list(list, new_T, compare_prior)) == dbl_list_malloc_error) {
 			delete_string(&(new_T->text));
 			delete_dbl_list(list);
 			return read_from_file_dbl_list_malloc_error;
@@ -219,12 +202,7 @@ read_from_file_dbl_list_statuses read_from_file_dbl_list(dbl_list* list, contain
 	return read_from_file_dbl_list_ok;
 }
 
-void print_T(FILE* stream, T* data)
-{
-	fprintf(stream, "Priority: %d\n%s\n\n", data->priority, data->text.str);
-}
-
-void extract_n_print(FILE* stream, dbl_list* list)
+void extract_n_print_dbl_list(FILE* stream, dbl_list* list)
 {
 	if (!(list->head))
 		return;
