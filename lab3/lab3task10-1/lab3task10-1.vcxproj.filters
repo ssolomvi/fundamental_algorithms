@@ -15,23 +15,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main10.c">
+    <ClCompile Include="main10-1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tree10.c">
+    <ClCompile Include="tree10-1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tree10.h">
+    <ClInclude Include="tree10-1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="1.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="out.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

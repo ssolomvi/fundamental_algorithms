@@ -144,6 +144,13 @@ char to_lower(char ch)
 	return ((ch >= 'A' && ch <= 'Z') ? ch + ' ' : ch);
 }
 
+/// <summary>
+/// Function which reads lexeme from file and while reading forms prefix tree and finds place to insert a (new) node in binary tree
+/// </summary>
+/// <param name="stream">- stream from where to read</param>
+/// <param name="pref_tree">- prefix tree to build / append</param>
+/// <param name="bin_tree">- binary tree to build / append</param>
+/// <returns>read_lexeme_statuses</returns>
 read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tree* bin_tree)
 {
 	char ch = 0, * lexeme = NULL, * tmp = NULL;
@@ -249,6 +256,7 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 
 	lexeme[actual_size] = '\0';
 
+	// Finding place for insertion in biinary tree (or updating count of occurance)
 	if (!(*bin_tree).root) {
 		if (!((*bin_tree).root = (binary_tree_node*)malloc(sizeof(binary_tree_node)))) {
 			delete_binary_tree(&(bin_tree->root));
@@ -333,12 +341,13 @@ read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_b
 
 void delete_binary_tree(binary_tree_node** bin)
 {
-	if (!(*bin))
+	if ((*bin) == NULL)
 		return;
-	delete_binary_tree((*bin)->left);
-	delete_binary_tree((*bin)->right);
+	delete_binary_tree(&((*bin)->left));
+	delete_binary_tree(&((*bin)->right));
 
 	free((*bin)->lexeme);
+	free(*bin);
 }
 
 void delete_prefix_tree(prefix_tree_node** pref)
@@ -572,17 +581,14 @@ find_n_most_often_statuses find_n_most_often(binary_tree tree, int n, char*** le
 }
 # pragma endregion
 
-typedef enum put_in_file_statuses {
-	put_in_file_incorrect_ptr_to_file,
-	put_in_file_tree_is_empty,
-	put_in_file_ok
-} put_in_file_statuses;
-
 int print_lexemas(binary_tree_node* node, void* stream)
 {
-	FILE* my_file_ptr = (FILE*)stream;
-	fprintf(my_file_ptr, "%s ", node->lexeme);
-	return 0;
+	FILE* my_file_ptr = ((FILE*)stream);
+	unsigned i;
+	for (i = 0; i < node->count_occured; i++) {
+		fprintf(my_file_ptr, "%s ", node->lexeme);
+	}
+	return 1;
 }
 
 put_in_file_statuses put_in_file(FILE* stream, binary_tree my_tree)
@@ -625,24 +631,28 @@ void print_bin_tree_node(FILE* stream, binary_tree_node* root, trunk* prev, char
 	}
 	
 	new_trunk->prev = prev;
-	strcpy(new_trunk->lexeme, prev->lexeme);
+	if (prev)
+		strcpy(new_trunk->lexeme, prev->lexeme);
+	else {
+		strcpy(new_trunk->lexeme, prev_str);
+	}
 	
 	print_bin_tree_node(stream, root->right, new_trunk, 1);
 
 	if (!prev) {
-		strcpy(new_trunk->lexeme, "———");
+		strcpy(new_trunk->lexeme, "---");
 	}
 	else if (isLeft) {
-		strcpy(new_trunk->lexeme, ".———");
+		strcpy(new_trunk->lexeme, ".---");
 		prev_str = "   |";
 	}
 	else {
-		strcpy(new_trunk->lexeme, "`———");
+		strcpy(new_trunk->lexeme, "'---");
 		strcpy(prev->lexeme, prev_str);
 	}
 
 	show_trunks(stream, new_trunk);
-	fprintf(stream, " %s\n", root->lexeme);
+	fprintf(stream, " %s (%Iu)\n", root->lexeme, root->count_occured);
 
 	if (prev) {
 		strcpy(prev->lexeme, prev_str);

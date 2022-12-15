@@ -10,7 +10,7 @@ typedef struct tree_node {
 	struct tree_node* first_child; // ptr to the first child, which is connected to others as linked list
 	struct tree_node* parent;
 	struct tree_node* next;
-	struct tree_node* prev; 
+	struct tree_node* prev;
 } tree_node;
 
 typedef struct general_tree {

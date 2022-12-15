@@ -53,8 +53,24 @@ typedef enum read_lexeme_statuses {
 	read_lexeme_ok
 } read_lexeme_statuses;
 
+/// <summary>
+/// Recursively deletes binary tree
+/// </summary>
+/// <param name="bin">- initially, root of binary tree</param>
 void delete_binary_tree(binary_tree_node** bin);
+
+/// <summary>
+/// Recursively deletes prefix tree
+/// </summary>
+/// <param name="pref">- initially null(top) element of prefix tree</param>
 void delete_prefix_tree(prefix_tree_node** pref);
+
+/// <summary>
+/// Initializes prefix tree, handles respondes from function read_lexeme, results with built binary tree
+/// </summary>
+/// <param name="stream">- stream from where to read</param>
+/// <param name="my_bin_tree">- binary tree to build</param>
+/// <returns>read_in_binary_tree_statuses</returns>
 read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_bin_tree);
 
 typedef enum find_min_max_statuses {
@@ -65,5 +81,20 @@ typedef enum find_min_max_statuses {
 find_min_max_statuses find_min_max(binary_tree tree);
 
 void bin_tree_detour_in_depth(binary_tree_node* node, void* structure, int traverse(binary_tree_node*, void*));
+
+typedef enum put_in_file_statuses {
+	put_in_file_incorrect_ptr_to_file,
+	put_in_file_tree_is_empty,
+	put_in_file_ok
+} put_in_file_statuses;
+
+put_in_file_statuses put_in_file(FILE* stream, binary_tree my_tree);
+
+/// <summary>
+/// Prints BINARY tree (with its structure)
+/// </summary>
+/// <param name="stream">- the output stream</param>
+/// <param name="tree">- binary tree to print</param>
+void print_bin_tree(FILE* stream, binary_tree tree);
 
 #endif // !HEADER_8
