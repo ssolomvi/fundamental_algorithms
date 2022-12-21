@@ -1,38 +1,40 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#ifndef HEADER_4
-#pragma once
+#ifndef ARRAY_4
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
-#include "array4.h"
+typedef enum funcs_statuses {
+	funcs_incorrect_ptr_to_array_passed,
+	funcs_open_file_error,
+	funcs_command_error,
+	funcs_incorrect_ptr_to_file_passed,
+	funcs_error_index,
+	funcs_empty_arr,
+	funcs_malloc_error,
+	funcs_realloc_error,
+	funcs_ok
+} funcs_statuses;
 
-typedef enum commands {
-	load_command,
-	save_command,
-	rand_command,
-	concat_command,
-	free_command,
-	remove_command,
-	copy_command,
-	sort_command,
-	shuffle_command,
-	stats_command,
-	print_command,
-	exit_command,
-	not_a_command,
-} commands;
+typedef struct long_long_array {
+	long long* array;
+	size_t count;
+} long_long_array;
 
-commands find_command(char* str, size_t* length, unsigned* num_of_array);
+funcs_statuses load(FILE* in, long_long_array* arr);
+funcs_statuses save(FILE* out, long_long_array* arr);
+funcs_statuses load_rand(long_long_array* arr, size_t count, int lb, int lr);
+funcs_statuses concat(long_long_array* A, long_long_array* B);
+void delete_long_long_array(long_long_array* arr);
+funcs_statuses remove_from_arr(long_long_array* arr, size_t start_index, size_t count_to_del);
+funcs_statuses copy(long_long_array* A, size_t start_ind, size_t end_ind, long_long_array* B);
+void sort(long_long_array* arr, int funct(void*, void*));
+int compare_non_decreasing(void* first, void* second);
+int compare_non_increasing(void* first, void* second);
+void shuffle(long_long_array* arr);
+int stats(FILE* stream, long_long_array* arr);
+funcs_statuses print_from_to(FILE* stream, long_long_array arr, size_t start_ind, size_t end_ind);
 
-funcs_statuses do_load_command(char* input, size_t len, long_long_array* array);
-funcs_statuses do_save_command(char* input, size_t len, long_long_array* array);
-funcs_statuses do_rand_command(char* input, size_t len, long_long_array* array);
-funcs_statuses do_concat_command(char* input, size_t len, long_long_array* arrays);
-funcs_statuses do_free_command(char* input, size_t len, long_long_array* arrays);
-funcs_statuses do_remove_command(char* input, size_t len, long_long_array* array);
-funcs_statuses do_copy_command(char* input, size_t len, long_long_array* arrays);
-funcs_statuses do_sort_command(char* input, size_t len, long_long_array* array);
-funcs_statuses do_shuffle_command(long_long_array* array);
-funcs_statuses do_stats_command(long_long_array* array);
-funcs_statuses do_print_command(char* input, size_t len, long_long_array* array);
-
-#endif // !HEADER_4
+#endif // !ARRAY_4
