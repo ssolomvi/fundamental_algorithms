@@ -1,4 +1,4 @@
-#include "tree10.h"
+#include "tree10-1.h"
 
 void delete_tree(tree_node* node)
 {
@@ -27,7 +27,7 @@ insert_node_statuses insert_as_first_child(tree_node* parent_node, char to_inser
 	parent_node->first_child->parent = parent_node;
 	parent_node->first_child->next = NULL;
 	parent_node->first_child->prev = NULL;
-	
+
 	return insert_node_ok;
 }
 
@@ -42,7 +42,7 @@ insert_node_statuses insert_as_sibling(tree_node* sibling, char to_insert)
 	sibling->next->parent = sibling->parent;
 	sibling->next->next = NULL;
 	sibling->next->prev = sibling;
-	
+
 	return insert_node_ok;
 }
 
@@ -61,7 +61,7 @@ build_general_tree_statuses build_general_tree(char* bracket_expr, general_tree*
 	if (!(tree->root = (tree_node*)malloc(sizeof(tree_node)))) {
 		return build_general_tree_malloc_error;
 	}
-	
+
 	tree->root->key = *bracket_expr;
 	tree->root->first_child = NULL;
 	tree->root->parent = NULL;
@@ -69,7 +69,7 @@ build_general_tree_statuses build_general_tree(char* bracket_expr, general_tree*
 	tree->root->prev = NULL;
 
 	curr_node = tree->root;
-	
+
 	for (i; i < len_bracket_expr; i++) {
 		curr_ch = bracket_expr[i];
 		switch (curr_ch)
@@ -122,7 +122,7 @@ int read_string(FILE* stream, char** new_str, int* file_ended)
 		}
 
 		(*new_str)[act_size++] = ch;
- 	}
+	}
 
 	if (!(tmp = (char*)realloc((*new_str), sizeof(char) * (act_size + 1)))) {
 		free(*new_str);
@@ -150,7 +150,7 @@ void print_node(FILE* stream, tree_node* curr_node, unsigned int curr_depth)
 	if (curr_node->first_child) {
 		print_node(stream, curr_node->first_child, curr_depth + 1);
 	}
-	
+
 	unsigned int i;
 	for (i = 0; i < curr_depth; i++) {
 		fprintf(stream, "      ");
@@ -167,7 +167,7 @@ void print_node(FILE* stream, tree_node* curr_node, unsigned int curr_depth)
 int print_general_tree(FILE* stream, general_tree tree, char* bracket_expr)
 {
 	unsigned int curr_depth = 0;
-	
+
 	fprintf(stream, "=================================================\n");
 	fprintf(stream, "Below if the general tree for bracket expression:\n%s\n\n", bracket_expr);
 	print_node(stream, tree.root, 0);

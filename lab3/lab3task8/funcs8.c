@@ -144,6 +144,13 @@ char to_lower(char ch)
 	return ((ch >= 'A' && ch <= 'Z') ? ch + ' ' : ch);
 }
 
+/// <summary>
+/// Function which reads lexeme from file and while reading forms prefix tree and finds place to insert a (new) node in binary tree
+/// </summary>
+/// <param name="stream">- stream from where to read</param>
+/// <param name="pref_tree">- prefix tree to build / append</param>
+/// <param name="bin_tree">- binary tree to build / append</param>
+/// <returns>read_lexeme_statuses</returns>
 read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tree* bin_tree)
 {
 	char ch = 0, * lexeme = NULL, * tmp = NULL;
@@ -249,6 +256,7 @@ read_lexeme_statuses read_lexeme(FILE* stream, prefix_tree* pref_tree, binary_tr
 
 	lexeme[actual_size] = '\0';
 
+	// Finding place for insertion in biinary tree (or updating count of occurance)
 	if (!(*bin_tree).root) {
 		if (!((*bin_tree).root = (binary_tree_node*)malloc(sizeof(binary_tree_node)))) {
 			delete_binary_tree(&(bin_tree->root));
@@ -333,12 +341,13 @@ read_in_binary_tree_statuses read_in_binary_tree(FILE* stream, binary_tree* my_b
 
 void delete_binary_tree(binary_tree_node** bin)
 {
-	if (!(*bin))
+	if ((*bin) == NULL)
 		return;
-	delete_binary_tree((*bin)->left);
-	delete_binary_tree((*bin)->right);
+	delete_binary_tree(&((*bin)->left));
+	delete_binary_tree(&((*bin)->right));
 
 	free((*bin)->lexeme);
+	free(*bin);
 }
 
 void delete_prefix_tree(prefix_tree_node** pref)
@@ -363,26 +372,119 @@ void bin_tree_detour_in_depth(binary_tree_node* node, void* structure, int trave
 	bin_tree_detour_in_depth(node->right, structure, traverse);
 }
 
-# pragma region find min and max lexemes in tree
-typedef struct find_min_max_str {
-	char* max;
-	char* min;
-} find_min_max_str;
+# pragma region find first n elements the most often used
+typedef struct lin_list_elem {
+	binary_tree_node* node;
+	struct lin_list_elem* next;
+} lin_list_elem;
 
-int compare_lexemes_min_max(char* lex1, char* lex2)
+typedef struct lin_list {
+	lin_list_elem* top;
+	unsigned count;
+} lin_list;
+
+typedef struct often_used_str {
+	int n, processed;  // processed -- count of processed nodes
+	lin_list list;
+} often_used_str;
+
+int define_most_often(binary_tree_node* node, void* struc)
 {
-	size_t lex1_len = strlen(lex1), lex2_len = strlen(lex2);
-	int res_comp_chars = 0;
-	if (lex1_len != lex2_len)
-		return lex1_len - lex2_len;
+	if (!node)
+		return;
+	often_used_str* my_struct = ((often_used_str*)struc);
+	lin_list_elem* tmp = NULL, *new_elem = NULL;
 
-	int i;
-	for (i = 0; i < lex1_len; i++) {
-		if (res_comp_chars = to_lower(lex1[i]) - to_lower(lex2[i])) {
-			return (-res_comp_chars);
+	// if structure is not fullfilled
+	if (my_struct->n > my_struct->processed) {
+		if (!(new_elem = (lin_list_elem*)malloc(sizeof(lin_list_elem)))) {
+			return 0;
+		}
+		new_elem->node = node;
+
+		my_struct->list.count = 1;
+
+		if (!my_struct->list.top) {
+			my_struct->list.top = new_elem;
+			my_struct->list.top->next = NULL;
+			return 1;
+		}
+
+		tmp = my_struct->list.top;
+
+		while (tmp->next != NULL) {
+			tmp = tmp->next;
+		}
+
+		tmp->next = new_elem;
+		new_elem->next = NULL;
+		my_struct->list.count++;
+	}
+	// if structure is filled
+	else {
+		tmp = my_struct->list.top;
+		while (tmp) {
+			if (tmp->node->count_occured < node->count_occured) {
+				tmp->node = node;
+				return 1;
+			}
+			tmp = tmp->next;
 		}
 	}
-	return 0;
+	my_struct->processed++;
+}
+
+void delete_lin_list(lin_list* list)
+{
+	lin_list_elem* tmp = NULL, * ptr = list->top;
+	
+	while (ptr) {
+		tmp = ptr;
+		ptr = ptr->next;
+		free(tmp);
+	}
+}
+
+find_n_most_often_statuses find_n_often(binary_tree tree, char*** lexemes, unsigned int* processed, unsigned int n)
+{
+	if (!tree.root)
+		return find_n_most_often_tree_is_empty;
+	
+	often_used_str my_struct;
+	my_struct.list.top = NULL;
+	my_struct.list.count = 0;
+	my_struct.n = n;
+	my_struct.processed = 0;
+
+	bin_tree_detour_in_depth(tree.root, &my_struct, define_most_often);
+
+	if (my_struct.processed < n) {
+		delete_lin_list(&(my_struct.list));
+		(*processed) = my_struct.processed;
+		return find_n_most_often_count_of_elements_is_less;
+	}
+
+	if (!((*lexemes) = (char**)malloc(sizeof(char*) * n))) {
+		return find_n_most_often_malloc_error;
+	}
+
+	unsigned i;
+	lin_list_elem* tmp = my_struct.list.top;
+
+	for (i = 0; i < n && tmp != NULL; i++) {
+		(*lexemes)[i] = tmp->node->lexeme;
+		tmp = tmp->next;
+	}
+	delete_lin_list(&(my_struct.list));
+
+	return find_n_most_often_ok;
+}
+#pragma endregion
+
+# pragma region find min and max lexemes in tree
+int compare_lexemes_min_max(char* lex1, char* lex2)
+{
+	return strcmp(lex1, lex2);
 }
 
 int define_min_max(binary_tree_node* node, void* structure)
@@ -393,25 +495,24 @@ int define_min_max(binary_tree_node* node, void* structure)
 		my_str->min = node->lexeme;
 	}
 	else {
-		if (compare_lexemes_min_max(my_str->max, node->lexeme) > 0) {
+		if (compare_lexemes_min_max(my_str->max, node->lexeme) < 0) {
 			my_str->max = node->lexeme;
 		}
-		if (compare_lexemes_min_max(my_str->min, node->lexeme) < 0) {
+		if (compare_lexemes_min_max(my_str->min, node->lexeme) > 0) {
 			my_str->min = node->lexeme;
 		}
 	}
 	return 1;
 }
 
-find_min_max_statuses find_min_max(binary_tree tree)
+find_min_max_statuses find_min_max(binary_tree tree, find_min_max_str* structure)
 {
-	find_min_max_str structure;
-	structure.max = NULL;
-	structure.min = NULL;
+	structure->max = NULL;
+	structure->min = NULL;
 
-	bin_tree_detour_in_depth(tree.root, &structure, define_min_max);
+	bin_tree_detour_in_depth(tree.root, structure, define_min_max);
 
-	if (!structure.max)
+	if (!structure->max)
 		return find_min_max_tree_is_empty;
 
 	return find_min_max_ok;
@@ -420,169 +521,40 @@ find_min_max_statuses find_min_max(binary_tree tree)
 # pragma endregion
 
 # pragma region find how many times a certain lexeme occures
-typedef struct times_met_str {
-	char* to_find;
-	size_t count_occured;
-} times_met_str;
-
 int define_times_met(binary_tree_node* node, void* structure)
 {
 	times_met_str* my_str = (times_met_str*)structure;
-	if (!strcmp(node->lexeme, my_str->to_find)) {
+
+	if (!strcmp(node->lexeme, ((char*)my_str->to_find))) {
 		my_str->count_occured = node->count_occured;
-		return 0;
+		return 1;
 	}
 	return -1;
 }
 
-typedef enum find_times_met_statuses {
-	find_times_met_no_such_word,
-	find_times_met_ok
-} find_times_met_statuses;
-
-find_times_met_statuses find_times_met(binary_tree* tree, char* to_find)
+find_times_met_statuses find_times_met(binary_tree* tree, char* to_find, times_met_str* structure)
 {
 	if (!tree->root)
 		return find_times_met_no_such_word;
-	times_met_str structure;
-	structure.count_occured = 0;
-	structure.to_find = to_find;
+	structure->count_occured = 0;
+	structure->to_find = to_find;
 
-	bin_tree_detour_in_depth(tree->root, &structure, define_times_met);
-	if (!structure.count_occured)
+	bin_tree_detour_in_depth(tree->root, structure, define_times_met);
+	if (structure->count_occured == 0)
 		return find_times_met_no_such_word;
 	return find_times_met_ok;
 }
 
 # pragma endregion
 
-# pragma region find first n elements the most often used
-typedef struct often_used_str {
-	int n, processed;  // processed -- count of processed nodes
-	binary_tree_node** nodes;
-} often_used_str;
-
-typedef enum find_n_most_often_statuses {
-	find_n_most_often_malloc_error,
-	find_n_most_often_count_of_elements_is_less,
-	find_n_most_often_incorrect_ptr_to_lexeme,
-	find_n_most_often_ok
-} find_n_most_often_statuses;
-
-// if index found, such word is already in an array, nearest is index of first element < than to_find key
-void bin_search_in_array(binary_tree_node** array, int count, binary_tree_node* to_find, int* index, int* nearest)
-{
-	(*nearest) = -1;
-	char start = 0, end = count - 1, middle = 0, current_key = 0;
-	while (start <= end) {
-		middle = floor((start + (float)end) / 2);
-		if ((current_key = array[middle]->count_occured) < to_find->count_occured) {
-			start = middle + 1;
-			if ((*nearest) == -1) // we need the first element which is less than to_find key
-				(*nearest) = middle;
-		}
-		else if (current_key > to_find->count_occured) {
-			end = middle - 1;
-		}
-		else if (!strcmp(to_find->lexeme, array[middle]->lexeme)) {
-			(*index) = middle;
-			return;
-		}
-	}
-	(*index) = -1;
-}
-
-void move_elements_in_array(int start, binary_tree_node** array, int count)
-{
-	binary_tree_node* tmp = NULL;
-	int i;
-	for (i = count - 1; i > start + 1; i--) {
-		array[i] = array[i - 1];
-	}
-}
-
-int define_n_most_often(binary_tree_node* node, void* structure)
-{
-	often_used_str* my_str = (often_used_str*)structure;
-	int index = -1, nearest = -1;
-
-	if (my_str->n > my_str->processed) {	// array is not fullfilled
-		bin_search_in_array(my_str->nodes, my_str->processed, node, &index, &nearest);
-		if (index == -1 && nearest != -1) { 
-			move_elements_in_array(nearest, my_str->nodes, my_str->processed);
-			my_str->nodes[nearest] = node;
-		}
-	}
-	else {									// array is filled, and there's another key to check
-		bin_search_in_array(my_str->nodes, my_str->n, node, &index, &nearest);
-		if (index == -1 && nearest != -1) {
-			move_elements_in_array(nearest, my_str->nodes, my_str->n);
-			my_str->nodes[nearest] = node;
-		}
-	}
-	my_str->processed++;
-	return 1;
-}
-
-void delete_lexeme_array(char*** lexemes, int n)
-{
-	int i;
-	for (i = 0; i < n; i++) {
-		free((*lexemes)[i]);
-	}
-	free(*lexemes);
-	(*lexemes) = NULL;
-}
-
-find_n_most_often_statuses find_n_most_often(binary_tree tree, int n, char*** lexemes, int* processed)
-{
-	(*processed) = 0;
-	if (*lexemes)
-		return find_n_most_often_incorrect_ptr_to_lexeme;
-	
-	(*lexemes) = (char**)malloc(sizeof(char*) * n);
-	binary_tree_node** nodes = (binary_tree_node**)malloc(sizeof(binary_tree_node*) * n);
-	if (!nodes || !(*lexemes))
-		return find_n_most_often_malloc_error;
-
-	often_used_str structure;
-	structure.n = n;
-	structure.nodes = nodes;
-	structure.processed = (*processed);
-
-	bin_tree_detour_in_depth(tree.root, &structure, define_n_most_often);
-	(*processed) = structure.processed;
-	if (structure.processed < n) {
-		free(nodes);
-		free(*lexemes);
-		return find_n_most_often_count_of_elements_is_less;
-	}
-
-	int i;
-	for (i = 0; i < n; i++) {
-		if (!((*lexemes)[i] = (char*)malloc(sizeof(char) * (strlen(nodes[i]->lexeme) + 1)))) {
-			delete_lexeme_array(lexemes, i);
-			free(nodes);
-			return find_n_most_often_malloc_error;
-		}
-		strcpy((*lexemes)[i], nodes[i]->lexeme);
-	}
-	free(nodes);
-	return find_n_most_often_ok;
-}
-# pragma endregion
-
-typedef enum put_in_file_statuses {
-	put_in_file_incorrect_ptr_to_file,
-	put_in_file_tree_is_empty,
-	put_in_file_ok
-} put_in_file_statuses;
-
 int print_lexemas(binary_tree_node* node, void* stream)
 {
-	FILE* my_file_ptr = (FILE*)stream;
-	fprintf(my_file_ptr, "%s ", node->lexeme);
-	return 0;
+	FILE* my_file_ptr = ((FILE*)stream);
+	unsigned i;
+	for (i = 0; i < node->count_occured; i++) {
+		fprintf(my_file_ptr, "%s ", node->lexeme);
+	}
+	return 1;
 }
 
 put_in_file_statuses put_in_file(FILE* stream, binary_tree my_tree)
@@ -614,40 +586,44 @@ void print_bin_tree_node(FILE* stream, binary_tree_node* root, trunk* prev, char
 {
 	if (!root)
 		return;
-	char* prev_str = "    ";
+	char* prev_str = "       ";
 	trunk* new_trunk = (trunk*)malloc(sizeof(trunk)); 
 	if (!new_trunk)
 		return;
-	new_trunk->lexeme = (char*)malloc(sizeof(char) * 5);
+	new_trunk->lexeme = (char*)malloc(sizeof(char) * 8);
 	if (!new_trunk->lexeme) {
 		free(new_trunk);
 		return;
 	}
 	
 	new_trunk->prev = prev;
-	strcpy(new_trunk->lexeme, prev->lexeme);
+	if (prev)
+		strcpy(new_trunk->lexeme, prev->lexeme);
+	else {
+		strcpy(new_trunk->lexeme, prev_str);
+	}
 	
 	print_bin_tree_node(stream, root->right, new_trunk, 1);
 
 	if (!prev) {
-		strcpy(new_trunk->lexeme, "———");
+		strcpy(new_trunk->lexeme, "-------");
 	}
 	else if (isLeft) {
-		strcpy(new_trunk->lexeme, ".———");
-		prev_str = "   |";
+		strcpy(new_trunk->lexeme, ".------");
+		prev_str = "      |";
 	}
 	else {
-		strcpy(new_trunk->lexeme, "`———");
+		strcpy(new_trunk->lexeme, "'------");
 		strcpy(prev->lexeme, prev_str);
 	}
 
 	show_trunks(stream, new_trunk);
-	fprintf(stream, " %s\n", root->lexeme);
+	fprintf(stream, " %s (%Iu)\n", root->lexeme, root->count_occured);
 
 	if (prev) {
 		strcpy(prev->lexeme, prev_str);
 	}
-	strcpy(new_trunk->lexeme, "   |");
+	strcpy(new_trunk->lexeme, "      |");
 	print_bin_tree_node(stream, root->left, new_trunk, 0);
 	free(new_trunk->lexeme);
 	free(new_trunk);
