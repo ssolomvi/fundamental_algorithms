@@ -18,11 +18,19 @@
     <ClCompile Include="main4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="array4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="array4.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
     <ClCompile Include="funcs4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="header4.h">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header4.h">
       <Filter>Header Files</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>

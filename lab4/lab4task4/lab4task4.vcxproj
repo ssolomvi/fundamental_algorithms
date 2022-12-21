@@ -127,9 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="array4.c" />
+    <ClCompile Include="array4.h" />
     <ClCompile Include="funcs4.c" />
-    <ClCompile Include="header4.h" />
     <ClCompile Include="main4.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header4.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

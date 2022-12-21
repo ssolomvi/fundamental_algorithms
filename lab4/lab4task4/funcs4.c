@@ -1,361 +1,236 @@
 #include "header4.h"
+#include "array4.h"
 
-void delete_long_long_array(long_long_array* arr)
+char to_lower(char ch)
 {
-	free(arr->array);
-	arr->array = NULL;
-	arr->count = 0;
+	return ((ch >= 'A' && ch <= 'Z') ? ch + 32 : ch);
 }
 
-int is_digit(char ch)
+int is_letter(char ch)
 {
-	return ch >= '0' && ch <= '9';
+	return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));
 }
 
-funcs_statuses load(FILE* in, long_long_array* arr)
+unsigned determine_array_index(char ch)
 {
-	if (!in)
-		return funcs_incorrect_ptr_to_file_passed;
-	if (arr->array)
-		return funcs_incorrect_ptr_to_array_passed;
+	return (to_lower(ch) - 'a');
+}
 
-	char ch = 0, prev = 0;
-	long long number = 0, *tmp = NULL;
-	size_t allocated = 16;
-	if (!(arr->array = (long long*)malloc(sizeof(long long) * allocated))) {
-		return funcs_malloc_error;
-	}
-	arr->count = 0;
-
-	while (1) {
-		ch = fgetc(in);
-		// number continuos or starts
-		if (is_digit(ch)) {
-			number *= 10;
-			number += (long long)ch - '0';
+commands find_command(char* str, size_t* length, unsigned* num_of_array)
+{
+	char ar = 0, comm[8] = { 0 };
+	(*length) = strlen(str);
+	unsigned i;
+	for (i = 0; i < (*length) && i < 8; i++) {
+		if (is_letter(str[i])) {
+			comm[i] = to_lower(str[i]);
 		}
-		// number ended
-		else if (is_digit(prev)) {
-			if (arr->count >= allocated) {
-				allocated *= 2;
-				if (!(tmp = (long long*)realloc(arr->array, sizeof(long long) * allocated))) {
-					delete_long_long_array(arr);
-					return funcs_realloc_error;
-				}
-				arr->array = tmp;
-			}
-
-			arr->array[arr->count++] = number;
-			number = 0;
-			
-		}
-		prev = ch;
-		if (ch == EOF)
+		else
 			break;
 	}
+	comm[i] = '\0';
 
-	if (!(tmp = (long long*)realloc(arr->array, sizeof(long long) * arr->count))) {
-		delete_long_long_array(arr);
-		return funcs_realloc_error;
-	}
-	arr->array = tmp;
+	if ((*length) == 4 && !strcmp(comm, "exit"))
+		return exit_command;
 
-	return funcs_ok;
-}
+	if ((*length) <= i + 1)
+		return not_a_command;
 
-funcs_statuses save(FILE* out, long_long_array* arr)
-{
-	if (!out)
-		return funcs_incorrect_ptr_to_file_passed;
+	ar = str[i + 1];
+	if (!(is_letter))
+		return not_a_command;
 
-	if (!(arr->array) || !(arr->count))
-		return funcs_incorrect_ptr_to_array_passed;
-
-	size_t i;
-	for (i = 0; i < arr->count; i++) {
-		fprintf(out, "%lld ", arr->array[i]);
-		if (!(i % 10)) {
-			fputc('\n', out);
-		}
-	}
-
-	return funcs_ok;
-}
-
-long long get_random(int min, int max)
-{
-	return ((long long)rand() % max + min);
-}
-
-funcs_statuses load_rand(long_long_array* arr, size_t count, int lb, int lr)
-{
-	if (arr->array)
-		return funcs_incorrect_ptr_to_array_passed;
-
-	if (!(arr->array = (long long*)malloc(sizeof(long long) * count))) {
-		return funcs_malloc_error;
-	}
-
-	size_t i;
-	for (i = 0; i < count; i++) {
-		arr->array[i] = ((long long)rand() % lr + lb);
-	}
-
-	arr->count = count;
-
-	return funcs_ok;
-}
-
-funcs_statuses concat(long_long_array* A, long_long_array* B)
-{
-	if (!A->count && !B->count)
-		return funcs_ok;
-
-	if (A == B)
-		return funcs_incorrect_ptr_to_array_passed;
-
-	long long* tmp = NULL;
-	if (!(tmp = (long long*)realloc(A->array, sizeof(long long) * (A->count + B->count)))) {
-		delete_long_long_array(A);
-		delete_long_long_array(B);
-		return funcs_realloc_error;
-	}
-
-	size_t i;
-	for (i = 0; i < B->count; i++) {
-		A->array[i + A->count] = B->array[i];
-	}
-
-	return funcs_ok;
-}
-
-funcs_statuses remove_from_arr(long_long_array* arr, size_t start_index, size_t count_to_del)
-{
-	size_t sum = start_index + count_to_del, i;
-	if (sum > count_to_del)
-		return funcs_error_index;
-
-	if (sum != arr->count) {
-		for (i = 0; i < arr->count - sum; i++) {
-			arr->array[start_index + i] = arr->array[sum + i];
-		}
-	}
+	(*num_of_array) = determine_array_index(ar);
 	
-	arr->count -= count_to_del;
-
-	long long* tmp = NULL;
-	if (!(tmp = (long long*)realloc(arr->array, sizeof(long long) * arr->count))) {
-		delete_long_long_array(arr);
-		return funcs_realloc_error;
+	if (!strcmp(comm, "load")) {
+		return load_command;
 	}
-	arr->array = tmp;
+	if (!strcmp(comm, "save")) {
+		return save_command;
+	}
+	if (!strcmp(comm, "rand")) {
+		return rand_command;
+	}
+	if (!strcmp(comm, "concat")) {
+		return concat_command;
+	}
+	if (!strcmp(comm, "free")) {
+		return free_command;
+	}
+	if (!strcmp(comm, "remove")) {
+		return remove_command;
+	}
+	if (!strcmp(comm, "copy")) {
+		return copy_command;
+	}
+	if (!strcmp(comm, "sort")) {
+		return sort_command;
+	}
+	if (!strcmp(comm, "shuffle")) {
+		return shuffle_command;
+	}
+	if (!strcmp(comm, "stats")) {
+		return stats_command;
+	}
+	if (!strcmp(comm, "print")) {
+		return print_command;
+	}
 
-	return funcs_ok;
+	return not_a_command;
 }
 
-funcs_statuses copy(long_long_array* A, size_t start_ind, size_t end_ind, long_long_array* B)
+funcs_statuses do_load_command(char* input, size_t len, long_long_array* array)
 {
-	if (end_ind < start_ind || end_ind >= A->count)
-		return funcs_error_index;
-
-	if (B->array)
-		return funcs_incorrect_ptr_to_array_passed;
-
-	B->count = end_ind - start_ind + 1;
-
-	if (!(B->array = (long long*)malloc(sizeof(long long) * B->count))) {
-		delete_long_long_array(A);
-		return funcs_malloc_error;
-	}
+	char filename[FILENAME_MAX] = { 0 }, tmp = 0;
+	if (len <= 8)
+		return funcs_command_error;
 
 	size_t i, j;
-	for (j = 0, i = start_ind; i <= end_ind; j++, i++) {
-		B->array[j] = A->array[i];
+	for (i = 8, j = 0; i < len; j++, i++) {
+		filename[j] = input[i];
 	}
+	filename[j] = '\0';
 
+	FILE* in = NULL;
+	if (!(in = fopen(filename, "r")))
+		return funcs_open_file_error;
+
+	funcs_statuses funcs_s = load(in, array);
+	fclose(in);
+	return funcs_s;
+}
+
+funcs_statuses do_save_command(char* input, size_t len, long_long_array* array)
+{
+	char filename[FILENAME_MAX] = { 0 }, tmp = 0;
+	if (len <= 8)
+		return funcs_command_error;
+
+	size_t i, j;
+	for (i = 8, j = 0; i < len; j++, i++) {
+		filename[j] = input[i];
+	}
+	filename[j] = '\0';
+
+	FILE* out = NULL;
+	if (!(out = fopen(filename, "w")))
+		return funcs_open_file_error;
+
+	funcs_statuses funcs_s = save(out, array);
+	fclose(out);
+	return funcs_s;
+}
+
+funcs_statuses do_rand_command(char* input, size_t len, long_long_array* array)
+{
+	size_t count = 0;
+	int lb = 0, rb = 0;
+
+	if ((sscanf(input, "%Iu, %d, %d", &count, &lb, &rb)) != 3)
+		return funcs_command_error;
+
+	funcs_statuses funcs_s = load_rand(array, count, lb, rb);
+	return funcs_s;
+}
+
+funcs_statuses do_concat_command(char* input, size_t len, long_long_array* arrays)
+{
+	char first = 0, second = 0, * ptr = input + 7;
+	if ((len <= 9))
+		return funcs_command_error;
+	if (!is_letter((first = input[7])) || !is_letter((second = input[9])))
+		return funcs_command_error;
+
+	funcs_statuses funcs_s = concat(&(arrays[determine_array_index(first)]), &(arrays[determine_array_index(second)]));
+	return funcs_s;
+}
+
+funcs_statuses do_free_command(char* input, size_t len, long_long_array* arrays)
+{
+	char ar = 0;
+	if (len == 7 && to_lower(input[0]) == 'f' && to_lower(input[1]) == 'r' && to_lower(input[2]) == 'e'
+		&& to_lower(input[3]) == 'e') {
+		if (!is_letter((ar = input[5])))
+			return funcs_command_error;
+		delete_long_long_array(&(arrays[determine_array_index(ar)]));
+	}
+	else
+		return funcs_command_error;
 	return funcs_ok;
 }
 
-int compare_non_decreasing(void* first, void* second)
+funcs_statuses do_remove_command(char* input, size_t len, long_long_array* array)
 {
-	return (((long long)first) - ((long long)second));
+	size_t start = 0, end = 0;
+	if ((sscanf(input, "%Iu, %Iu", &start, &end)) != 2)
+		return funcs_command_error;
+
+	funcs_statuses funcs_s = remove_from_arr(array, start, end);
+	return funcs_s;
 }
 
-int compare_non_increasing(void* first, void* second)
+funcs_statuses do_copy_command(char* input, size_t len, long_long_array* arrays)
 {
-	return (((long long)second - (long long)first));
+	size_t start = 0, end = 0;
+	char ar1 = 0, ar2 = 0, * tmp = input + 7;
+
+	if (len <= 12)
+		return funcs_command_error;
+
+	ar1 = input[5];
+
+	if ((sscanf(tmp, "%Iu, %Iu, %c", &start, &end, &ar2)) != 3)
+		return funcs_command_error;
+
+	if (!is_letter(ar1) || !is_letter(ar2))
+		return funcs_command_error;
+
+	funcs_statuses funcs_s = copy(&(arrays[determine_array_index(ar1)]), start, end, &(arrays[determine_array_index(ar2)]));
+	return funcs_s;
 }
 
-void sort(long_long_array* arr, int funct(void*, void*))
+funcs_statuses do_sort_command(char* input, size_t len, long_long_array* array)
 {
-	if (!(arr->array) || arr->count == 0)
-		return;
-	qsort(arr->array, arr->count, sizeof(long long), funct);
-}
+	if (len != 7)
+		return funcs_command_error;
 
-void shuffle(long_long_array* arr)
-{
-	size_t current_index = arr->count, random_index = 0;
-	long long tmp = 0;
-	while (current_index != 0)
-	{
-		random_index = floor(rand() % arr->count);
-		current_index--;
-		tmp = arr->array[current_index];
-		arr->array[current_index] = arr->array[random_index];
-	}
-}
-
-void find_min_max_ind(long_long_array arr, size_t* max_i, size_t* min_i)
-{
-	if (!arr.array || arr.count == 0)
-		return;
-
-	(*max_i) = 0;
-	(*min_i) = 0;
-
-	size_t i;
-	for (i = 0; i < arr.count; i++) {
-		if (arr.array[(*max_i)] < arr.array[i])
-			(*max_i) = i;
-		if (arr.array[(*min_i)] > arr.array[i])
-			(*min_i) = i;
-	}
-}
-
-typedef struct times_met {
-	long long number;
-	size_t occurances;
-} times_met;
-
-int most_often_met(long_long_array arr, long long* elem)
-{
-	if (!arr.array || arr.count == 0)
-		return;
-	size_t allocated = 8, act_size = 1, i, j;
-	times_met* help_arr = (times_met*)malloc(sizeof(times_met) * allocated), * tmp = NULL;
-	if (!help_arr)
-		return -1;
-
-	help_arr[0].number = arr.array[0];
-	help_arr[0].occurances = 1;
-
-	int already_in_flag = 0;
-
-	for (i = 1; i < arr.count; i++) {
-		already_in_flag = 0;
-		for (j = 0; j < act_size; j++) {
-			if (arr.array[i] == help_arr[j].number) {
-				help_arr[j].occurances++;
-				already_in_flag = 1;
-			}
-		}
-		if (!already_in_flag) {
-			if (allocated <= act_size) {
-				allocated *= 2;
-				if (!(tmp = (times_met*)realloc(help_arr, sizeof(times_met) * allocated))) {
-					free(help_arr);
-					return -2;
-				}
-				help_arr = tmp;
-			}
-
-			help_arr[act_size].number = arr.array[i];
-			help_arr[act_size++].occurances = 1;
-		}
-	}
-	
-	times_met max = help_arr[0];
-
-	for (i = 1; i < act_size; i++) {
-		if (help_arr[i].occurances > max.occurances) {
-			if (help_arr[i].number > max.number)
-				max = help_arr[i];
-		}
-	}
-
-	(*elem) = max.number;
-	free(help_arr);
-	return 0;
-}
-
-long long average(long_long_array arr)
-{
-	if (!arr.array || arr.count == 0)
-		return;
-
-	size_t i;
-	long double mult = 1.0 / arr.count, aver_d = 0;
-	for (i = 0; i < arr.count; i++) {
-		aver_d += mult * arr.array[i];
-	}
-	return ((long long)floor(aver_d));
-}
-
-long long abs(long long n)
-{
-	return n >= 0 ? n : -n;
-}
-
-long long deviation(long_long_array arr, long long value)
-{
-	if (!arr.array || arr.count == 0)
-		return;
-
-	size_t i;
-	long long max_deviation = 0, tmp = 0;
-	for (i = 0; i < arr.count; i++) {
-		if ((tmp = abs(value - arr.array[i])) > max_deviation)
-			max_deviation = tmp;
-	}
-	return max_deviation;
-}
-
-int stats(FILE* stream, long_long_array* arr)
-{
-	if (!arr->array || arr->count == 0) {
-		fprintf(stream, "The array is empty\n");
-		return 0;
-	}
-
-	size_t max_elem_ind = 0, min_elem_ind = 0;
-	long long most_often_met_elem = 0, aver_lld = 0;
-
-	fprintf(stream, "Size of array: %Iu\n", arr->count);
-
-	find_min_max_ind(*arr, &max_elem_ind, &min_elem_ind);
-	fprintf(stream, "Indexes and values of:\n");
-	fprintf(stream, "\tmax element: %Iu: %lld\n", max_elem_ind, arr->array[max_elem_ind]);
-	fprintf(stream, "\tmin element: %Iu: %lld\n", min_elem_ind, arr->array[min_elem_ind]);
-	
-	if (most_often_met(*arr, &most_often_met_elem) != 0) {
-		return -1;
-	}
-	fprintf(stream, "Most often met element: %lld\n", most_often_met_elem);
-	
-	aver_lld = average(*arr);
-	fprintf(stream, "Average value of elements: %lld\n", aver_lld);
-	fprintf(stream, "Max deviation from average value: %lld\n", deviation(*arr, aver_lld));
-
-	return 0;
-}
-
-funcs_statuses print_from_to(FILE* stream, long_long_array arr, size_t start_ind, size_t end_ind)
-{
-	if (arr.count == 0) {
-		return funcs_empty_arr;
-	}
-
-	size_t i = 0;
-	
-	if (end_ind < start_ind || end_ind >= arr.count)
-		return funcs_error_index;
-
-	for (i = start_ind; i <= end_ind; i++) {
-		fprintf(stream, "%lld ", arr.array[i]);
-		if (i % 10 == 0)
-			fprintf(stream, "\n");
-	}
-		
+	char ch = input[6];
+	if (ch == '+')
+		sort(array, compare_non_decreasing);
+	else if (ch == '-')
+		sort(array, compare_non_increasing);
+	else
+		return funcs_command_error;
 	return funcs_ok;
+}
+
+funcs_statuses do_shuffle_command(long_long_array* array)
+{
+	shuffle(array);
+}
+
+funcs_statuses do_stats_command(long_long_array* array)
+{
+	if (stats(stdout, array) != 0)
+		return funcs_malloc_error;
+	return funcs_ok;
+}
+
+funcs_statuses do_print_command(char* input, size_t len, long_long_array* array)
+{
+	size_t start = 0, end = 0;
+
+	if ((sscanf(input, "%Iu, %Iu", &start, &end)) != 2) {
+		if (len <= 12)
+			return funcs_command_error;
+		if (to_lower(input[9]) == 'a' && to_lower(input[10] == 'l') && to_lower(input[11]) == 'l') {
+			start = 0;
+			end = array->count - 1;
+		}
+		else {
+			return funcs_command_error;
+		}
+	}
+	funcs_statuses funcs_s = print_from_to(stdout, *array, start, end);
+	return funcs_s;
 }
