@@ -29,6 +29,12 @@
     <Text Include="2.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="1_error.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="2_error.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header5.h">

@@ -68,7 +68,7 @@ funcs_responses push_stack(stack_struct* stack, char ch)
     }
     else {
         new_elem->next = stack->top;
-        stack->top = new_elem->next;
+        stack->top = new_elem;
         stack->count_of_elements++;
     }
 
@@ -89,7 +89,7 @@ void pop_stack(stack_struct* stack)
 void delete_stack(stack_struct* stack)
 {
     while (stack->count_of_elements) {
-        pop_stack(&stack);
+        pop_stack(stack);
     }
 }
 
@@ -129,6 +129,18 @@ funcs_responses shunting_yard(const char* input, char** output)
             }
 
             else if (is_operator(curr_ch)) {
+                if (is_ident(prev_ch)) {
+                    if (allocated_out <= act_size_out) {
+                        allocated_out *= 2;
+                        if (!(tmp = (char*)realloc((*output), sizeof(char) * allocated_out))) {
+                            free(*output);
+                            delete_stack(&stack);
+                            return funcs_realloc_error;
+                        }
+                        (*output) = tmp;
+                    }
+                    (*output)[act_size_out++] = ' ';
+                }
                 while (stack.count_of_elements > 0) {
                     stack_top_op = stack.top->data;
 
@@ -144,7 +156,7 @@ funcs_responses shunting_yard(const char* input, char** output)
                             }
                             (*output) = tmp;
                         }
-                        (*output)[act_size_out++] = curr_ch;
+                        (*output)[act_size_out++] = stack.top->data;
                         pop_stack(&stack);
                     }
                     else {
@@ -187,7 +199,7 @@ funcs_responses shunting_yard(const char* input, char** output)
                             }
                             (*output) = tmp;
                         }
-                        (*output)[act_size_out++] = curr_ch;
+                        (*output)[act_size_out++] = stack.top->data;
 
                         pop_stack(&stack);
                     }
@@ -239,7 +251,7 @@ funcs_responses shunting_yard(const char* input, char** output)
             }
             (*output) = tmp;
         }
-        (*output)[act_size_out++] = curr_ch;
+        (*output)[act_size_out++] = stack.top->data;
         pop_stack(&stack);
     }
 
@@ -342,18 +354,16 @@ funcs_responses calculate_postfix_notation(char* str, double* res)
     for (i = 0; i < str_len; i++) {
         ch = str[i];
         if (is_ident(ch)) {
-            if (prev_ch == 0 || is_ident(prev_ch)) {
-                if (!met_comma) {
-                    number *= 10;
-                    number += to_num(ch);
-                }
-            }
-            else if (prev_ch == ',' || prev_ch == '.') {
+            if (prev_ch == ',' || prev_ch == '.') {
                 met_comma = true;
             }
             if (met_comma) {
                 mult /= 10;
                 number += to_num(ch) * mult;
+            }
+            if (!met_comma) {
+                number *= 10;
+                number += to_num(ch);
             }
         }
         else {
@@ -373,13 +383,14 @@ funcs_responses calculate_postfix_notation(char* str, double* res)
                     return expr_insufficient_count_of_arguments;
                 }
 
-                if (ch == '/' && stack.top->data == 0) {
+                se = pop_from_double_stack(&stack);
+                fi = pop_from_double_stack(&stack);
+
+                if (ch == '/' && se == 0) {
                     delete_double_stack(&stack);
                     return expr_division_by_zero;
                 }
 
-                se = pop_from_double_stack(&stack);
-                fi = pop_from_double_stack(&stack);
                 funcs_s = push_in_double_stack(&stack,
                     perform_operation(ch, fi, se));
                 if (funcs_s == funcs_malloc_error) {

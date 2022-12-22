@@ -1,6 +1,8 @@
 #include "header5.h"
 #define size_of_input 256
 
+// TODO: div by zero hande (not works)
+
 void delete_output_struct_arr(output_struct** arr, unsigned size)
 {
 	unsigned i;
@@ -78,7 +80,7 @@ int main(int argc, char** argv)
 
 	char* filename_error = NULL;
 
-	for (i = 0; i < argc - 1; i++) {
+	for (i = 1; i < argc; i++) {
 		allocated_out = 8; act_size = 0;
 		if (!(in = fopen(argv[i], "r"))) {
 			printf("Open file error\n");
@@ -156,42 +158,44 @@ int main(int argc, char** argv)
 
 
 			// calculate one
-			// TODO delete output if expr 
-			funcs_s = calculate_postfix_notation(output[act_size].output, &res_calculus);
-			if ((handle = handle_responses(funcs_s)) != 0) {
-				fclose(in);
-				delete_output_struct_arr(&output, act_size);
-				free(output[act_size].input);
-				return handle;
-			}
+			if (output[act_size].result != -1) {
+				funcs_s = calculate_postfix_notation(output[act_size].output, &(output[act_size].result));
+				if ((handle = handle_responses(funcs_s)) != 0) {
+					fclose(in);
+					delete_output_struct_arr(&output, act_size);
+					free(output[act_size].input);
+					return handle;
+				}
 
-			if (funcs_s == expr_division_by_zero) {
-				free(output[act_size].output);
-				if (!(output[act_size].output = (char*)malloc(sizeof(char) * 17))) {
-					fclose(in);
-					delete_output_struct_arr(&output, act_size);
-					free(output[act_size].input);
-					handle = handle_responses(funcs_malloc_error);
-					return handle;
+				if (funcs_s == expr_division_by_zero) {
+					free(output[act_size].output);
+					if (!(output[act_size].output = (char*)malloc(sizeof(char) * 17))) {
+						fclose(in);
+						delete_output_struct_arr(&output, act_size);
+						free(output[act_size].input);
+						handle = handle_responses(funcs_malloc_error);
+						return handle;
+					}
+					strcpy(output[act_size].output, "Division by zero");
+					output[act_size].output[16] = '\0';
+					output[act_size].result = -1;
 				}
-				strcpy(output[act_size].output, "Division by zero");
-				output[act_size].output[16] = '\0';
-				output[act_size].result = -1;
-			}
-			else if (funcs_s == expr_insufficient_count_of_arguments) {
-				free(output[act_size].output);
-				if (!(output[act_size].output = (char*)malloc(sizeof(char) * 47))) {
-					fclose(in);
-					delete_output_struct_arr(&output, act_size);
-					free(output[act_size].input);
-					handle = handle_responses(funcs_malloc_error);
-					return handle;
+				else if (funcs_s == expr_insufficient_count_of_arguments) {
+					free(output[act_size].output);
+					if (!(output[act_size].output = (char*)malloc(sizeof(char) * 47))) {
+						fclose(in);
+						delete_output_struct_arr(&output, act_size);
+						free(output[act_size].input);
+						handle = handle_responses(funcs_malloc_error);
+						return handle;
+					}
+					strcpy(output[act_size].output, "Insufficient number of arguments in expression");
+					output[act_size].output[46] = '\0';
+					output[act_size].result = -1;
 				}
-				strcpy(output[act_size].output, "Insufficient number of arguments in expression");
-				output[act_size].output[46] = '\0';
-				output[act_size].result = -1;
 			}
 			
+			act_size++;
 		}
 		// print to stdout / file
 		funcs_s = make_error_filename(argv[i], &(filename_error));
@@ -206,7 +210,7 @@ int main(int argc, char** argv)
 			return -2;
 		}
 
-		printf("===== Below are results for file %s =====", argv[i]);
+		printf("===== Below are results for file %s =====\n", argv[i]);
 
 		for (j = 0; j < act_size; j++) {
 			if (!strcmp("Parentheses mismatched", output[j].output) ||
@@ -214,12 +218,13 @@ int main(int argc, char** argv)
 				!strcmp("Division by zero", output[j].output) ||
 				!strcmp("Empty string passed", output[j].output) ||
 				!strcmp("Insufficient number of arguments in expression", output[j].output)) {
-				printf("[] %s\n   %s\n", output[j].input, output[j].output);
+				fprintf(error_out, "[%u] %s\n    %s\n", j, output[j].input, output[j].output);
 			}
 			else {
-				printf("[] %s\n   %s\n   %lf\n", output[j].input, output[j].output, output[j].result);
+				printf("[%u] %s\n    %s\n    %lf\n", j, output[j].input, output[j].output, output[j].result);
 			}
 		}
+		printf("\n\n");
 
 
 		delete_output_struct_arr(&output, act_size);
