@@ -1,7 +1,6 @@
 #include "header5.h"
+#include <time.h>
 #define size_of_input 256
-
-// TODO: div by zero hande (not works)
 
 void delete_output_struct_arr(output_struct** arr, unsigned size)
 {
@@ -41,7 +40,7 @@ funcs_responses make_error_filename(char* initial, char** error)
 	if (!((*error) = (char*)malloc(sizeof(char) * (str_len + 7)))) {
 		return funcs_malloc_error;
 	}
-
+	srand(time(NULL));
 	for (i = 0; i < str_len; i++) {
 		if (initial[i] == '.')
 			break;
