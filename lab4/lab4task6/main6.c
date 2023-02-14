@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-// let input in this functon be 100% true
 int op_prior(char* str)
 {
     switch (*str)
@@ -26,7 +25,6 @@ int op_prior(char* str)
     return 0;
 }
 
-// not sure it is needed
 bool op_left_assoc(char* c)
 {
     switch (*c)

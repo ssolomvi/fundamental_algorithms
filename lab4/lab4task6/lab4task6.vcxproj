@@ -127,7 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="funcs6.c" />
     <ClCompile Include="main6.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header6.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
