@@ -1,0 +1,12 @@
+{
+  "streams": [
+    {
+      "stream": "console",
+      "severity": "critical"
+    },
+    {
+      "stream": "1.txt",
+      "severity": "information"
+    }
+  ]
+}
