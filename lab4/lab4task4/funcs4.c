@@ -98,7 +98,7 @@ funcs_statuses load_rand(long_long_array* arr, size_t count, int lb, int lr)
 
 	size_t i;
 	for (i = 0; i < count; i++) {
-		arr->array[i] = ((long long)rand() % lr + lb);
+		arr->array[i] = ((long long)rand() % (lr - lb) + lb);
 	}
 
 	arr->count = count;
