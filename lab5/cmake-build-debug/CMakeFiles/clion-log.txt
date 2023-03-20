@@ -1,0 +1,9 @@
+"C:\Program Files\JetBrains\CLion 2022.1.3\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2022.1.3/bin/ninja/win/ninja.exe" -G Ninja -S C:\fund-algths\lab5 -B C:\fund-algths\lab5\cmake-build-debug
+CMake Error at CMakeLists.txt:6 (add_executable):
+  The target name "lab5task2/memory_from_global_heap.h" is reserved or not
+  valid for certain CMake features, such as generator expressions, and may
+  result in undefined behavior.
+
+
+-- Configuring incomplete, errors occurred!
+See also "C:/fund-algths/lab5/cmake-build-debug/CMakeFiles/CMakeOutput.log".
