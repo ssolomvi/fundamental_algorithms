@@ -14,9 +14,9 @@ public:
     void *allocate(size_t target_size) const override;
     void deallocate(void const * const target_to_dealloc) const override;
 
-    static size_t get_occupied_block_size(void * const ptr_to_block);
-    void dump_occupied_block_before_deallocate(void * const current_block_address) override;
-
+    size_t get_occupied_block_size(void * const occupied_block) const override;
+    // static size_t get_occupied_block_size(void * const ptr_to_block);
+    void dump_occupied_block_before_deallocate(void * const current_block_address) const override;
 };
 
 std::map< void *, size_t > memory_from_global_heap::_allocated_blocks = std::map< void *, size_t > ();
@@ -55,6 +55,8 @@ void *memory_from_global_heap::allocate(size_t target_size) const {
 void memory_from_global_heap::deallocate(const void *const target_to_dealloc) const {
     this->log_with_guard("memory_from_global_heap::deallocate method execution started", Logger::Severity::trace);
 
+    dump_occupied_block_before_deallocate(const_cast<void *>(target_to_dealloc));
+
     std::string address = address_to_hex(target_to_dealloc);
     memory_from_global_heap::_allocated_blocks.erase(const_cast<void *>(target_to_dealloc));
 
@@ -64,13 +66,14 @@ void memory_from_global_heap::deallocate(const void *const target_to_dealloc) co
         ->log_with_guard("memory_from_global_heap::deallocate method execution finished", Logger::Severity::trace);
 }
 
-size_t memory_from_global_heap::get_occupied_block_size(void *const ptr) {
-    return memory_from_global_heap::_allocated_blocks.find(ptr)->second;
+size_t memory_from_global_heap::get_occupied_block_size(void *const occupied_block) const {
+    return memory_from_global_heap::_allocated_blocks.find(occupied_block)->second;
 }
 
-void memory_from_global_heap::dump_occupied_block_before_deallocate(void *const current_block_address) {
-    dump_occupied_block_before_deallocate_initial(current_block_address,
-                                                  get_occupied_block_size);
+void memory_from_global_heap::dump_occupied_block_before_deallocate(void *const current_block_address) const {
+    dump_occupied_block_before_deallocate_initial(current_block_address, get_occupied_block_size);
 }
+
+
 
 #endif //MEMORY_FROM_GLOBAL_HEAP_H

@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <exception>
-#include "C:\yandex\json_parser\vcpkg\installed\x86-windows\include\rapidjson\document.h"
-#include "C:\yandex\json_parser\vcpkg\installed\x86-windows\include\rapidjson\istreamwrapper.h"
+#include "../rapidjson/document.h"
+#include "../rapidjson/istreamwrapper.h"
 
 #include <fstream>
 #include <map>
@@ -98,6 +98,9 @@ public:
 class Logger_impl : public Logger
 {
 private:
+    std::map<std::string, Severity> this_logger_streams;
+    static std::map<std::string, std::pair<std::ofstream*, size_t> > _all_loggers_streams;
+
     explicit Logger_impl(std::map<std::string, Severity> const & info_to_construct_from)
             : this_logger_streams(info_to_construct_from)
     {
@@ -118,8 +121,6 @@ private:
         }
     }
 
-    std::map<std::string, Severity> this_logger_streams;
-    static std::map<std::string, std::pair<std::ofstream*, size_t> > _all_loggers_streams;
 public:
     Logger_impl(Logger_impl const& log) = delete;        // copying
     Logger_impl& operator=(Logger_impl const&) = delete; // assignment

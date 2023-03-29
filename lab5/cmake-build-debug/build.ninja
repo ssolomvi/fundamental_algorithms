@@ -41,49 +41,55 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = C$:/fund-algths/lab5/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target Memory.h
+# Object build statements for EXECUTABLE target lab5
 
 
 #############################################
-# Order-only phony target for Memory.h
+# Order-only phony target for lab5
 
-build cmake_object_order_depends_target_Memory.h: phony || CMakeFiles/Memory.h.dir
+build cmake_object_order_depends_target_lab5: phony || CMakeFiles/lab5.dir
 
-build CMakeFiles/Memory.h.dir/Memory.cpp.obj: CXX_COMPILER__Memory.2eh_Debug C$:/fund-algths/lab5/Memory.cpp || cmake_object_order_depends_target_Memory.h
-  DEP_FILE = CMakeFiles\Memory.h.dir\Memory.cpp.obj.d
+build CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task2/memory_from_global_heap_showcase.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\lab5task2\memory_from_global_heap_showcase.cpp.obj.d
   FLAGS = -g -std=gnu++20
-  OBJECT_DIR = CMakeFiles\Memory.h.dir
-  OBJECT_FILE_DIR = CMakeFiles\Memory.h.dir
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task2
 
-build CMakeFiles/Memory.h.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj: CXX_COMPILER__Memory.2eh_Debug C$:/fund-algths/lab5/lab5task2/memory_from_global_heap_showcase.cpp || cmake_object_order_depends_target_Memory.h
-  DEP_FILE = CMakeFiles\Memory.h.dir\lab5task2\memory_from_global_heap_showcase.cpp.obj.d
+build CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/Memory_base_class.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\Memory_base_class.cpp.obj.d
   FLAGS = -g -std=gnu++20
-  OBJECT_DIR = CMakeFiles\Memory.h.dir
-  OBJECT_FILE_DIR = CMakeFiles\Memory.h.dir\lab5task2
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
 
-build CMakeFiles/Memory.h.dir/base_classes/Memory.cpp.obj: CXX_COMPILER__Memory.2eh_Debug C$:/fund-algths/lab5/base_classes/Memory.cpp || cmake_object_order_depends_target_Memory.h
-  DEP_FILE = CMakeFiles\Memory.h.dir\base_classes\Memory.cpp.obj.d
+build CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task3/memory_with_sorted_list_deallocation.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\lab5task3\memory_with_sorted_list_deallocation.cpp.obj.d
   FLAGS = -g -std=gnu++20
-  OBJECT_DIR = CMakeFiles\Memory.h.dir
-  OBJECT_FILE_DIR = CMakeFiles\Memory.h.dir\base_classes
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task3
+
+build CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task4/memory_with_boundary_tags.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\lab5task4\memory_with_boundary_tags.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task4
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target Memory.h
+# Link build statements for EXECUTABLE target lab5
 
 
 #############################################
-# Link the executable Memory.h.exe
+# Link the executable lab5.exe
 
-build Memory.h.exe: CXX_EXECUTABLE_LINKER__Memory.2eh_Debug CMakeFiles/Memory.h.dir/Memory.cpp.obj CMakeFiles/Memory.h.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj CMakeFiles/Memory.h.dir/base_classes/Memory.cpp.obj
+build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\Memory.h.dir
+  OBJECT_DIR = CMakeFiles\lab5.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = Memory.h.exe
-  TARGET_IMPLIB = libMemory.h.dll.a
-  TARGET_PDB = Memory.h.exe.dbg
+  TARGET_FILE = lab5.exe
+  TARGET_IMPLIB = liblab5.dll.a
+  TARGET_PDB = lab5.exe.dbg
 
 
 #############################################
@@ -111,7 +117,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build Memory.h: phony Memory.h.exe
+build lab5: phony lab5.exe
 
 # =============================================================================
 # Folder targets.
@@ -121,7 +127,7 @@ build Memory.h: phony Memory.h.exe
 #############################################
 # Folder: C:/fund-algths/lab5/cmake-build-debug
 
-build all: phony Memory.h.exe
+build all: phony lab5.exe
 
 # =============================================================================
 # Built-in targets

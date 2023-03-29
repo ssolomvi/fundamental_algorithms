@@ -49,4 +49,8 @@ void Memory::dump_occupied_block_before_deallocate_initial(void *const current_b
                          Logger::Severity::trace);
 }
 
+Memory::Allocation_strategy Memory::get_allocation_mode() const {
+    return this->allocationStrategy;
+}
+
 
