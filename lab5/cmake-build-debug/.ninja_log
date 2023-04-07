@@ -1,6 +1,11 @@
 # ninja log v5
 1	2125	7010266287047259	CMakeFiles/Memory.cpp.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj	1e88fa0505619e18
+0	1497	7021494369386662	CMakeFiles/lab5.dir/lab5task1/logger_showcase.cpp.obj	d3b5b9958901f125
 13	2059	7010272331253171	CMakeFiles/Memory.h.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj	c966428b3c008cb
+1	2593	7020627148124055	CMakeFiles/lab5.dir/lab5task1/logger.cpp.obj	160dafe6ce436561
 5	1881	7010272329475550	CMakeFiles/Memory.h.dir/Memory.cpp.obj	9a0e922241697736
-12	1680	7012935035390798	CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj	45d1fffefee2b19
-4	1803	7012935036499763	CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj	570cdb7aff6df8f0
+4	1737	7021450014115887	CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj	45d1fffefee2b19
+4	1727	7021454962906419	CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj	570cdb7aff6df8f0
+39	2759	7020707056807894	CMakeFiles/lab5.dir/lab5task5/memory_with_buddy_system.cpp.obj	cef04fdef0fb67ee
+13	1823	7021454963857168	CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap.cpp.obj	dd7bc08d94852795
+1500	1727	7021494371598365	lab5.exe	e28dfa2d903fa063

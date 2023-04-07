@@ -1,7 +1,7 @@
 #include <iostream>
 #include <exception>
-#include "C:\yandex\json_parser\vcpkg\installed\x86-windows\include\rapidjson\document.h"
-#include "C:\yandex\json_parser\vcpkg\installed\x86-windows\include\rapidjson\istreamwrapper.h"
+#include ".../rapidjson/document.h"
+#include ".../rapidjson/istreamwrapper.h"
 
 #include <fstream>
 #include <map>

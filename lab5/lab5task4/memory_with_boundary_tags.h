@@ -3,29 +3,39 @@
 
 #include "../base_classes/Memory_base_class.h"
 
+/* structure of occupied memory block:
+        size_t size;
+        void *next, *prev;
+   available blocks do not store any metadata
+ */
+
 class memory_with_boundary_tags final : public Memory
 {
 private:
+#pragma region Allocator properties
+    size_t get_allocator_service_block_size() const override;
+#pragma endregion
+
+#pragma region Occupied block methods
     void * get_first_occupied_block_address() const override;
     void ** get_first_occupied_block_address_address() const override;
 
-    size_t get_occupied_block_size_of_block(void * memory_block) const override;
+    size_t get_occupied_block_service_block_size() const override;
+    size_t get_occupied_block_size(void * memory_block) const override;
+    size_t get_size_of_occupied_block_pool(void * const occupied_block) const override;
+
     void * get_next_occupied_block_address(void * memory_block) const override;
     void * get_previous_occupied_block_address(void * memory_block) const override;
+#pragma endregion
 
-    size_t get_occupied_block_service_block_size() const override;
-
-    size_t get_occupied_block_size(void * const occupied_block) const override;
-
-public:
-    memory_with_boundary_tags(size_t & size, Memory * parent_allocator);
+    public:
+    memory_with_boundary_tags(size_t & size, Memory::Allocation_strategy, Logger*, Memory * parent_allocator);
     memory_with_boundary_tags(memory_with_boundary_tags const&) = delete;
     memory_with_boundary_tags& operator=(memory_with_boundary_tags const&) = delete;
     ~memory_with_boundary_tags();
 
     void *allocate(size_t target_size) const override;
     void deallocate(void const * const target_to_dealloc) const override;
-    void dump_occupied_block_before_deallocate(void * const current_block_address) const override;
 };
 
 

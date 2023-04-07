@@ -13,8 +13,7 @@ int main() {
     Logger *log2;
     logger_builder *builder2 = new logger_builder_impl();
     try {
-        log2 = builder2->config_from_json("C:/yandex/json_parser/1.json");
-//        log2 = config_from_json("1.json");
+        log2 = builder2->config_from_json("C:/fund-algths/lab5/lab5task1/1.json");
     }
     catch (const std::exception& e) {
         std::cerr << "Caught: " << e.what() << std::endl;

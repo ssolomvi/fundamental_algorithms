@@ -1,5 +1,81 @@
 #include "memory_with_sorted_list_deallocation.h"
 
+#pragma region Allocator properties
+size_t memory_with_sorted_list_deallocation::get_allocator_service_block_size() const {
+    return sizeof(size_t) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *) + sizeof(Memory::Allocation_strategy);
+}
+#pragma endregion
+
+#pragma region Available block methods
+void *memory_with_sorted_list_deallocation::get_first_available_block_address() const
+{
+    return *get_ptr_to_ptr_to_pool_start();
+}
+
+void **memory_with_sorted_list_deallocation::get_first_available_block_address_address() const {
+    return get_ptr_to_ptr_to_pool_start();
+}
+
+size_t memory_with_sorted_list_deallocation::get_available_block_service_block_size() const
+{
+    return (sizeof(void *) + sizeof(size_t));
+}
+
+size_t memory_with_sorted_list_deallocation::get_available_block_size(void *memory_block) const
+{
+    return *reinterpret_cast<size_t *>(memory_block);
+}
+
+void *memory_with_sorted_list_deallocation::get_next_available_block_address(void *memory_block) const {
+    return *reinterpret_cast<void **>(reinterpret_cast<unsigned char *>(memory_block) + sizeof(size_t));
+}
+#pragma endregion
+
+#pragma region Occupied block methods
+size_t memory_with_sorted_list_deallocation::get_occupied_block_service_block_size() const {
+    return sizeof(size_t);
+}
+
+size_t memory_with_sorted_list_deallocation::get_size_of_occupied_block_pool(void *const occupied_block) const {
+    return *(reinterpret_cast<size_t *>(occupied_block) - sizeof(size_t));
+}
+#pragma endregion
+
+memory_with_sorted_list_deallocation::memory_with_sorted_list_deallocation(
+        size_t size,
+        Memory::Allocation_strategy mode,
+        Logger * logger,
+        Memory * parent_allocator)
+{
+
+    size_t size_with_service_size = size + get_allocator_service_block_size();
+
+    if (parent_allocator != nullptr) {
+        _ptr_to_allocator_metadata = parent_allocator->allocate(size_with_service_size);
+    } else {
+        _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+    }
+
+    *(get_ptr_size_of_allocator_pool()) = size;
+    *(get_ptr_allocation_mode()) = mode;
+    *(get_ptr_logger_of_allocator()) = logger;
+    *(get_ptr_to_ptr_parent_allocator()) = parent_allocator;
+    *(get_ptr_to_ptr_to_pool_start()) = *reinterpret_cast<void **>(get_ptr_to_ptr_to_pool_start() + 1);
+
+    this->log_with_guard("memory_with_sorted_list_deallocation allocator was constructed",
+                         Logger::Severity::trace);
+}
+
+memory_with_sorted_list_deallocation::~memory_with_sorted_list_deallocation() {
+    this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
+                         Logger::Severity::trace);
+
+    Memory *parent_allocator = *get_ptr_to_ptr_parent_allocator();
+    if (parent_allocator) {
+        parent_allocator->deallocate(this);
+    }
+}
+
 void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     this->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution started",
                          Logger::Severity::trace);
@@ -7,7 +83,7 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     void *previous_block = nullptr, *current_block = get_first_available_block_address();
     void *target_block = nullptr, *previous_to_target_block = nullptr, *next_to_target_block = nullptr;
     auto const available_block_service_block_size = get_available_block_service_block_size();
-    auto const allocation_mode = get_allocation_mode();
+    auto const allocation_mode = *get_ptr_allocation_mode();
 
     while (current_block != nullptr)
     {
@@ -69,15 +145,25 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     else
     {
         updated_next_block_to_previous_block = reinterpret_cast<void *>(reinterpret_cast<unsigned char *>(target_block) +
-                get_occupied_block_service_block_size() + target_size);
-
+                                                                        get_occupied_block_service_block_size() + target_size);
         auto * const target_block_leftover_size = reinterpret_cast<size_t*>(updated_next_block_to_previous_block);
-        // available block size is size of full available block including service part
-        *target_block_leftover_size = get_available_block_size(target_block) - get_occupied_block_service_block_size()
-                - target_size;
 
+        // available block size is size of full available block including service part
+        *target_block_leftover_size = get_available_block_size(target_block)
+                                    - get_occupied_block_service_block_size() - target_size;
         auto * const target_block_leftover_next_block_address = reinterpret_cast<void **>(target_block_leftover_size + 1);
-        *target_block_leftover_next_block_address = next_to_target_block;
+
+        // | target_block | leftover | available | --> merge (leftover, available)
+        if (reinterpret_cast<void *>(reinterpret_cast<char *>(target_block) + get_available_block_size(target_block))
+            == next_to_target_block)
+        {
+            *target_block_leftover_size += get_available_block_size(next_to_target_block);
+            *target_block_leftover_next_block_address = get_next_available_block_address(next_to_target_block);
+        }
+            // | target_block | leftover | occupied |
+        else {
+            *target_block_leftover_next_block_address = next_to_target_block;
+        }
     }
 
     /*
@@ -85,7 +171,7 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
      * else previous to target_block.next address is updated with target_block.next
     */
     previous_to_target_block == nullptr ?
-            *get_first_available_block_address_address() = updated_next_block_to_previous_block :
+            *reinterpret_cast<void **>(get_first_available_block_address_address()) = updated_next_block_to_previous_block :
             *reinterpret_cast<void **>(reinterpret_cast<unsigned char *>(previous_to_target_block) + sizeof(size_t))
             = updated_next_block_to_previous_block;
 
@@ -147,68 +233,4 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
     this->log_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished",
                          Logger::Severity::trace);
 }
-
-void memory_with_sorted_list_deallocation::dump_occupied_block_before_deallocate(void *const current_block_address) const {
-    dump_occupied_block_before_deallocate_initial(current_block_address, get_occupied_block_size);
-}
-
-// returns mem_start
-void *memory_with_sorted_list_deallocation::get_first_available_block_address() const
-{
-    return this->_mem_start;
-}
-
-size_t memory_with_sorted_list_deallocation::get_available_block_service_block_size() const
-{
-    return (sizeof(void *) + sizeof(size_t));
-}
-
-size_t memory_with_sorted_list_deallocation::get_available_block_size(void *memory_block) const
-{
-    return *reinterpret_cast<size_t *>(memory_block);
-}
-
-void *memory_with_sorted_list_deallocation::get_next_available_block_address(void *memory_block) const {
-    return *reinterpret_cast<void **>(reinterpret_cast<unsigned char *>(memory_block) + sizeof(size_t));
-}
-
-size_t memory_with_sorted_list_deallocation::get_occupied_block_service_block_size() const {
-    return sizeof(size_t);
-}
-
-void **memory_with_sorted_list_deallocation::get_first_available_block_address_address() const {
-    return const_cast<void **>(&(this->_mem_start));
-}
-
-/*
-void **memory_with_sorted_list_deallocation::get_first_available_block_address_address() const {
-    return reinterpret_cast<void **>(reinterpret_cast<unsigned char *>(get_first_available_block_address()) + sizeof(size_t));
-}
-*/
-
-size_t memory_with_sorted_list_deallocation::get_occupied_block_size(void *const occupied_block) const {
-    return *(reinterpret_cast<size_t *>(occupied_block) - sizeof(size_t));
-}
-
-// выделили из глобальной кучи, а не из какого-либо аллокатора
-memory_with_sorted_list_deallocation::memory_with_sorted_list_deallocation(size_t & size, Memory * parent_allocator = nullptr)
-{
-    this->_mem_start = this + sizeof(memory_with_sorted_list_deallocation);
-    this->_parent_allocator = parent_allocator;
-    this->_size = size;
-    this->_logger = nullptr;
-
-    this->log_with_guard("memory_with_sorted_list_deallocation allocator was constructed",
-                         Logger::Severity::trace);
-}
-
-memory_with_sorted_list_deallocation::~memory_with_sorted_list_deallocation() {
-    this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
-                         Logger::Severity::trace);
-
-    if (this->_parent_allocator) {
-        _parent_allocator->deallocate(this);
-    }
-}
-
 

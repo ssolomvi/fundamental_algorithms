@@ -1,4 +1,4 @@
-#include "memory_from_global_heap.h"
+#include "memory_with_boundary_tags.h"
 
 int main()
 {
@@ -10,22 +10,22 @@ int main()
             ->with_stream("3.txt", Logger::Severity::critical)
             ->build();
 
-    Memory *global_heap_allocator = new memory_from_global_heap();
-    global_heap_allocator->set_logger(log);
+    Memory *boundary_tags_allocator = new memory_with_boundary_tags
+            (10000, Memory::Allocation_strategy::best_fit, log, nullptr);
+    boundary_tags_allocator->set_logger(log);
 
     int size = 10;
-    int* array = reinterpret_cast<int *>(global_heap_allocator->allocate(sizeof(int) * size));
+    int* array = reinterpret_cast<int *>(boundary_tags_allocator->allocate(sizeof(int) * size));
     for (auto i = 0; i < size; i++) {
         array[i] = size + i;
     }
 
-    //global_heap_allocator->dump_occupied_block_before_deallocate(array);
-    global_heap_allocator->deallocate(array);
+    boundary_tags_allocator->deallocate(array);
     std::cout << "oops =)" << std::endl;
+
 
     delete builder;
     delete log;
-    delete global_heap_allocator;
-
+    delete boundary_tags_allocator;
     return 0;
 }
