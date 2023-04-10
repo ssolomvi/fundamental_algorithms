@@ -14,6 +14,7 @@ class memory_with_boundary_tags final : public Memory
 private:
 #pragma region Allocator properties
     size_t get_allocator_service_block_size() const override;
+    void * get_ptr_to_allocator_trusted_pool() const override;
 #pragma endregion
 
 #pragma region Occupied block methods

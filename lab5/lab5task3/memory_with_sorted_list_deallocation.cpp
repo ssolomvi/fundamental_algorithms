@@ -4,6 +4,11 @@
 size_t memory_with_sorted_list_deallocation::get_allocator_service_block_size() const {
     return sizeof(size_t) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *) + sizeof(Memory::Allocation_strategy);
 }
+
+void * memory_with_sorted_list_deallocation::get_ptr_to_allocator_trusted_pool() const {
+    return *reinterpret_cast<void **>(get_ptr_to_ptr_to_pool_start() + 1);
+}
+
 #pragma endregion
 
 #pragma region Available block methods
@@ -178,7 +183,12 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     auto *target_block_size_address = reinterpret_cast<size_t *>(target_block);
     *target_block_size_address = target_size + get_occupied_block_service_block_size();
 
-    this->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution finished",
+    std::string target_block_address = address_to_hex(reinterpret_cast<void *>(
+            reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
+
+    this->log_with_guard("Memory block with _size = " + std::to_string(target_size) + " was allocated successfully", Logger::Severity::information)
+        ->log_with_guard("Allocated block address: " + target_block_address, Logger::Severity::debug)
+        ->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution finished",
                          Logger::Severity::trace);
 
     return reinterpret_cast<void *>(target_block_size_address + 1);
@@ -193,6 +203,12 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
             reinterpret_cast<void *>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) - sizeof(size_t));
 
     dump_occupied_block_before_deallocate(const_cast<void *>(target_to_dealloc));
+
+    std::string target_to_dealloc_address = address_to_hex(reinterpret_cast<void *>(
+                                                                   reinterpret_cast<char *>(const_cast<void *>(target_to_dealloc)) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
+                                                           ));
+
+    this->log_with_guard("Memory block with address: " + target_to_dealloc_address + " was deallocated successfully", Logger::Severity::information);
 
     void *next_to_current_block, *current_block = get_first_available_block_address();
 
@@ -233,4 +249,3 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
     this->log_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished",
                          Logger::Severity::trace);
 }
-

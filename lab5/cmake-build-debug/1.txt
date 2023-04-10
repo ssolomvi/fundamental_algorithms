@@ -1,2 +1,7 @@
-[ 02/04/2023 17:37:17 ][ information ] information kek from logger1
-[ 02/04/2023 17:37:17 ][ trace ] trace kek from logger1
+<--- [ debug ]  --->
+[ 10/04/2023 12:27:20 ][ information ] Memory block with _size = 40 was allocated successfully
+[ 10/04/2023 12:27:20 ][ debug ] Allocated block address: 0x00000198069137f0
+[ 10/04/2023 12:27:20 ][ information ] Memory block with address: 0x00000198069137f0 was deallocated successfully
+[ 10/04/2023 12:27:20 ][ information ] Memory block with _size = 10 was allocated successfully
+[ 10/04/2023 12:27:20 ][ debug ] Allocated block address: 0x00000198069137f0
+[ 10/04/2023 12:27:20 ][ information ] Memory block with address: 0x00000198069137f0 was deallocated successfully

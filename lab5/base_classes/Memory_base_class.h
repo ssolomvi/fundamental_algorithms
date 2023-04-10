@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MEMORY_BASE_CLASS_H
 #define MEMORY_BASE_CLASS_H
 
@@ -26,8 +25,30 @@ public:
         worst_fit,
     };
 
+    class Memory_exception final : public std::exception
+    {
+    private:
+        std::string _message;
+
+    public:
+        explicit Memory_exception(std::string const & message)
+                : _message(message)
+        {
+
+        }
+
+        char const * what() const noexcept override
+        {
+            return _message.c_str();
+        }
+
+    };
+
+
 protected:
     void *_ptr_to_allocator_metadata;
+    // current_block_address is address of block after metadata.
+    // one must implement get_size_of_occupied_block_pool with this knowledge
     void dump_occupied_block_before_deallocate(void *const current_block_address) const;
 
 #pragma region Allocator properties
@@ -40,18 +61,26 @@ protected:
 */
     virtual size_t get_allocator_service_block_size() const;
 
+    [[nodiscard]] virtual size_t* get_ptr_size_of_allocator_pool() const;
+    [[nodiscard]] virtual Logger** get_ptr_logger_of_allocator() const;
+    [[nodiscard]] virtual Memory** get_ptr_to_ptr_parent_allocator() const;
+    [[nodiscard]] virtual Allocation_strategy* get_ptr_allocation_mode() const;
+    [[nodiscard]] virtual void ** get_ptr_to_ptr_to_pool_start() const;
+    /*
     size_t* get_ptr_size_of_allocator_pool() const;
     Logger** get_ptr_logger_of_allocator() const;
     Memory** get_ptr_to_ptr_parent_allocator() const;
     Allocation_strategy* get_ptr_allocation_mode() const;
     void ** get_ptr_to_ptr_to_pool_start() const;
+*/
+    virtual void * get_ptr_to_allocator_trusted_pool() const;
 #pragma endregion
 
 #pragma region Available block methods
-    virtual void *get_first_available_block_address() const; // get the address of the first available block in allocator
-    virtual void ** get_first_available_block_address_address() const;   // get an address field of the first block available in allocator
+    [[nodiscard]] virtual void *get_first_available_block_address() const; // get the address of the first available block in allocator
+    [[nodiscard]] virtual void ** get_first_available_block_address_address() const;   // get an address field of the first block available in allocator
 
-    virtual size_t get_available_block_service_block_size() const;
+    [[nodiscard]] virtual size_t get_available_block_service_block_size() const;
     virtual size_t get_available_block_size(void * memory_block) const;
     virtual void * get_next_available_block_address(void * memory_block) const;
 #pragma endregion

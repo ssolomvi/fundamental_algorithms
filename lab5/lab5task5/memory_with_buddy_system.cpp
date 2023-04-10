@@ -1,5 +1,82 @@
 #include "memory_with_buddy_system.h"
 
+#pragma region Allocator properties
+size_t memory_with_buddy_system::get_allocator_service_block_size() const {
+    return sizeof(unsigned short) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *);
+}
+
+unsigned short *memory_with_buddy_system::_buddy_system_get_ptr_size_of_allocator_pool() const {
+    return reinterpret_cast<unsigned short *>(_ptr_to_allocator_metadata);
+}
+
+Logger **memory_with_buddy_system::_buddy_system_get_ptr_logger_of_allocator() const {
+    return reinterpret_cast<Logger **>(_buddy_system_get_ptr_size_of_allocator_pool() + 1);
+}
+
+Memory **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_parent_allocator() const {
+    return reinterpret_cast<Memory **>(_buddy_system_get_ptr_logger_of_allocator() + 1);
+}
+
+void **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_to_pool_start() const {
+    return reinterpret_cast<void **>(_buddy_system_get_ptr_to_ptr_parent_allocator() + 1);
+}
+#pragma endregion
+
+#pragma region Buddy system block properties
+bool * memory_with_buddy_system::_buddy_system_is_block_available(void *block) const {
+    return reinterpret_cast<bool *>(block);
+}
+
+unsigned short * memory_with_buddy_system::_buddy_system_get_size_of_block(void *block) const {
+    return reinterpret_cast<unsigned short *>(_buddy_system_is_block_available(block) + 1);
+}
+
+void **memory_with_buddy_system::_buddy_system_get_available_block_address_field(void * block) const {
+    return reinterpret_cast<void **>(_buddy_system_get_size_of_block(block));
+}
+
+void **memory_with_buddy_system::get_ptr_to_buddy(void *block) const {
+    return reinterpret_cast<void **>(
+            reinterpret_cast<size_t>(block) ^ get_number_in_bin_pow(*_buddy_system_get_size_of_block(block)));
+}
+#pragma endregion
+
+#pragma region Available block methods
+void *memory_with_buddy_system::get_first_available_block_address() const {
+    return *_buddy_system_get_ptr_to_ptr_to_pool_start();
+}
+
+size_t memory_with_buddy_system::get_available_block_service_block_size() const {
+    return sizeof(bool) + sizeof(unsigned short) + sizeof(void *);
+}
+
+void *memory_with_buddy_system::get_next_available_block_address(void *memory_block) const {
+    return *reinterpret_cast<void **>(
+            reinterpret_cast<unsigned short *>(
+                    reinterpret_cast<bool *>(memory_block) + 1)
+            + 1);
+}
+#pragma endregion
+
+#pragma region Occupied block methods
+size_t memory_with_buddy_system::get_occupied_block_service_block_size() const {
+    return sizeof(bool) + sizeof(unsigned short);
+}
+
+size_t memory_with_buddy_system::get_size_of_occupied_block_pool(void *const occupied_block) const {
+    return get_number_in_bin_pow(*_buddy_system_get_size_of_block(occupied_block))
+           - get_occupied_block_service_block_size();
+}
+#pragma endregion
+
+size_t memory_with_buddy_system::get_number_in_bin_pow(size_t power) const
+{
+    return 1 << power;
+}
+
+unsigned short memory_with_buddy_system::get_bin_pow_of_number(size_t number) const {
+    return ceil(log2(number));
+}
 
 memory_with_buddy_system::memory_with_buddy_system(
         unsigned short pow,
@@ -20,7 +97,6 @@ memory_with_buddy_system::memory_with_buddy_system(
         _ptr_to_allocator_metadata = ::operator new(size_with_service_block);
     }
 
-    // TODO: redo, as pow is unsigned short, not size_t
     *(_buddy_system_get_ptr_size_of_allocator_pool()) = pow;
     *(_buddy_system_get_ptr_logger_of_allocator()) = logger;
     *(_buddy_system_get_ptr_to_ptr_parent_allocator()) = parent_allocator;
@@ -49,19 +125,15 @@ memory_with_buddy_system::~memory_with_buddy_system()
     }
 }
 
-size_t memory_with_buddy_system::get_number_in_bin_pow(size_t power) const
-{
-    return 1 << power;
-}
-
-// TODO: redo
-size_t memory_with_buddy_system::get_size_of_occupied_block_pool(void *const occupied_block) const {
-    return 0;
-}
-
 void *memory_with_buddy_system::allocate(size_t target_size) const {
+    this->log_with_guard("memory_with_buddy_system::allocate method execution started",
+                         Logger::Severity::trace);
+
     if (!target_size) {
-        // TODO: throw a message, target_size != 0
+        this->log_with_guard("Size of allocated block cannot be 0", Logger::Severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        // TODO: throw a message (?), target_size != 0
+        return nullptr;
     }
 
     unsigned short power_needed = get_bin_pow_of_number(target_size + get_occupied_block_service_block_size()),
@@ -69,7 +141,9 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
                    current_block_power = 0, target_block_power = 0;
 
     if (power_needed > pool_power) {
-        // TODO: throw a message, power_needed <= pool_power
+        this->log_with_guard("No memory available to allocate, allocator pool is less than memory requested", Logger::Severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        throw std::bad_alloc();
     }
 
     void * current_block = get_first_available_block_address(), * previous_to_current_block = nullptr,
@@ -88,7 +162,9 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
     }
 
     if (!target_block) {
-        // TODO: throw a message, appropriate block not found
+        this->log_with_guard("There is no memory available to allocate", Logger::Severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        throw std::bad_alloc();
     }
 
     // delete target_block from list of available blocks
@@ -99,7 +175,6 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
 
     // divide a block until target_block_power != (read: is bigger) power_needed
     void * buddy_to_target_block = nullptr;
-    // TODO: power_needed (target_size + occupied service) might be less than available service
     unsigned short minimum_power = 0, available_service_bin_power = get_bin_pow_of_number(get_available_block_service_block_size());
     power_needed > available_service_bin_power ? minimum_power = power_needed : minimum_power = available_service_bin_power;
 
@@ -117,13 +192,27 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
         next_to_target_block = buddy_to_target_block;
     }
 
+    std::string target_block_address = address_to_hex(reinterpret_cast<void *>(
+            reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
+
+    this->log_with_guard("Memory block with _size = " + std::to_string(get_number_in_bin_pow(target_block_power)) + " was allocated successfully", Logger::Severity::information)
+        ->log_with_guard("Allocated block address: " + target_block_address, Logger::Severity::debug)
+        ->log_with_guard("memory_with_buddy_system::allocate method execution started",
+                         Logger::Severity::trace);
+
     return *reinterpret_cast<void **>(reinterpret_cast<unsigned short *>(reinterpret_cast<bool *>(target_block) + 1) + 1);
 }
 
 void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) const
 {
+    this->log_with_guard("memory_with_buddy_system::deallocate method execution started",
+                         Logger::Severity::trace);
+
     if (!target_to_dealloc) {
-        // TODO: message target_to_dealloc is nullptr
+        this->log_with_guard("Target to deallocate should not be nullptr", Logger::Severity::warning)
+                ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        // TODO: message (?) target_to_dealloc is nullptr
+        return;
     }
 
     // make target_to_dealloc to point to the beginning of the block
@@ -131,6 +220,15 @@ void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) c
             reinterpret_cast<unsigned short *>(
                     reinterpret_cast<bool *>(const_cast<void *>(target_to_dealloc)) - 1
                     ) - 1 );
+
+    // TODO: is dump right?
+    dump_occupied_block_before_deallocate(const_cast<void *>(target_to_dealloc));
+
+    std::string target_to_dealloc_address = address_to_hex(reinterpret_cast<void *>(
+            reinterpret_cast<char *>(const_cast<void *>(target_to_dealloc)) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
+
+    this->log_with_guard("Memory block with address: " + target_to_dealloc_address + " was deallocated successfully", Logger::Severity::information);
+
     *_buddy_system_is_block_available(const_cast<void *>(target_to_dealloc)) = true;
 
     void * new_available_block = const_cast<void *>(target_to_dealloc), * to_delete = nullptr;
@@ -183,66 +281,6 @@ void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) c
         }
     }
 
+    this->log_with_guard("memory_with_buddy_system::deallocate method execution finished",
+                         Logger::Severity::trace);
 }
-
-unsigned short memory_with_buddy_system::get_bin_pow_of_number(size_t number) const {
-    return ceil(log2(number));
-}
-
-unsigned short *memory_with_buddy_system::_buddy_system_get_ptr_size_of_allocator_pool() const {
-    return reinterpret_cast<unsigned short *>(_ptr_to_allocator_metadata);
-}
-
-Logger **memory_with_buddy_system::_buddy_system_get_ptr_logger_of_allocator() const {
-    return reinterpret_cast<Logger **>(_buddy_system_get_ptr_size_of_allocator_pool() + 1);
-}
-
-Memory **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_parent_allocator() const {
-    return reinterpret_cast<Memory **>(_buddy_system_get_ptr_logger_of_allocator() + 1);
-}
-
-void **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_to_pool_start() const {
-    return reinterpret_cast<void **>(_buddy_system_get_ptr_to_ptr_parent_allocator() + 1);
-}
-
-bool * memory_with_buddy_system::_buddy_system_is_block_available(void *block) const {
-    return reinterpret_cast<bool *>(block);
-}
-
-unsigned short * memory_with_buddy_system::_buddy_system_get_size_of_block(void *block) const {
-    return reinterpret_cast<unsigned short *>(_buddy_system_is_block_available(block) + 1);
-}
-
-void **memory_with_buddy_system::_buddy_system_get_available_block_address_field(void * block) const {
-    return reinterpret_cast<void **>(_buddy_system_get_size_of_block(block));
-}
-
-void *memory_with_buddy_system::get_next_available_block_address(void *memory_block) const {
-    return *reinterpret_cast<void **>(
-            reinterpret_cast<unsigned short *>(
-                    reinterpret_cast<bool *>(memory_block) + 1)
-                    + 1);
-}
-
-void *memory_with_buddy_system::get_first_available_block_address() const {
-    return *_buddy_system_get_ptr_to_ptr_to_pool_start();
-}
-
-size_t memory_with_buddy_system::get_allocator_service_block_size() const {
-    return sizeof(unsigned short) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *);
-}
-
-size_t memory_with_buddy_system::get_available_block_service_block_size() const {
-    return sizeof(bool) + sizeof(unsigned short) + sizeof(void *);
-}
-
-size_t memory_with_buddy_system::get_occupied_block_service_block_size() const {
-    return sizeof(bool) + sizeof(unsigned short);
-}
-
-void **memory_with_buddy_system::get_ptr_to_buddy(void *block) const {
-    return reinterpret_cast<void **>(
-            reinterpret_cast<size_t>(block) ^ get_number_in_bin_pow(*_buddy_system_get_size_of_block(block)));
-}
-
-
