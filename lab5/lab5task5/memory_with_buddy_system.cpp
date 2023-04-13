@@ -20,6 +20,10 @@ Memory **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_parent_allocator
 void **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_to_pool_start() const {
     return reinterpret_cast<void **>(_buddy_system_get_ptr_to_ptr_parent_allocator() + 1);
 }
+
+void *memory_with_buddy_system::get_ptr_to_allocator_trusted_pool() const {
+    return reinterpret_cast<void *>(_buddy_system_get_ptr_to_ptr_to_pool_start() + 1);
+}
 #pragma endregion
 
 #pragma region Buddy system block properties
@@ -210,8 +214,7 @@ void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) c
 
     if (!target_to_dealloc) {
         this->log_with_guard("Target to deallocate should not be nullptr", Logger::Severity::warning)
-                ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
-        // TODO: message (?) target_to_dealloc is nullptr
+            ->log_with_guard("memory_with_buddy_system::deallocate method execution finished", Logger::Severity::trace);
         return;
     }
 

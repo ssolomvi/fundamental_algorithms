@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MEMORY_FROM_GLOBAL_HEAP_H
 #define MEMORY_FROM_GLOBAL_HEAP_H
 

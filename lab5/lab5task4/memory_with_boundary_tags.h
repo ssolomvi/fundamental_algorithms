@@ -29,11 +29,12 @@ private:
     void * get_previous_occupied_block_address(void * memory_block) const override;
 #pragma endregion
 
-    public:
-    memory_with_boundary_tags(size_t & size, Memory::Allocation_strategy, Logger*, Memory * parent_allocator);
+public:
+    memory_with_boundary_tags(size_t size, Memory::Allocation_strategy mode, Logger* logger, Memory * parent_allocator);
+    ~memory_with_boundary_tags();
+
     memory_with_boundary_tags(memory_with_boundary_tags const&) = delete;
     memory_with_boundary_tags& operator=(memory_with_boundary_tags const&) = delete;
-    ~memory_with_boundary_tags();
 
     void *allocate(size_t target_size) const override;
     void deallocate(void const * const target_to_dealloc) const override;

@@ -10,8 +10,8 @@ int main()
             ->with_stream("3.txt", Logger::Severity::critical)
             ->build();
 
-    Memory *buddy_system_allocator = new memory_with_boundary_tags
-            (10000, Memory::Allocation_strategy::best_fit, log, nullptr);
+    Memory *buddy_system_allocator = new memory_with_buddy_system
+            (10000, log, nullptr);
     buddy_system_allocator->set_logger(log);
 
     int size = 10;

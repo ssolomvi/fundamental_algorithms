@@ -1,5 +1,1 @@
 <--- [ information ]  --->
-[ 10/04/2023 12:27:20 ][ information ] Memory block with _size = 40 was allocated successfully
-[ 10/04/2023 12:27:20 ][ information ] Memory block with address: 0x00000198069137f0 was deallocated successfully
-[ 10/04/2023 12:27:20 ][ information ] Memory block with _size = 10 was allocated successfully
-[ 10/04/2023 12:27:20 ][ information ] Memory block with address: 0x00000198069137f0 was deallocated successfully

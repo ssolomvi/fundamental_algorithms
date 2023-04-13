@@ -2,7 +2,10 @@
 #define MEMORY_BASE_CLASS_H
 
 #include <functional>
-#include "Logger.h"
+#include "Logger_builder.h"
+
+// TODO: rework constructors in all subclasses so they do not use virtual functions
+// TODO: initialize the first available block of allocator if needed!
 
 /* Common structure for allocators:
  * size_t          -- size of allocator pull
@@ -89,7 +92,7 @@ protected:
     virtual void * get_first_occupied_block_address() const;
     virtual void ** get_first_occupied_block_address_address() const;
 
-    virtual size_t get_occupied_block_service_block_size() const;   // get
+    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;   // get
     virtual size_t get_occupied_block_size(void * memory_block) const;
     virtual size_t get_size_of_occupied_block_pool(void * const occupied_block) const = 0;
 
