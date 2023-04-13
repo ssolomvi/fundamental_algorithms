@@ -1,122 +1,269 @@
 #include "memory_with_boundary_tags.h"
 
-/* structure of occupied memory block:
-        size_t size;
-        void *next, *prev;
-   available blocks do not store any metadata
- */
+#pragma region Allocator properties
+size_t memory_with_boundary_tags::get_allocator_service_block_size() const {
+    return sizeof(size_t) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *) + sizeof(Memory::Allocation_strategy);
+}
 
+void * memory_with_boundary_tags::get_ptr_to_allocator_trusted_pool() const {
+    return reinterpret_cast<void *>(get_ptr_to_ptr_to_pool_start() + 1);
+}
+#pragma endregion
+
+#pragma region Occupied block methods
+void *memory_with_boundary_tags::get_first_occupied_block_address() const {
+    return *get_ptr_to_ptr_to_pool_start();
+}
+
+void **memory_with_boundary_tags::get_first_occupied_block_address_address() const {
+    return get_ptr_to_ptr_to_pool_start();
+}
+
+size_t memory_with_boundary_tags::get_occupied_block_service_block_size() const {
+    return (sizeof(void *) * 2 + sizeof(size_t));
+}
+
+size_t memory_with_boundary_tags::get_occupied_block_size(void *memory_block) const {
+    return *reinterpret_cast<size_t *>(memory_block);
+}
+
+size_t memory_with_boundary_tags::get_size_of_occupied_block_pool(void *const occupied_block) const {
+    return get_occupied_block_size(reinterpret_cast<size_t *>(reinterpret_cast<void **>(occupied_block) - 2) - 1)
+         - get_occupied_block_service_block_size();
+}
+
+void *memory_with_boundary_tags::get_next_occupied_block_address(void *memory_block) const {
+    return *reinterpret_cast<void **>(reinterpret_cast<size_t *>(memory_block) + 1);
+}
+
+void *memory_with_boundary_tags::get_previous_occupied_block_address(void *memory_block) const {
+    return *reinterpret_cast<void **>((reinterpret_cast<size_t *>(memory_block) + 1) + 1);
+}
+#pragma endregion
+
+memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
+                                                     Memory::Allocation_strategy mode,
+                                                     Logger * logger,
+                                                     Memory * parent_allocator)
+{
+    size_t size_with_service_size = size + get_allocator_service_block_size(),
+    occupied_block_service_block_size = get_occupied_block_service_block_size();
+
+    if (size <= occupied_block_service_block_size) {
+        size_with_service_size += occupied_block_service_block_size;
+        this->log_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
+                             + std::to_string(size_with_service_size) + " bytes for correct work of allocator",
+                             Logger::Severity::debug);
+    }
+
+    if (parent_allocator != nullptr) {
+        _ptr_to_allocator_metadata = parent_allocator->allocate(size_with_service_size);
+    } else {
+        _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+    }
+
+    auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
+    *size_of_allocator_pool = size;
+
+    auto * this_allocator_logger = reinterpret_cast<Logger **>(size_of_allocator_pool + 1);
+    *this_allocator_logger = logger;
+
+    auto * this_allocator_parent_allocator = reinterpret_cast<Memory **>(this_allocator_logger + 1);
+    *this_allocator_parent_allocator = parent_allocator;
+
+    auto * allocation_mode = reinterpret_cast<Memory::Allocation_strategy *>(this_allocator_parent_allocator + 1);
+    *allocation_mode = mode;
+
+    auto * ptr_to_pool_start = reinterpret_cast<void **>(allocation_mode + 1);
+    *ptr_to_pool_start = nullptr;
+
+    this->log_with_guard("memory_with_boundary_tags allocator was constructed",
+                         Logger::Severity::trace);
+}
+
+memory_with_boundary_tags::~memory_with_boundary_tags() {
+    this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
+                         Logger::Severity::trace);
+
+    auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
+    auto * this_allocator_logger = reinterpret_cast<Logger **>(size_of_allocator_pool + 1);
+    auto * this_allocator_parent_allocator = *reinterpret_cast<Memory **>(this_allocator_logger + 1);
+
+    if (this_allocator_parent_allocator) {
+        this_allocator_parent_allocator->deallocate(_ptr_to_allocator_metadata);
+    } else {
+        ::operator delete(_ptr_to_allocator_metadata);
+    }
+}
+
+/// <summary>
+/// Allocates a block of memory in memory_with_boundary_tags allocator
+/// </summary>
+/// <param name="target_size"> - size of block to be allocated</param>
 void *memory_with_boundary_tags::allocate(size_t target_size) const {
     this->log_with_guard("memory_with_boundary_tags::allocate method execution started",
                          Logger::Severity::trace);
 
-    void *previous_block = nullptr, *current_block = get_first_available_block_address();
-    void *target_block = nullptr, *previous_to_target_block = nullptr, *next_to_target_block = nullptr;
-    void *start_of_allocator_space = reinterpret_cast<void *>(const_cast<memory_with_boundary_tags *>(this) + sizeof(memory_with_boundary_tags));
+    size_t size_of_allocator_pool = *get_ptr_size_of_allocator_pool();
+    void *previous_block = nullptr, *current_block = *get_ptr_to_ptr_to_pool_start(), *target_block = nullptr;
+    void * next_to_target_block = nullptr, * prev_to_target_block = nullptr;
+
+    void *start_of_allocator_pool = get_ptr_to_allocator_trusted_pool(),
+    * end_of_allocator_pool = reinterpret_cast<void *>(reinterpret_cast<char *>(start_of_allocator_pool) + size_of_allocator_pool);
     auto const occupied_block_service_block_size = get_occupied_block_service_block_size();
-    auto const allocation_mode = get_allocation_mode();
-    size_t current_block_size = 0, target_block_size = 0, size_needed = target_size + get_occupied_block_service_block_size();
+    auto const allocation_mode = *get_ptr_allocation_mode();
+    size_t probable_target_block_size = 0, target_block_size = 0,
+           size_needed = target_size + occupied_block_service_block_size;
 
 
+#pragma region Finding a block of appropriate size
     // not even one block was allocated in allocator
-    if (current_block == nullptr && this->_size >= size_needed) {
-       target_block = start_of_allocator_space;
-       *get_first_occupied_block_address_address() = target_block;
+    if (current_block == nullptr && size_of_allocator_pool >= size_needed) {
+       target_block = start_of_allocator_pool;
+//       *get_first_occupied_block_address_address() = target_block;
     }
     // at least one block was allocated
     else {
-        do
-        {
+        do {
             // Get size of available block
             // <start> | target_block(?) | current block | ...
-            if (previous_block == nullptr && current_block != const_cast<memory_with_boundary_tags*>(this) + sizeof(memory_with_boundary_tags)) {
-                current_block_size = reinterpret_cast<char *>(current_block) - reinterpret_cast<char *>(start_of_allocator_space);
+            if (previous_block == nullptr && current_block != start_of_allocator_pool) {
+                probable_target_block_size = reinterpret_cast<char *>(current_block) - reinterpret_cast<char *>(start_of_allocator_pool);
             }
             // == nullptr: ... | previous_block | target_block(?) | <end>
             // != nullptr: ... | previous_block | target_block(?) | current_block | ...
             else if (previous_block != nullptr) {
                 current_block == nullptr ?
-                    current_block_size = reinterpret_cast<size_t *>(start_of_allocator_space) + this->_size
-                            - reinterpret_cast<size_t *>(previous_block) + get_occupied_block_size_of_block(previous_block)
+                    probable_target_block_size = reinterpret_cast<char *>(end_of_allocator_pool)
+                            - (reinterpret_cast<char *>(previous_block) + get_occupied_block_size(previous_block))
                             :
-                    current_block_size = reinterpret_cast<size_t *>(current_block)
-                            - reinterpret_cast<size_t *>(previous_block) + get_occupied_block_size_of_block(previous_block);
+                    probable_target_block_size = reinterpret_cast<char *>(current_block)
+                            - (reinterpret_cast<char *>(previous_block) + get_occupied_block_size(previous_block));
             }
 
-            if (current_block_size >= size_needed)
+            if (probable_target_block_size >= size_needed)
             {
                 if (    allocation_mode == Memory::Allocation_strategy::first_fit ||
                         allocation_mode == Memory::Allocation_strategy::best_fit &&
-                        (target_block == nullptr || current_block_size < target_block_size) ||
+                        (target_block == nullptr || probable_target_block_size < target_block_size || target_block_size == 0) ||
                         allocation_mode == Memory::Allocation_strategy::worst_fit &&
-                        (target_block == nullptr || current_block_size > target_block_size))
+                        (target_block == nullptr || probable_target_block_size > target_block_size || target_block_size == 0))
                 {
-                    previous_to_target_block = previous_block;
-                    target_block = reinterpret_cast<size_t *>(previous_block) + *reinterpret_cast<size_t *>(previous_block);
+                    if (previous_block) {
+                        target_block = reinterpret_cast<void *>(reinterpret_cast<char *>(previous_block) +
+                                                                get_occupied_block_size(previous_block));
+                    } else {
+                        target_block = start_of_allocator_pool;
+                    }
+                    target_block_size = probable_target_block_size;
                     next_to_target_block = current_block;
+                    prev_to_target_block = previous_block;
                 }
 
                 if (allocation_mode == Memory::Allocation_strategy::first_fit)
                     break;
             }
 
-            previous_block = current_block;
-            current_block = get_next_occupied_block_address(current_block);
+            if (current_block != nullptr) {
+                previous_block = current_block;
+                current_block = get_next_occupied_block_address(current_block);
+            } else {
+                break;
+            }
         } while (previous_block != nullptr);
     }
+#pragma endregion
 
-    if (target_block == nullptr)
-    {
+    if (target_block == nullptr) {
         this->log_with_guard("There is no memory available to allocate", Logger::Severity::warning)
                 ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", Logger::Severity::trace);
 
         throw std::bad_alloc();
     }
 
+    size_t leftover = 0;
+    // | prev | target | current | ...
+    // | metadata | target | current | ...
+    if (next_to_target_block) {
+        leftover = reinterpret_cast<char *>(next_to_target_block) - (reinterpret_cast<char *>(target_block) + size_needed);
+    }
+    // | previous | target | -> nullptr
+    if (!next_to_target_block && prev_to_target_block) {
+        leftover = reinterpret_cast<char *>(end_of_allocator_pool) - (reinterpret_cast<char *>(target_block) + size_needed);
+    }
+
     // by allocating memory block will be divided so the leftover memory cannot include (void *) + size_t for available block structure
-    if (auto leftover = target_block_size - size_needed <= get_occupied_block_service_block_size())
+    if (leftover <= occupied_block_service_block_size && leftover > 0)
     {
-        auto target_size_override = target_block_size + leftover;
+        auto target_size_override = target_size + leftover;
 
         this->log_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
                              + std::to_string(target_size_override) + " bytes for correct work of allocator",
                              Logger::Severity::debug);
 
-        target_size = target_size_override;
+        size_needed += leftover;
     }
 
-    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1 + sizeof(void *)) = previous_block;
+#pragma region Inserting target block in list of occupied blocks
+    // ... | previous_block | target_block | current_block | ...
+    // target_block.prev = previous_block;
+    *reinterpret_cast<void **>((reinterpret_cast<size_t *>(target_block) + 1) + 1) = prev_to_target_block;
     // target_block is not right after metadata
-    if (previous_block != nullptr) {
+    if (prev_to_target_block != nullptr) {
         // target_block.prev.next = target_block;
-        *reinterpret_cast<void **>(reinterpret_cast<size_t *>(previous_block) + 1) = target_block;
+        *reinterpret_cast<void **>(reinterpret_cast<size_t *>(prev_to_target_block) + 1) = target_block;
     } else {
         *get_first_occupied_block_address_address() = target_block;
     }
 
-    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1) = current_block;
+    // target_block.next = current_block
+    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1) = next_to_target_block;
     // target_block is not the 'last' block allocated
-    if (current_block != nullptr) {
+    if (next_to_target_block != nullptr) {
         // target_block.next.prev = target_block;
-        *reinterpret_cast<void **>(reinterpret_cast<size_t *>(current_block) + 1 + sizeof(void *)) = target_block;
+        *reinterpret_cast<void **>((reinterpret_cast<size_t *>(next_to_target_block) + 1) + 1) = target_block;
     }
+#pragma endregion
 
-    this->log_with_guard("memory_with_boundary_tags::allocate method execution finished", Logger::Severity::trace);
+    *reinterpret_cast<size_t *>(target_block) = size_needed;
 
-    return reinterpret_cast<void *>(reinterpret_cast<size_t *>(target_block) + 1 + sizeof(void *) * 2);
+    std::string target_block_address = address_to_hex(reinterpret_cast<void *>(
+            reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
+            ));
+
+    this->log_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
+                         "Address: " + target_block_address, Logger::Severity::information)
+            ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", Logger::Severity::trace);
+
+    void * to_return = reinterpret_cast<void *>(reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1) + 2);
+    return to_return;
 }
 
 void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) const {
-    this->log_with_guard("memory_with_boundary_tags::deallocate method execution started", Logger::Severity::trace);
+    this->log_with_guard("memory_with_boundary_tags::deallocate method execution started",
+                         Logger::Severity::trace);
 
-    // make target_to_dealloc to point to the beginning of the block
-    *const_cast<void **>(&target_to_dealloc) =
-            reinterpret_cast<void *>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) - 2 * sizeof(void *) - sizeof(size_t));
+    if (!target_to_dealloc) {
+        this->log_with_guard("Target to deallocate should not be nullptr", Logger::Severity::warning)
+                ->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", Logger::Severity::trace);
+        return;
+    }
 
     dump_occupied_block_before_deallocate(const_cast<void *>(target_to_dealloc));
 
-    void *next_to_target_to_deallocate = get_next_occupied_block_address(const_cast<void *>(target_to_dealloc)),
-         *prev_to_target_to_deallocate = get_previous_occupied_block_address(const_cast<void *>(target_to_dealloc));
+    // make target_to_dealloc to point to the beginning of the block
+    auto * tmp = reinterpret_cast<void *>(reinterpret_cast<size_t *>(
+            reinterpret_cast<void **>(const_cast<void *>(target_to_dealloc)) - 2) - 1);
+
+    std::string target_to_dealloc_address = address_to_hex(reinterpret_cast<void *>(
+                   reinterpret_cast<char *>(tmp) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
+           ));
+
+    this->log_with_guard("Memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
+                         Logger::Severity::information);
+
+    void *next_to_target_to_deallocate = get_next_occupied_block_address(tmp),
+         *prev_to_target_to_deallocate = get_previous_occupied_block_address(tmp);
 
     // the target_to_deallocate is a block which _mem_start points to
     if (prev_to_target_to_deallocate == nullptr) {
@@ -131,53 +278,12 @@ void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) 
     // the target_to_deallocate is not the last block occupied
     if (next_to_target_to_deallocate != nullptr) {
         // target_to_deallocate.next.prev = target_to_deallocate.prev;
-        *reinterpret_cast<void **>(reinterpret_cast<size_t *>(next_to_target_to_deallocate) + 1 + sizeof(void *)) = prev_to_target_to_deallocate;
+        *reinterpret_cast<void **>((reinterpret_cast<size_t *>(next_to_target_to_deallocate) + 1) + 1) = prev_to_target_to_deallocate;
     }
 
-    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) + 1 + sizeof(void *)) = nullptr;
-    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) + 1) = nullptr;
-    *reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) = 0;
+    *reinterpret_cast<void **>((reinterpret_cast<size_t *>(tmp) + 1 ) + 1) = nullptr;
+    *reinterpret_cast<void **>(reinterpret_cast<size_t *>(tmp) + 1) = nullptr;
+    *reinterpret_cast<size_t *>(tmp) = 0;
 
     this->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", Logger::Severity::trace);
 }
-
-void memory_with_boundary_tags::dump_occupied_block_before_deallocate(void *const current_block_address) const {
-    dump_occupied_block_before_deallocate_initial(current_block_address, get_occupied_block_size);
-}
-
-memory_with_boundary_tags::memory_with_boundary_tags(size_t &size, Memory *parent_allocator) {
-
-}
-
-memory_with_boundary_tags::~memory_with_boundary_tags() {
-
-}
-
-void *memory_with_boundary_tags::get_first_occupied_block_address() const {
-    return this->_mem_start;
-}
-
-void **memory_with_boundary_tags::get_first_occupied_block_address_address() const {
-    return const_cast<void **>(&(this->_mem_start));
-}
-
-size_t memory_with_boundary_tags::get_occupied_block_size_of_block(void *memory_block) const {
-    return *reinterpret_cast<size_t *>(memory_block);
-}
-
-void *memory_with_boundary_tags::get_next_occupied_block_address(void *memory_block) const {
-    return *reinterpret_cast<void **>(reinterpret_cast<size_t *>(memory_block) + 1);
-}
-
-void *memory_with_boundary_tags::get_previous_occupied_block_address(void *memory_block) const {
-    return *reinterpret_cast<void **>(reinterpret_cast<size_t *>(memory_block) + 1 + sizeof(void *));
-}
-
-size_t memory_with_boundary_tags::get_occupied_block_service_block_size() const {
-    return (sizeof(void *) * 2 + sizeof(size_t));
-}
-
-size_t memory_with_boundary_tags::get_occupied_block_size(void *const occupied_block) const {
-    return get_occupied_block_size_of_block(occupied_block) - get_occupied_block_service_block_size();
-}
-

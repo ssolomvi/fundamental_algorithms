@@ -1,68 +1,118 @@
-#pragma once
 #ifndef MEMORY_BASE_CLASS_H
 #define MEMORY_BASE_CLASS_H
 
 #include <functional>
-#include "Logger.h"
+#include "Logger_builder.h"
+
+// TODO: rework constructors in all subclasses so they do not use virtual functions
+// TODO: initialize the first available block of allocator if needed!
+
+/* Common structure for allocators:
+ * size_t          -- size of allocator pull
+ * Logger*
+ * Memory*         -- parent allocator (if present)
+ * allocation_mode -- first/best/worst
+ * void *          -- ptr to (available/occupied block from pool)
+ *
+ * Common for all blocks:
+ *  - if size_t size is used, it is a size of a whole block including service part
+ *
+ * */
 
 class Memory
 {
-protected:
+public:
     enum Allocation_strategy {
         first_fit,
         best_fit,
         worst_fit,
     };
 
-    Memory *_parent_allocator;
-    Logger *_logger;
-    size_t _size;
-    void *_mem_start;
-    Allocation_strategy allocationStrategy;
+    class Memory_exception final : public std::exception
+    {
+    private:
+        std::string _message;
 
-    void dump_occupied_block_before_deallocate_initial(void *const current_block_address,
-                                                       const std::function<size_t(void * const)>& get_occupied_block_size) const;
+    public:
+        explicit Memory_exception(std::string const & message)
+                : _message(message)
+        {
 
-    [[nodiscard]] Allocation_strategy get_allocation_mode() const;
-    virtual void *get_first_available_block_address() const; // get the address of the first available block in allocator
-    virtual size_t get_available_block_service_block_size() const;
+        }
+
+        char const * what() const noexcept override
+        {
+            return _message.c_str();
+        }
+
+    };
+
+
+protected:
+    void *_ptr_to_allocator_metadata;
+    // current_block_address is address of block after metadata.
+    // one must implement get_size_of_occupied_block_pool with this knowledge
+    void dump_occupied_block_before_deallocate(void *const current_block_address) const;
+
+#pragma region Allocator properties
+    /*
+    size_t get_size_of_allocator_pool() const;
+    Logger* get_logger_of_allocator() const;
+    Memory* get_ptr_to_parent_allocator() const;
+    Allocation_strategy get_allocation_mode() const;
+    virtual void * get_ptr_to_pool_allocator() const;
+*/
+    virtual size_t get_allocator_service_block_size() const;
+
+    [[nodiscard]] virtual size_t* get_ptr_size_of_allocator_pool() const;
+    [[nodiscard]] virtual Logger** get_ptr_logger_of_allocator() const;
+    [[nodiscard]] virtual Memory** get_ptr_to_ptr_parent_allocator() const;
+    [[nodiscard]] virtual Allocation_strategy* get_ptr_allocation_mode() const;
+    [[nodiscard]] virtual void ** get_ptr_to_ptr_to_pool_start() const;
+    /*
+    size_t* get_ptr_size_of_allocator_pool() const;
+    Logger** get_ptr_logger_of_allocator() const;
+    Memory** get_ptr_to_ptr_parent_allocator() const;
+    Allocation_strategy* get_ptr_allocation_mode() const;
+    void ** get_ptr_to_ptr_to_pool_start() const;
+*/
+    virtual void * get_ptr_to_allocator_trusted_pool() const;
+#pragma endregion
+
+#pragma region Available block methods
+    [[nodiscard]] virtual void *get_first_available_block_address() const; // get the address of the first available block in allocator
+    [[nodiscard]] virtual void ** get_first_available_block_address_address() const;   // get an address field of the first block available in allocator
+
+    [[nodiscard]] virtual size_t get_available_block_service_block_size() const;
     virtual size_t get_available_block_size(void * memory_block) const;
     virtual void * get_next_available_block_address(void * memory_block) const;
-    virtual size_t get_occupied_block_service_block_size() const;   // get
-    virtual void ** get_first_available_block_address_address() const;   // get an address field of the first block available in allocator
-    virtual size_t get_occupied_block_size(void * const occupied_block) const = 0;
+#pragma endregion
 
+#pragma region Occupied block methods
     virtual void * get_first_occupied_block_address() const;
     virtual void ** get_first_occupied_block_address_address() const;
 
-    virtual size_t get_occupied_block_size_of_block(void * memory_block) const;
+    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;   // get
+    virtual size_t get_occupied_block_size(void * memory_block) const;
+    virtual size_t get_size_of_occupied_block_pool(void * const occupied_block) const = 0;
+
     virtual void * get_next_occupied_block_address(void * memory_block) const;
     virtual void * get_previous_occupied_block_address(void * memory_block) const;
+#pragma endregion
 
-public:
     std::string address_to_hex(void const * ptr) const;
 
-    void set_logger(Logger * const logger);
-
+public:
     Memory const * log_with_guard(std::string const & target, Logger::Severity severity) const;
+
+    void set_logger(Logger * const logger) const;
 
     virtual void *allocate(size_t target_size) const = 0;
 
     virtual void deallocate(void const * const target_to_dealloc) const = 0;
 
-    friend void * const operator+=(Memory const &allocator, size_t target_size);
+    friend void * operator+=(Memory const &allocator, size_t target_size);
     friend void operator-=(Memory const &allocator, void const * const target_to_dealloc);
-    /*
-    void *operator+= (size_t target_size) const {
-        return this->allocate(target_size);
-    }
-
-    void operator-= (void const * const target_to_dealloc) const {
-        return this->deallocate(target_to_dealloc);
-    }
-     */
-
-    virtual void dump_occupied_block_before_deallocate(void * const current_block_address) const = 0;
 };
 
 #endif //MEMORY_BASE_CLASS_H
