@@ -59,7 +59,7 @@ void Memory::dump_occupied_block_before_deallocate(void *const current_block_add
         }
     }
 
-    this->log_with_guard("Memory at " + address_to_hex(current_block_address) + " = [" + result + "]",
+    this->log_with_guard("Block dump: [" + result + "]",
                          Logger::Severity::trace);
 }
 

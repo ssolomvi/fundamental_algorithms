@@ -76,7 +76,7 @@ protected:
     Allocation_strategy* get_ptr_allocation_mode() const;
     void ** get_ptr_to_ptr_to_pool_start() const;
 */
-    virtual void * get_ptr_to_allocator_trusted_pool() const;
+    [[nodiscard]] virtual void * get_ptr_to_allocator_trusted_pool() const;
 #pragma endregion
 
 #pragma region Available block methods
@@ -103,6 +103,7 @@ protected:
     std::string address_to_hex(void const * ptr) const;
 
 public:
+    virtual ~Memory() noexcept = default;
     Memory const * log_with_guard(std::string const & target, Logger::Severity severity) const;
 
     void set_logger(Logger * const logger) const;
