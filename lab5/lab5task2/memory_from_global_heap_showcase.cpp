@@ -9,18 +9,18 @@
 //void bst_test()
 //{
 //    logger_builder *allocator_logger_builder = new logger_builder_impl();
-//    Logger *allocator_logger = allocator_logger_builder
-//            ->with_stream("allocator_tests.txt", Logger::Severity::trace)
+//    logger *allocator_logger = allocator_logger_builder
+//            ->with_stream("allocator_tests.txt", logger::severity::trace)
 //            ->build();
 //    delete allocator_logger_builder;
 //
 //    logger_builder *rbtree_logger_builder = new logger_builder_impl();
-//    Logger *rbtree_logger = rbtree_logger_builder
-//            ->with_stream("rbtree_tests.txt", Logger::Severity::trace)
+//    logger *rbtree_logger = rbtree_logger_builder
+//            ->with_stream("rbtree_tests.txt", logger::severity::trace)
 //            ->build();
 //    delete rbtree_logger_builder;
 //
-//    Memory *allocator = new memory_from_global_heap();
+//    memory *allocator = new memory_from_global_heap();
 //    associative_container<int, std::string> *tree = new red_black_tree<int, std::string, int_comparer>(allocator, rbtree_logger);
 //    srand((unsigned)time(nullptr));
 //
@@ -85,7 +85,7 @@
 //}
 
 void allocator_demo(
-        Memory *allocator,
+        memory *allocator,
         unsigned int iterations_count)
 {
     std::list<void *> allocated_blocks;
@@ -104,7 +104,7 @@ void allocator_demo(
                     allocated_blocks.push_front(allocator->allocate(rand() % 251 + 50));
                     std::cout << "allocation succeeded" << std::endl;
                 }
-                catch (Memory::Memory_exception const &ex)
+                catch (memory::Memory_exception const &ex)
                 {
                     std::cout << ex.what() << std::endl;
                 }
@@ -142,42 +142,42 @@ void allocator_demo(
 
 void allocators_demo(
         size_t trusted_memory_size,
-        Memory::Allocation_strategy fit_mode,
+        memory::Allocation_strategy fit_mode,
         unsigned int iterations_count)
 {
     logger_builder *builder = new logger_builder_impl();
     auto *global_heap_allocator_logger = builder
-            ->with_stream("global heap allocator.txt", Logger::Severity::trace)
+            ->with_stream("global heap allocator.txt", logger::severity::trace)
             ->build();
     delete builder;
 //    builder->clear();
 
-    Memory *global_heap_allocator = new memory_from_global_heap();
+    memory *global_heap_allocator = new memory_from_global_heap();
     global_heap_allocator->set_logger(global_heap_allocator_logger);
 
     builder = new logger_builder_impl();
     auto *sorted_list_allocator_logger = builder
-            ->with_stream("sorted list allocator.txt", Logger::Severity::trace)
+            ->with_stream("sorted list allocator.txt", logger::severity::trace)
             ->build();
 //    builder->clear();
     delete builder;
 
-    Memory *sorted_list_allocator = new memory_with_sorted_list_deallocation(trusted_memory_size,  fit_mode, sorted_list_allocator_logger, nullptr);
+    memory *sorted_list_allocator = new memory_with_sorted_list_deallocation(trusted_memory_size, fit_mode, sorted_list_allocator_logger, nullptr);
 
     builder = new logger_builder_impl();
     auto *boundary_tags_allocator_logger = builder
-            ->with_stream("boundary tags allocator.txt", Logger::Severity::trace)
+            ->with_stream("boundary tags allocator.txt", logger::severity::trace)
             ->build();
 //    builder->clear();
     delete builder;
-    Memory *boundary_tags_allocator = new memory_with_boundary_tags(trusted_memory_size, fit_mode, boundary_tags_allocator_logger, nullptr );
+    memory *boundary_tags_allocator = new memory_with_boundary_tags(trusted_memory_size, fit_mode, boundary_tags_allocator_logger, nullptr );
 
     builder = new logger_builder_impl();
     auto *buddy_system_allocator_logger = builder
-            ->with_stream("buddy system allocator.txt", Logger::Severity::trace)
+            ->with_stream("buddy system allocator.txt", logger::severity::trace)
             ->build();
     delete builder;
-    Memory *buddy_system_allocator = new memory_with_buddy_system(static_cast<size_t>(std::log2(trusted_memory_size)), buddy_system_allocator_logger, nullptr);
+    memory *buddy_system_allocator = new memory_with_buddy_system(static_cast<size_t>(std::log2(trusted_memory_size)), buddy_system_allocator_logger, nullptr);
 
     allocator_demo(global_heap_allocator, iterations_count);
     delete global_heap_allocator;
@@ -198,7 +198,7 @@ void allocators_demo(
 
 int main()
 {
-    allocators_demo(250000, Memory::worst_fit, 7500);
+    allocators_demo(250000, memory::worst_fit, 7500);
 
     return 0;
 }

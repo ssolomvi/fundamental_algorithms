@@ -1,7 +1,7 @@
 #ifndef MEMORY_WITH_BOUNDARY_TAGS_H
 #define MEMORY_WITH_BOUNDARY_TAGS_H
 
-#include "../base_classes/Memory_base_class.h"
+#include "../base_classes/memory_base_class.h"
 
 /* structure of occupied memory block:
         size_t size;
@@ -9,7 +9,7 @@
    available blocks do not store any metadata
  */
 
-class memory_with_boundary_tags final : public Memory
+class memory_with_boundary_tags final : public memory
 {
 private:
 #pragma region Allocator properties
@@ -30,7 +30,7 @@ private:
 #pragma endregion
 
 public:
-    memory_with_boundary_tags(size_t size, Memory::Allocation_strategy mode, Logger* logger, Memory * parent_allocator);
+    memory_with_boundary_tags(size_t size, memory::Allocation_strategy mode, logger* logger, memory * parent_allocator);
     ~memory_with_boundary_tags();
 
     memory_with_boundary_tags(memory_with_boundary_tags const&) = delete;

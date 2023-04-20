@@ -1,7 +1,7 @@
 #ifndef MEMORY_WITH_SORTED_LIST_DEALLOCATION_H
 #define MEMORY_WITH_SORTED_LIST_DEALLOCATION_H
 
-#include "../base_classes/Memory_base_class.h"
+#include "../base_classes/memory_base_class.h"
 
 /* Structure of memory_with_sorted_list_deallocation allocator:
  *      basic
@@ -15,7 +15,7 @@
  *
  * */
 
-class memory_with_sorted_list_deallocation final : public Memory
+class memory_with_sorted_list_deallocation final : public memory
 {
 private:
 #pragma region Allocator properties
@@ -44,7 +44,7 @@ public:
     memory_with_sorted_list_deallocation(memory_with_sorted_list_deallocation const&) = delete;            // copying
     memory_with_sorted_list_deallocation& operator=(memory_with_sorted_list_deallocation const&) = delete; // assignment
 
-    memory_with_sorted_list_deallocation(size_t size, Memory::Allocation_strategy mode, Logger*, Memory *);
+    memory_with_sorted_list_deallocation(size_t size, memory::Allocation_strategy mode, logger*, memory *);
     ~memory_with_sorted_list_deallocation();
 
     void *allocate(size_t target_size) const override;

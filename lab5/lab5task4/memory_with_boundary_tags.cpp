@@ -2,7 +2,7 @@
 
 #pragma region Allocator properties
 size_t memory_with_boundary_tags::get_allocator_service_block_size() const {
-    return sizeof(size_t) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *) + sizeof(Memory::Allocation_strategy);
+    return sizeof(size_t) + sizeof(logger *) + sizeof(memory *) + sizeof(void *) + sizeof(memory::Allocation_strategy);
 }
 
 void * memory_with_boundary_tags::get_ptr_to_allocator_trusted_pool() const {
@@ -42,9 +42,9 @@ void *memory_with_boundary_tags::get_previous_occupied_block_address(void *memor
 #pragma endregion
 
 memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
-                                                     Memory::Allocation_strategy mode,
-                                                     Logger * logger,
-                                                     Memory * parent_allocator)
+                                                     memory::Allocation_strategy mode,
+                                                     logger * logger,
+                                                     memory * parent_allocator)
 {
     size_t size_with_service_size = size + get_allocator_service_block_size(),
     occupied_block_service_block_size = get_occupied_block_service_block_size();
@@ -53,7 +53,7 @@ memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
         size_with_service_size += occupied_block_service_block_size;
         this->log_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
                              + std::to_string(size_with_service_size) + " bytes for correct work of allocator",
-                             Logger::Severity::debug);
+                             logger::severity::debug);
     }
 
     if (parent_allocator != nullptr) {
@@ -65,29 +65,29 @@ memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
     *size_of_allocator_pool = size;
 
-    auto * this_allocator_logger = reinterpret_cast<Logger **>(size_of_allocator_pool + 1);
+    auto * this_allocator_logger = reinterpret_cast<class logger **>(size_of_allocator_pool + 1);
     *this_allocator_logger = logger;
 
-    auto * this_allocator_parent_allocator = reinterpret_cast<Memory **>(this_allocator_logger + 1);
+    auto * this_allocator_parent_allocator = reinterpret_cast<memory **>(this_allocator_logger + 1);
     *this_allocator_parent_allocator = parent_allocator;
 
-    auto * allocation_mode = reinterpret_cast<Memory::Allocation_strategy *>(this_allocator_parent_allocator + 1);
+    auto * allocation_mode = reinterpret_cast<memory::Allocation_strategy *>(this_allocator_parent_allocator + 1);
     *allocation_mode = mode;
 
     auto * ptr_to_pool_start = reinterpret_cast<void **>(allocation_mode + 1);
     *ptr_to_pool_start = nullptr;
 
     this->log_with_guard("memory_with_boundary_tags allocator was constructed",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 }
 
 memory_with_boundary_tags::~memory_with_boundary_tags() {
     this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
-    auto * this_allocator_logger = reinterpret_cast<Logger **>(size_of_allocator_pool + 1);
-    auto * this_allocator_parent_allocator = *reinterpret_cast<Memory **>(this_allocator_logger + 1);
+    auto * this_allocator_logger = reinterpret_cast<logger **>(size_of_allocator_pool + 1);
+    auto * this_allocator_parent_allocator = *reinterpret_cast<memory **>(this_allocator_logger + 1);
 
     if (this_allocator_parent_allocator) {
         this_allocator_parent_allocator->deallocate(_ptr_to_allocator_metadata);
@@ -102,7 +102,7 @@ memory_with_boundary_tags::~memory_with_boundary_tags() {
 /// <param name="target_size"> - size of block to be allocated</param>
 void *memory_with_boundary_tags::allocate(size_t target_size) const {
     this->log_with_guard("memory_with_boundary_tags::allocate method execution started",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     size_t size_of_allocator_pool = *get_ptr_size_of_allocator_pool();
     void *previous_block = nullptr, *current_block = *get_ptr_to_ptr_to_pool_start(), *target_block = nullptr;
@@ -143,11 +143,11 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
 
             if (probable_target_block_size >= size_needed)
             {
-                if (    allocation_mode == Memory::Allocation_strategy::first_fit ||
-                        allocation_mode == Memory::Allocation_strategy::best_fit &&
-                        (target_block == nullptr || probable_target_block_size < target_block_size || target_block_size == 0) ||
-                        allocation_mode == Memory::Allocation_strategy::worst_fit &&
-                        (target_block == nullptr || probable_target_block_size > target_block_size || target_block_size == 0))
+                if (allocation_mode == memory::Allocation_strategy::first_fit ||
+                    allocation_mode == memory::Allocation_strategy::best_fit &&
+                    (target_block == nullptr || probable_target_block_size < target_block_size || target_block_size == 0) ||
+                    allocation_mode == memory::Allocation_strategy::worst_fit &&
+                    (target_block == nullptr || probable_target_block_size > target_block_size || target_block_size == 0))
                 {
                     if (previous_block) {
                         target_block = reinterpret_cast<void *>(reinterpret_cast<char *>(previous_block) +
@@ -160,7 +160,7 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
                     prev_to_target_block = previous_block;
                 }
 
-                if (allocation_mode == Memory::Allocation_strategy::first_fit)
+                if (allocation_mode == memory::Allocation_strategy::first_fit)
                     break;
             }
 
@@ -175,8 +175,8 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
 #pragma endregion
 
     if (target_block == nullptr) {
-        this->log_with_guard("There is no memory available to allocate", Logger::Severity::warning)
-                ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("There is no memory available to allocate", logger::severity::warning)
+                ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", logger::severity::trace);
 
         throw std::bad_alloc();
     }
@@ -199,7 +199,7 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
 
         this->log_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
                              + std::to_string(target_size_override) + " bytes for correct work of allocator",
-                             Logger::Severity::debug);
+                             logger::severity::debug);
 
         size_needed += leftover;
     }
@@ -232,8 +232,8 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
             ));
 
     this->log_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
-                         "Address: " + target_block_address, Logger::Severity::information)
-            ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", Logger::Severity::trace);
+                         "Address: " + target_block_address, logger::severity::information)
+            ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", logger::severity::trace);
 
     void * to_return = reinterpret_cast<void *>(reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1) + 2);
     return to_return;
@@ -241,11 +241,11 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
 
 void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) const {
     this->log_with_guard("memory_with_boundary_tags::deallocate method execution started",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     if (!target_to_dealloc) {
-        this->log_with_guard("Target to deallocate should not be nullptr", Logger::Severity::warning)
-                ->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("Target to deallocate should not be nullptr", logger::severity::warning)
+                ->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", logger::severity::trace);
         return;
     }
 
@@ -259,8 +259,8 @@ void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) 
                    reinterpret_cast<char *>(tmp) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
            ));
 
-    this->log_with_guard("Memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
-                         Logger::Severity::information);
+    this->log_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
+                         logger::severity::information);
 
     void *next_to_target_to_deallocate = get_next_occupied_block_address(tmp),
          *prev_to_target_to_deallocate = get_previous_occupied_block_address(tmp);
@@ -285,5 +285,5 @@ void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) 
     *reinterpret_cast<void **>(reinterpret_cast<size_t *>(tmp) + 1) = nullptr;
     *reinterpret_cast<size_t *>(tmp) = 0;
 
-    this->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", Logger::Severity::trace);
+    this->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", logger::severity::trace);
 }

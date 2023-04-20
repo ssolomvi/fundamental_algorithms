@@ -2,19 +2,19 @@
 
 #pragma region Allocator properties
 size_t memory_with_buddy_system::get_allocator_service_block_size() const {
-    return sizeof(char) + sizeof(Logger *) + sizeof(Memory *) + sizeof(void *);
+    return sizeof(char) + sizeof(logger *) + sizeof(memory *) + sizeof(void *);
 }
 
 char *memory_with_buddy_system::_buddy_system_get_ptr_size_of_allocator_pool() const {
     return reinterpret_cast<char *>(_ptr_to_allocator_metadata);
 }
 
-Logger **memory_with_buddy_system::_buddy_system_get_ptr_logger_of_allocator() const {
-    return reinterpret_cast<Logger **>(_buddy_system_get_ptr_size_of_allocator_pool() + 1);
+logger **memory_with_buddy_system::_buddy_system_get_ptr_logger_of_allocator() const {
+    return reinterpret_cast<logger **>(_buddy_system_get_ptr_size_of_allocator_pool() + 1);
 }
 
-Memory **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_parent_allocator() const {
-    return reinterpret_cast<Memory **>(_buddy_system_get_ptr_logger_of_allocator() + 1);
+memory **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_parent_allocator() const {
+    return reinterpret_cast<memory **>(_buddy_system_get_ptr_logger_of_allocator() + 1);
 }
 
 void **memory_with_buddy_system::_buddy_system_get_ptr_to_ptr_to_pool_start() const {
@@ -25,7 +25,7 @@ void *memory_with_buddy_system::get_ptr_to_allocator_trusted_pool() const {
     return reinterpret_cast<void *>(_buddy_system_get_ptr_to_ptr_to_pool_start() + 1);
 }
 
-Logger **memory_with_buddy_system::get_ptr_logger_of_allocator() const {
+logger **memory_with_buddy_system::get_ptr_logger_of_allocator() const {
     return _buddy_system_get_ptr_logger_of_allocator();
 }
 #pragma endregion
@@ -104,14 +104,14 @@ char memory_with_buddy_system::get_bin_pow_of_number(size_t number) const {
 
 memory_with_buddy_system::memory_with_buddy_system(
         char pow,
-        Logger *logger = nullptr,
-        Memory *parent_allocator = nullptr)
+        logger *logger = nullptr,
+        memory *parent_allocator = nullptr)
 {
     // can't even make a one available block (service block is needed)
     char available_block_service_block_size_power = get_bin_pow_of_number(get_available_block_service_block_size());
     if (pow < available_block_service_block_size_power) {
         this->log_with_guard("Power of allocator will be set to " + std::to_string(available_block_service_block_size_power + 1)
-        + " for correct work of allocator", Logger::Severity::debug);
+        + " for correct work of allocator", logger::severity::debug);
         pow = available_block_service_block_size_power + 1;
     }
 
@@ -127,10 +127,10 @@ memory_with_buddy_system::memory_with_buddy_system(
     auto * allocator_pool_pow = reinterpret_cast<char *>(_ptr_to_allocator_metadata);
     *allocator_pool_pow = pow;
 
-    auto * allocator_logger = reinterpret_cast<Logger **>(allocator_pool_pow + 1);
+    auto * allocator_logger = reinterpret_cast<logger **>(allocator_pool_pow + 1);
     *allocator_logger = logger;
 
-    auto * allocator_parent_allocator = reinterpret_cast<Memory **>(allocator_logger + 1);
+    auto * allocator_parent_allocator = reinterpret_cast<memory **>(allocator_logger + 1);
     *allocator_parent_allocator = parent_allocator;
 
     auto * ptr_to_memory_pool = reinterpret_cast<void **>(allocator_parent_allocator + 1);
@@ -147,19 +147,19 @@ memory_with_buddy_system::memory_with_buddy_system(
     *next_to_first_block = nullptr;
 
     this->log_with_guard("memory_with_buddy_system allocator was constructed",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 }
 
 memory_with_buddy_system::~memory_with_buddy_system()
 {
     this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     auto * allocator_pool_pow = reinterpret_cast<char *>(_ptr_to_allocator_metadata);
 
-    auto * allocator_logger = reinterpret_cast<Logger **>(allocator_pool_pow + 1);
+    auto * allocator_logger = reinterpret_cast<logger **>(allocator_pool_pow + 1);
 
-    auto * parent_allocator = *reinterpret_cast<Memory **>(allocator_logger + 1);
+    auto * parent_allocator = *reinterpret_cast<memory **>(allocator_logger + 1);
 
     if (parent_allocator) {
         parent_allocator->deallocate(_ptr_to_allocator_metadata);
@@ -170,11 +170,11 @@ memory_with_buddy_system::~memory_with_buddy_system()
 
 void *memory_with_buddy_system::allocate(size_t target_size) const {
     this->log_with_guard("memory_with_buddy_system::allocate method execution started",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     if (!target_size) {
-        this->log_with_guard("Size of allocated block cannot be 0", Logger::Severity::warning)
-            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("Size of allocated block cannot be 0", logger::severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", logger::severity::trace);
         return nullptr;
     }
 
@@ -183,8 +183,8 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
                    current_block_power = 0, target_block_power = 0;
 
     if (power_needed > pool_power) {
-        this->log_with_guard("No memory available to allocate, allocator pool is less than memory requested", Logger::Severity::warning)
-            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("No memory available to allocate, allocator pool is less than memory requested", logger::severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", logger::severity::trace);
         throw std::bad_alloc();
     }
 
@@ -205,8 +205,8 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
     }
 
     if (!target_block) {
-        this->log_with_guard("There is no memory available to allocate", Logger::Severity::warning)
-            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("There is no memory available to allocate", logger::severity::warning)
+            ->log_with_guard("memory_with_buddy_system::allocate method execution finished", logger::severity::trace);
         throw std::bad_alloc();
     }
 
@@ -252,9 +252,9 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
             reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
 
     this->log_with_guard("Block of size = " + std::to_string(get_number_in_bin_pow(target_block_power))
-         + " was allocated." + " Address: " + target_block_address, Logger::Severity::information)
+         + " was allocated." + " Address: " + target_block_address, logger::severity::information)
         ->log_with_guard("memory_with_buddy_system::allocate method execution started",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     void * to_return = reinterpret_cast<void *>(reinterpret_cast<char *>(reinterpret_cast<bool *>(target_block) + 1) + 1);
     return to_return;
@@ -263,11 +263,11 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
 void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) const
 {
     this->log_with_guard("memory_with_buddy_system::deallocate method execution started",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 
     if (!target_to_dealloc) {
-        this->log_with_guard("Target to deallocate should not be nullptr", Logger::Severity::warning)
-            ->log_with_guard("memory_with_buddy_system::deallocate method execution finished", Logger::Severity::trace);
+        this->log_with_guard("Target to deallocate should not be nullptr", logger::severity::warning)
+            ->log_with_guard("memory_with_buddy_system::deallocate method execution finished", logger::severity::trace);
         return;
     }
 
@@ -280,8 +280,8 @@ void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) c
     std::string target_to_dealloc_address = address_to_hex(reinterpret_cast<void *>(
             reinterpret_cast<char *>(new_available_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
 
-    this->log_with_guard("Memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
-                         Logger::Severity::information);
+    this->log_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
+                         logger::severity::information);
 
     *_buddy_system_is_block_available(new_available_block) = true;
 
@@ -336,5 +336,5 @@ void memory_with_buddy_system::deallocate(const void *const target_to_dealloc) c
     }
 
     this->log_with_guard("memory_with_buddy_system::deallocate method execution finished",
-                         Logger::Severity::trace);
+                         logger::severity::trace);
 }

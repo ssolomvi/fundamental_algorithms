@@ -2,15 +2,13 @@
 #define MEMORY_BASE_CLASS_H
 
 #include <functional>
-#include "Logger_builder.h"
-
-// TODO: rework constructors in all subclasses so they do not use virtual functions
-// TODO: initialize the first available block of allocator if needed!
+#include "logger_builder.h"
+#include "logger_holder.h"
 
 /* Common structure for allocators:
  * size_t          -- size of allocator pull
- * Logger*
- * Memory*         -- parent allocator (if present)
+ * logger*
+ * memory*         -- parent allocator (if present)
  * allocation_mode -- first/best/worst
  * void *          -- ptr to (available/occupied block from pool)
  *
@@ -19,7 +17,7 @@
  *
  * */
 
-class Memory
+class memory : protected logger_holder
 {
 public:
     enum Allocation_strategy {
@@ -57,22 +55,22 @@ protected:
 #pragma region Allocator properties
     /*
     size_t get_size_of_allocator_pool() const;
-    Logger* get_logger_of_allocator() const;
-    Memory* get_ptr_to_parent_allocator() const;
+    logger* get_logger_of_allocator() const;
+    memory* get_ptr_to_parent_allocator() const;
     Allocation_strategy get_allocation_mode() const;
     virtual void * get_ptr_to_pool_allocator() const;
 */
     virtual size_t get_allocator_service_block_size() const;
 
     [[nodiscard]] virtual size_t* get_ptr_size_of_allocator_pool() const;
-    [[nodiscard]] virtual Logger** get_ptr_logger_of_allocator() const;
-    [[nodiscard]] virtual Memory** get_ptr_to_ptr_parent_allocator() const;
+    [[nodiscard]] virtual logger** get_ptr_logger_of_allocator() const;
+    [[nodiscard]] virtual memory** get_ptr_to_ptr_parent_allocator() const;
     [[nodiscard]] virtual Allocation_strategy* get_ptr_allocation_mode() const;
     [[nodiscard]] virtual void ** get_ptr_to_ptr_to_pool_start() const;
     /*
     size_t* get_ptr_size_of_allocator_pool() const;
-    Logger** get_ptr_logger_of_allocator() const;
-    Memory** get_ptr_to_ptr_parent_allocator() const;
+    logger** get_ptr_logger_of_allocator() const;
+    memory** get_ptr_to_ptr_parent_allocator() const;
     Allocation_strategy* get_ptr_allocation_mode() const;
     void ** get_ptr_to_ptr_to_pool_start() const;
 */
@@ -103,17 +101,17 @@ protected:
     std::string address_to_hex(void const * ptr) const;
 
 public:
-    virtual ~Memory() noexcept = default;
-    Memory const * log_with_guard(std::string const & target, Logger::Severity severity) const;
+    virtual ~memory() noexcept = default;
+//    memory const * log_with_guard(std::string const & target, logger::severity severity) const;
 
-    void set_logger(Logger * const logger) const;
+    void set_logger(logger * const logger) const;
 
     virtual void *allocate(size_t target_size) const = 0;
 
     virtual void deallocate(void const * const target_to_dealloc) const = 0;
 
-    friend void * operator+=(Memory const &allocator, size_t target_size);
-    friend void operator-=(Memory const &allocator, void const * const target_to_dealloc);
+    friend void * operator+=(memory const &allocator, size_t target_size);
+    friend void operator-=(memory const &allocator, void const * const target_to_dealloc);
 };
 
 #endif //MEMORY_BASE_CLASS_H
