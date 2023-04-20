@@ -49,20 +49,20 @@ cmake_ninja_workdir = C$:/fund-algths/lab5/cmake-build-debug/
 
 build cmake_object_order_depends_target_lab5: phony || CMakeFiles/lab5.dir
 
-build CMakeFiles/lab5.dir/base_classes/Logger.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/Logger.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\base_classes\Logger.cpp.obj.d
+build CMakeFiles/lab5.dir/base_classes/logger.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/logger.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\logger.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
 
-build CMakeFiles/lab5.dir/base_classes/Logger_builder.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/Logger_builder.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\base_classes\Logger_builder.cpp.obj.d
+build CMakeFiles/lab5.dir/base_classes/logger_builder.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/logger_builder.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\logger_builder.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
 
-build CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/Memory_base_class.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\base_classes\Memory_base_class.cpp.obj.d
+build CMakeFiles/lab5.dir/base_classes/memory_base_class.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/memory_base_class.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\memory_base_class.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
@@ -97,6 +97,24 @@ build CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj: CX
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task2
 
+build CMakeFiles/lab5.dir/base_classes/binary_search_tree.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/binary_search_tree.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\binary_search_tree.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
+
+build CMakeFiles/lab5.dir/base_classes/logger_holder.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/logger_holder.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\logger_holder.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
+
+build CMakeFiles/lab5.dir/base_classes/associative_container.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/base_classes/associative_container.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\base_classes\associative_container.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\base_classes
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target lab5
@@ -105,7 +123,7 @@ build CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj: CX
 #############################################
 # Link the executable lab5.exe
 
-build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/base_classes/Logger.cpp.obj CMakeFiles/lab5.dir/base_classes/Logger_builder.cpp.obj CMakeFiles/lab5.dir/base_classes/Memory_base_class.cpp.obj CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/lab5task5/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj
+build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/base_classes/logger.cpp.obj CMakeFiles/lab5.dir/base_classes/logger_builder.cpp.obj CMakeFiles/lab5.dir/base_classes/memory_base_class.cpp.obj CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/lab5task5/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap_showcase.cpp.obj CMakeFiles/lab5.dir/base_classes/binary_search_tree.cpp.obj CMakeFiles/lab5.dir/base_classes/logger_holder.cpp.obj CMakeFiles/lab5.dir/base_classes/associative_container.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\lab5.dir

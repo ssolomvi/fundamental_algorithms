@@ -1,14 +1,14 @@
 #ifndef MEMORY_WITH_BUDDY_SYSTEM_H
 #define MEMORY_WITH_BUDDY_SYSTEM_H
 
-#include "../base_classes/Memory_base_class.h"
+#include "../base_classes/memory_base_class.h"
 #include <cmath>
 
 /* Structure:
  * allocator:
  *      char power
- *      Logger*
- *      Memory* parent_allocator
+ *      logger*
+ *      memory* parent_allocator
  *      void * pool start
  *
  * available_block:
@@ -21,18 +21,18 @@
  *      size_t power
  * */
 
-class memory_with_buddy_system final : public Memory
+class memory_with_buddy_system final : public memory
 {
 private:
 #pragma region Allocator properties
     size_t get_allocator_service_block_size() const override;
     char * _buddy_system_get_ptr_size_of_allocator_pool() const;
-    Logger ** _buddy_system_get_ptr_logger_of_allocator() const;
-    Memory ** _buddy_system_get_ptr_to_ptr_parent_allocator() const;
+    logger ** _buddy_system_get_ptr_logger_of_allocator() const;
+    memory ** _buddy_system_get_ptr_to_ptr_parent_allocator() const;
     void ** _buddy_system_get_ptr_to_ptr_to_pool_start() const;
     void * get_ptr_to_allocator_trusted_pool() const override;
 
-    [[nodiscard]] Logger** get_ptr_logger_of_allocator() const override;
+    [[nodiscard]] logger** get_ptr_logger_of_allocator() const override;
 
 #pragma endregion
 
@@ -61,7 +61,7 @@ private:
 public:
     memory_with_buddy_system(memory_with_buddy_system const&) = delete;
     memory_with_buddy_system& operator= (memory_with_buddy_system const&) = delete;
-    memory_with_buddy_system(char pow, Logger* logger, Memory* parent_allocator);
+    memory_with_buddy_system(char pow, logger* logger, memory* parent_allocator);
     ~memory_with_buddy_system();
 
     void *allocate(size_t target_size) const override;

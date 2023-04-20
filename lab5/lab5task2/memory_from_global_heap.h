@@ -1,15 +1,15 @@
 #ifndef MEMORY_FROM_GLOBAL_HEAP_H
 #define MEMORY_FROM_GLOBAL_HEAP_H
 
-#include "../base_classes/Memory_base_class.h"
+#include "../base_classes/memory_base_class.h"
 
 
-class memory_from_global_heap final : public Memory
+class memory_from_global_heap final : public memory
 {
 //protected:
 //    static std::map< void *, size_t > _allocated_blocks;
 //    std::map< void *, size_t > _allocated_blocks;
-    Logger** get_ptr_logger_of_allocator() const override;
+    logger** get_ptr_logger_of_allocator() const override;
 public:
     memory_from_global_heap();
     ~memory_from_global_heap();

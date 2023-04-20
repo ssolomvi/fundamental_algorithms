@@ -1,64 +1,64 @@
-#include "Logger.h"
+#include "logger.h"
 
-std::string Logger::severity_to_string_logger(Severity s) {
+std::string logger::severity_to_string_logger(severity s) {
     switch (s) {
-        case Severity::trace:
+        case severity::trace:
             return "[ trace ] ";
-        case Severity::debug:
+        case severity::debug:
             return "[ debug ] ";
-        case Severity::information:
+        case severity::information:
             return "[ information ] ";
-        case Severity::warning:
+        case severity::warning:
             return "[ warning ] ";
-        case Severity::error:
+        case severity::error:
             return "[ error ] ";
-        case Severity::critical:
+        case severity::critical:
             return "[ critical ] ";
         default:
-            throw severity_exception("invalid Severity value used");
+            throw severity_exception("invalid severity value used");
     }
 }
 
-Logger::Severity Logger::from_string_to_severity_parse(const std::string &s) {
+logger::severity logger::from_string_to_severity_parse(const std::string &s) {
     if (s == "trace") {
-        return Logger::Severity::trace;
+        return logger::severity::trace;
     }
     if (s == "debug") {
-        return Logger::Severity::debug;
+        return logger::severity::debug;
     }
     if (s == "information") {
-        return Logger::Severity::information;
+        return logger::severity::information;
     }
     if (s == "warning") {
-        return Logger::Severity::warning;
+        return logger::severity::warning;
     }
     if (s == "error") {
-        return Logger::Severity::error;
+        return logger::severity::error;
     }
     if (s == "critical") {
-        return Logger::Severity::critical;
+        return logger::severity::critical;
     } else {
-        throw Logger::severity_exception("invalid Severity string passed");
+        throw logger::severity_exception("invalid severity string passed");
     }
 }
 
-Logger_impl::~Logger_impl() {
+logger_impl::~logger_impl() {
     std::pair<std::ofstream *, size_t> stream_pair;
     for (auto &this_logger_stream: this_logger_streams) {
-        if ((stream_pair = Logger_impl::_all_loggers_streams[this_logger_stream.first]).second == 1) {
+        if ((stream_pair = logger_impl::_all_loggers_streams[this_logger_stream.first]).second == 1) {
             if (stream_pair.first != nullptr) {
                 stream_pair.first->flush();
                 stream_pair.first->close();
             }
-            Logger_impl::_all_loggers_streams.erase(this_logger_stream.first);
+            logger_impl::_all_loggers_streams.erase(this_logger_stream.first);
 //            this_logger_streams.erase(this_logger_stream.first);
         } else {
-            Logger_impl::_all_loggers_streams[this_logger_stream.first].second--;
+            logger_impl::_all_loggers_streams[this_logger_stream.first].second--;
         }
     }
 }
 
-Logger_impl::Logger_impl(std::map<std::string, Severity> const &info_to_construct_from)
+logger_impl::logger_impl(std::map<std::string, severity> const &info_to_construct_from)
         : this_logger_streams(info_to_construct_from) {
     std::pair<std::ofstream *, size_t> stream_pair;
     for (auto &this_logger_stream: this_logger_streams) {
@@ -78,7 +78,7 @@ Logger_impl::Logger_impl(std::map<std::string, Severity> const &info_to_construc
     }
 }
 
-Logger const *Logger_impl::log(std::string const &target, Severity level) const {
+logger const *logger_impl::log(std::string const &target, severity level) const {
     for (const auto &this_loggers_stream: this_logger_streams) {
         if (this_loggers_stream.second <= level) {
             time_t raw_time;
@@ -92,7 +92,7 @@ Logger const *Logger_impl::log(std::string const &target, Severity level) const 
             if (this_loggers_stream.first == "console") {
                 std::cout << curr_time << severity_to_string_logger(level) << target << std::endl;
             } else {
-                (*Logger_impl::_all_loggers_streams[this_loggers_stream.first].first) << curr_time
+                (*logger_impl::_all_loggers_streams[this_loggers_stream.first].first) << curr_time
                                                                                       << severity_to_string_logger(
                                                                                               level) << target
                                                                                       << std::endl;
@@ -102,6 +102,6 @@ Logger const *Logger_impl::log(std::string const &target, Severity level) const 
     return this;
 }
 
-std::map<std::string, std::pair<std::ofstream *, size_t>> Logger_impl::_all_loggers_streams =
+std::map<std::string, std::pair<std::ofstream *, size_t>> logger_impl::_all_loggers_streams =
         std::map<std::string, std::pair<std::ofstream *, size_t>>();
 
