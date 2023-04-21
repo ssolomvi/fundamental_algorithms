@@ -49,6 +49,9 @@ public:
 
     void *allocate(size_t target_size) const override;
     void deallocate(void const * const target_to_dealloc) const override;
+
+private:
+    logger *get_logger() const noexcept override;
 };
 
 

@@ -31,7 +31,6 @@ public:
 protected:
 
     virtual logger *get_logger() const noexcept = 0;
-
 };
 
 

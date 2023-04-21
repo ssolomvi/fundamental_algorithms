@@ -6,12 +6,9 @@
 
 class memory_from_global_heap final : public memory
 {
-//protected:
-//    static std::map< void *, size_t > _allocated_blocks;
-//    std::map< void *, size_t > _allocated_blocks;
     logger** get_ptr_logger_of_allocator() const override;
 public:
-    memory_from_global_heap();
+    memory_from_global_heap(logger * gh_allocator_logger);
     ~memory_from_global_heap();
     memory_from_global_heap(memory_from_global_heap const &) = delete;
     memory_from_global_heap& operator=(memory_from_global_heap const&) = delete;
@@ -20,9 +17,9 @@ public:
     void deallocate(void const * const target_to_dealloc) const override;
 
     size_t get_size_of_occupied_block_pool(void * const occupied_block) const override;
-    // static size_t get_size_of_occupied_block_pool(void * const ptr_to_block);
-};
 
-//std::map< void *, size_t > memory_from_global_heap::_allocated_blocks = std::map< void *, size_t > ();
+private:
+    logger *get_logger() const noexcept override;
+};
 
 #endif //MEMORY_FROM_GLOBAL_HEAP_H
