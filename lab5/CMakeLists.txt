@@ -13,12 +13,13 @@ set(CMAKE_CXX_STANDARD 20)
 # task 2 executables are below
 add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
         base_classes/logger_builder.h base_classes/logger_builder.cpp
+        base_classes/logger_holder.cpp base_classes/logger_holder.h
         base_classes/memory_base_class.h base_classes/memory_base_class.cpp
         lab5task2/memory_from_global_heap.h lab5task2/memory_from_global_heap.cpp
         lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
         lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
         lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-        lab5task2/memory_from_global_heap_showcase.cpp base_classes/binary_search_tree.cpp base_classes/binary_search_tree.h base_classes/logger_holder.cpp base_classes/logger_holder.h base_classes/associative_container.cpp base_classes/associative_container.h)
+        lab5task2/memory_from_global_heap_showcase.cpp)
 
 # task 3 executables are below
 #add_executable(lab5 base_classes/logger.h base_classes/logger.cpp

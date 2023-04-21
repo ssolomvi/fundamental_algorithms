@@ -152,8 +152,7 @@ void allocators_demo(
     delete builder;
 //    builder->clear();
 
-    memory *global_heap_allocator = new memory_from_global_heap();
-    global_heap_allocator->set_logger(global_heap_allocator_logger);
+    memory *global_heap_allocator = new memory_from_global_heap(global_heap_allocator_logger);
 
     builder = new logger_builder_impl();
     auto *sorted_list_allocator_logger = builder

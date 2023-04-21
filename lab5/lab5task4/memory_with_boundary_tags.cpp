@@ -51,15 +51,19 @@ memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
 
     if (size <= occupied_block_service_block_size) {
         size_with_service_size += occupied_block_service_block_size;
-        this->log_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
-                             + std::to_string(size_with_service_size) + " bytes for correct work of allocator",
-                             logger::severity::debug);
+        this->debug_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
+                               + std::to_string(size_with_service_size) + " bytes for correct work of allocator");
     }
 
     if (parent_allocator != nullptr) {
         _ptr_to_allocator_metadata = parent_allocator->allocate(size_with_service_size);
     } else {
-        _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+        try {
+            _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+        }
+        catch (std::bad_alloc const &) {
+            throw memory::Memory_exception("A constructor of allocator with boundary tags cannot be constructed");
+        }
     }
 
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
@@ -77,13 +81,11 @@ memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
     auto * ptr_to_pool_start = reinterpret_cast<void **>(allocation_mode + 1);
     *ptr_to_pool_start = nullptr;
 
-    this->log_with_guard("memory_with_boundary_tags allocator was constructed",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_boundary_tags allocator was constructed");
 }
 
 memory_with_boundary_tags::~memory_with_boundary_tags() {
-    this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation allocator was destructed");
 
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
     auto * this_allocator_logger = reinterpret_cast<logger **>(size_of_allocator_pool + 1);
@@ -101,8 +103,7 @@ memory_with_boundary_tags::~memory_with_boundary_tags() {
 /// </summary>
 /// <param name="target_size"> - size of block to be allocated</param>
 void *memory_with_boundary_tags::allocate(size_t target_size) const {
-    this->log_with_guard("memory_with_boundary_tags::allocate method execution started",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_boundary_tags::allocate method execution started");
 
     size_t size_of_allocator_pool = *get_ptr_size_of_allocator_pool();
     void *previous_block = nullptr, *current_block = *get_ptr_to_ptr_to_pool_start(), *target_block = nullptr;
@@ -175,10 +176,10 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
 #pragma endregion
 
     if (target_block == nullptr) {
-        this->log_with_guard("There is no memory available to allocate", logger::severity::warning)
-                ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", logger::severity::trace);
+        this->warning_with_guard("There is no memory available to allocate")
+            ->trace_with_guard("memory_with_boundary_tags::allocate method execution finished");
 
-        throw std::bad_alloc();
+        throw memory::Memory_exception("A block in allocator with boundary tags cannot be allocated");
     }
 
     size_t leftover = 0;
@@ -197,9 +198,8 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
     {
         auto target_size_override = target_size + leftover;
 
-        this->log_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
-                             + std::to_string(target_size_override) + " bytes for correct work of allocator",
-                             logger::severity::debug);
+        this->debug_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
+                               + std::to_string(target_size_override) + " bytes for correct work of allocator");
 
         size_needed += leftover;
     }
@@ -231,21 +231,20 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
             reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
             ));
 
-    this->log_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
-                         "Address: " + target_block_address, logger::severity::information)
-            ->log_with_guard("memory_with_boundary_tags::allocate method execution finished", logger::severity::trace);
+    this->information_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
+                                 "Address: " + target_block_address)
+        ->trace_with_guard("memory_with_boundary_tags::allocate method execution finished");
 
     void * to_return = reinterpret_cast<void *>(reinterpret_cast<void **>(reinterpret_cast<size_t *>(target_block) + 1) + 2);
     return to_return;
 }
 
 void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) const {
-    this->log_with_guard("memory_with_boundary_tags::deallocate method execution started",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_boundary_tags::deallocate method execution started");
 
     if (!target_to_dealloc) {
-        this->log_with_guard("Target to deallocate should not be nullptr", logger::severity::warning)
-                ->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", logger::severity::trace);
+        this->warning_with_guard("Target to deallocate should not be nullptr")
+            ->trace_with_guard("memory_with_boundary_tags::deallocate method execution finished");
         return;
     }
 
@@ -259,8 +258,7 @@ void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) 
                    reinterpret_cast<char *>(tmp) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
            ));
 
-    this->log_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully",
-                         logger::severity::information);
+    this->information_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully");
 
     void *next_to_target_to_deallocate = get_next_occupied_block_address(tmp),
          *prev_to_target_to_deallocate = get_previous_occupied_block_address(tmp);
@@ -285,5 +283,9 @@ void memory_with_boundary_tags::deallocate(const void *const target_to_dealloc) 
     *reinterpret_cast<void **>(reinterpret_cast<size_t *>(tmp) + 1) = nullptr;
     *reinterpret_cast<size_t *>(tmp) = 0;
 
-    this->log_with_guard("memory_with_boundary_tags::deallocate method execution finished", logger::severity::trace);
+    this->trace_with_guard("memory_with_boundary_tags::deallocate method execution finished");
+}
+
+logger *memory_with_boundary_tags::get_logger() const noexcept {
+    return *get_ptr_logger_of_allocator();
 }

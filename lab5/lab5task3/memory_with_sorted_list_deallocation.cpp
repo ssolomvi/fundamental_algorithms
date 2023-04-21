@@ -58,21 +58,25 @@ memory_with_sorted_list_deallocation::memory_with_sorted_list_deallocation(
 
     if (size < available_block_service_block_size) {
         size_with_service_size += available_block_service_block_size;
-        this->log_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
-                             + std::to_string(size_with_service_size) + " bytes for correct work of allocator",
-                             logger::severity::debug);
+        this->debug_with_guard("Requested " + std::to_string(size) + " bytes, but reserved "
+                               + std::to_string(size_with_service_size) + " bytes for correct work of allocator");
     }
 
     if (parent_allocator != nullptr) {
         _ptr_to_allocator_metadata = parent_allocator->allocate(size_with_service_size);
     } else {
-        _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+        try {
+            _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
+        }
+        catch (std::bad_alloc const &ex) {
+            throw memory::Memory_exception("An allocator with sorted list deallocation cannot be allocated");
+        }
     }
 
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
     *size_of_allocator_pool = size;
 
-    auto * this_allocator_logger = reinterpret_cast<logger **>(size_of_allocator_pool + 1);
+    auto * this_allocator_logger = reinterpret_cast<class logger **>(size_of_allocator_pool + 1);
     *this_allocator_logger = logger;
 
     auto * this_allocator_parent_allocator = reinterpret_cast<memory **>(this_allocator_logger + 1);
@@ -90,13 +94,11 @@ memory_with_sorted_list_deallocation::memory_with_sorted_list_deallocation(
     auto * next_to_first_available_block = reinterpret_cast<void **>(first_available_block_size + 1);
     *next_to_first_available_block = nullptr;
 
-    this->log_with_guard("memory_with_sorted_list_deallocation allocator was constructed",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation allocator was constructed");
 }
 
 memory_with_sorted_list_deallocation::~memory_with_sorted_list_deallocation() {
-    this->log_with_guard("memory_with_sorted_list_deallocation allocator was destructed",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation allocator was destructed");
 
     auto * size_of_allocator_pool = reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
     auto * this_allocator_logger = reinterpret_cast<logger **>(size_of_allocator_pool + 1);
@@ -110,8 +112,7 @@ memory_with_sorted_list_deallocation::~memory_with_sorted_list_deallocation() {
 }
 
 void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
-    this->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution started",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation::allocate method execution started");
 
     void *previous_block = nullptr, *current_block = get_first_available_block_address();
     void *target_block = nullptr, *previous_to_target_block = nullptr, *next_to_target_block = nullptr;
@@ -149,12 +150,10 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     if (target_block == nullptr)
     {
         auto const warning_message = "There is no memory available to allocate";
-        this->log_with_guard(warning_message,
-                             logger::severity::warning)
-            ->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution failed",
-                             logger::severity::trace);
+        this->warning_with_guard(warning_message)
+            ->trace_with_guard("memory_with_sorted_list_deallocation::allocate method execution failed");
 
-        throw std::bad_alloc();
+        throw memory::Memory_exception("A block in allocator with sorted list deallocation cannot be allocated");
     }
 
     size_t leftover = get_available_block_size(target_block) - occupied_block_service_block_size - target_size;
@@ -163,9 +162,8 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     {
         auto requested_block_size_override = target_size + leftover;
 
-        this->log_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
-              + std::to_string(requested_block_size_override) + " bytes for correct work of allocator",
-                             logger::severity::debug);
+        this->debug_with_guard("Requested " + std::to_string(target_size) + " bytes, but reserved "
+                               + std::to_string(requested_block_size_override) + " bytes for correct work of allocator");
 
         target_size = requested_block_size_override;
     }
@@ -215,10 +213,9 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
     std::string target_block_address = address_to_hex(reinterpret_cast<void *>(
             reinterpret_cast<char *>(target_block) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())));
 
-    this->log_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
-                                                                                      "Address: " + target_block_address, logger::severity::information)
-        ->log_with_guard("memory_with_sorted_list_deallocation::allocate method execution finished",
-                         logger::severity::trace);
+    this->information_with_guard("Block of size = " + std::to_string(target_size) + " was allocated. " +
+                                 "Address: " + target_block_address)
+        ->trace_with_guard("memory_with_sorted_list_deallocation::allocate method execution finished");
 
     auto * to_return = reinterpret_cast<void *>(target_block_size_address + 1); 
     return to_return;
@@ -226,12 +223,11 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
 
 void memory_with_sorted_list_deallocation::deallocate(const void *const target_to_dealloc) const
 {
-    this->log_with_guard("memory_with_sorted_list_deallocation::deallocate method execution started",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation::deallocate method execution started");
 
     if (!target_to_dealloc) {
-        this->log_with_guard("Target to deallocate should not be nullptr", logger::severity::warning)
-                ->log_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished", logger::severity::trace);
+        this->warning_with_guard("Target to deallocate should not be nullptr")
+            ->trace_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished");
         return;
     }
 
@@ -246,7 +242,7 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
                    reinterpret_cast<char *>(tmp) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())
            ));
 
-    this->log_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully", logger::severity::information);
+    this->information_with_guard("memory block with address: " + target_to_dealloc_address + " was deallocated successfully");
 
     void *next_to_current_block = nullptr, *current_block = get_first_available_block_address();
 
@@ -284,6 +280,9 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
         }
     }
 
-    this->log_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished",
-                         logger::severity::trace);
+    this->trace_with_guard("memory_with_sorted_list_deallocation::deallocate method execution finished");
+}
+
+logger *memory_with_sorted_list_deallocation::get_logger() const noexcept {
+    return *get_ptr_logger_of_allocator();
 }
