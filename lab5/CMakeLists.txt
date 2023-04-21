@@ -19,7 +19,9 @@ add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
         lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
         lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
         lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-        lab5task2/memory_from_global_heap_showcase.cpp)
+        lab5task2/memory_from_global_heap_showcase.cpp
+        base_classes/binary_search_tree.h base_classes/binary_search_tree.cpp
+        base_classes/associative_container.h base_classes/associative_container.cpp)
 
 # task 3 executables are below
 #add_executable(lab5 base_classes/logger.h base_classes/logger.cpp

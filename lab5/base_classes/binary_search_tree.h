@@ -33,7 +33,7 @@ public:
         std::string _message;
 
     public:
-        bst_exception(std::string const &message)
+        explicit bst_exception(std::string const &message)
                 : _message(message) {
 
         }
@@ -127,7 +127,7 @@ protected:
     };
 
 #pragma region Insert template method
-    class insertion_template_method: public template_methods
+    class insertion_template_method : public template_methods
     {
     public:
         virtual ~insertion_template_method() = default;
@@ -172,7 +172,8 @@ protected:
     public:
         tvalue const &read(
                 tkey const &key,
-                node *&tree_root_address);
+                node *&tree_root_address,
+                binary_search_tree<tkey, tvalue, tkey_comparer> * context_tree);
 
     private:
         tvalue const &read_inner(
@@ -184,7 +185,8 @@ protected:
         virtual void before_read_inner(
                 tkey const &key,
                 node *&subtree_root_address,
-                std::stack<node **> &path_to_subtree_root_exclusive);
+                std::stack<node **> &path_to_subtree_root_exclusive,
+                typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::was_found_find_a_node_place_function_response *is_found);
 
         virtual void after_read_inner(
                 tkey const &key,
@@ -203,7 +205,8 @@ protected:
     public:
         tvalue &&remove(
                 tkey const &key,
-                node *&tree_root_address);
+                node *&tree_root_address,
+                binary_search_tree<tkey, tvalue, tkey_comparer> * context_tree);
 
     private:
         tvalue &&remove_inner(
@@ -215,12 +218,14 @@ protected:
         virtual void before_remove_inner(
                 tkey const &key,
                 node *&subtree_root_address,
-                std::stack<node **> &path_to_subtree_root_exclusive);
+                std::stack<node **> &path_to_subtree_root_exclusive,
+                typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::was_found_find_a_node_place_function_response *is_found);
 
         virtual void after_remove_inner(
                 tkey const &key,
                 node *&subtree_root_address,
-                std::stack<node **> &path_to_subtree_root_exclusive);
+                std::stack<node **> &path_to_subtree_root_exclusive,
+                typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::direction_find_a_node_place_function_response &direction);
 
     };
 #pragma endregion
@@ -247,11 +252,11 @@ public:
 
     explicit binary_search_tree(memory *allocator = nullptr, logger *logger = nullptr);
 
-    binary_search_tree(binary_search_tree const &other); // copying?
+    binary_search_tree(binary_search_tree const &other); // copying
 
     binary_search_tree(binary_search_tree &&other) noexcept; // wtf??
 
-    binary_search_tree &operator=(binary_search_tree const &other); // assignment??
+    binary_search_tree &operator=(binary_search_tree const &other); // assignment
 
     binary_search_tree &operator=(binary_search_tree &&other) noexcept; // wtf??
 

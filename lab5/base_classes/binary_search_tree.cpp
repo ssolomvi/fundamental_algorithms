@@ -12,6 +12,7 @@ binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::prefix_iterato
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *current_node)
         : _current_node(current_node)
 {
+    // TODO: what should happen here, when 'root' is nullptr
     if (_current_node == nullptr) {
         return;
     }
@@ -24,7 +25,18 @@ template<
 bool binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::operator==(
         binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator const &other) const
 {
+    // TODO: _path == other._path?
+    return (_iterable_context == other._iterable_context && _current_node == other._current_node);
+}
 
+template<
+        typename tkey,
+        typename tvalue,
+        typename tkey_comparer>
+bool binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::operator!=(
+        const binary_search_tree::prefix_iterator &other) const {
+    // TODO: _path != other._path?
+    return (_iterable_context != other._iterable_context || _current_node != other._current_node);
 }
 
 template<
@@ -105,7 +117,9 @@ template<
 std::tuple<unsigned int, tkey const&, tvalue const&>
         binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::operator*() const
 {
-
+    // TODO: why unsigned int needed
+    unsigned int something;
+    return std::tuple<unsigned int, tkey const&, tvalue const&>{something, _current_node->key, _current_node->value};
 }
 
 //endregion prefix_iterator implementation
@@ -331,12 +345,15 @@ find_a_node_place(
         if (comparison_result == 0) {
             *is_found = found;
             return;
-        } else if (comparison_result < 0) {
-            *direction = left_subtree;
-            current_node = current_node->left_subtree_address;
         } else {
-            *direction = right_subtree;
-            current_node = current_node->right_subtree_address;
+            path_to_subtree_root_exclusive.push(&current_node);
+            if (comparison_result < 0) {
+                *direction = left_subtree;
+                current_node = current_node->left_subtree_address;
+            } else {
+                *direction = right_subtree;
+                current_node = current_node->right_subtree_address;
+            }
         }
     }
 }
@@ -369,8 +386,6 @@ void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method:
 {
     before_insert_inner(key, std::move(value), subtree_root_address, path_to_subtree_root_exclusive);
 
-    // TODO:
-
     after_insert_inner(key, std::move(value), subtree_root_address, path_to_subtree_root_exclusive);
 }
 
@@ -384,10 +399,9 @@ void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method:
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *&subtree_root_address,
         std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive)
 {
-    // TODO: find a place (virtual function in template methods) + init node
     // todo: памагити позязя
-    template_methods::was_found_find_a_node_place_function_response is_found;
-    template_methods::direction_find_a_node_place_function_response direction;
+    typename template_methods::was_found_find_a_node_place_function_response is_found;
+    typename template_methods::direction_find_a_node_place_function_response direction;
     find_a_node_place(key, subtree_root_address, path_to_subtree_root_exclusive, &is_found, &direction);
 
     if (is_found == template_methods::was_found_find_a_node_place_function_response::found) {
@@ -401,11 +415,6 @@ void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method:
     } else {
         initialize_memory_with_node(template_methods::_context_tree->_root);
     }
-    // вставка-создание нового узла, поиск места для вставки
-// inject additional data
-// push (&subtree_root_address)
-// insert_inner(key, std::move(value), ...)
-// recursive_call_status -- для avl, rb
 }
 
 template<
@@ -422,17 +431,13 @@ void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method:
 // баланс узлов
 }
 
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
+template<typename tkey, typename tvalue, typename tkey_comparer>
 void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method
 ::initialize_memory_with_node(tkey const &key,
                               tvalue &&value,
                               binary_search_tree<tkey, tvalue, tkey_comparer>::node * const node_address)
 {
     this->trace_with_guard("Method 'initialize_memory_with_node' execution started");
-
     // TODO: ask about it
     new (node_address) binary_search_tree<tkey, tvalue, tkey_comparer>::node;
 
@@ -454,24 +459,30 @@ template<
         typename tkey_comparer>
 tvalue const &binary_search_tree<tkey, tvalue, tkey_comparer>::reading_template_method::read(
         tkey const &key,
-        node *&tree_root_address)
+        node *&tree_root_address,
+        binary_search_tree<tkey, tvalue, tkey_comparer> * context_tree)
 {
+    this->_context_tree = context_tree;
     return read_inner(key, tree_root_address, std::stack<node **>());
 }
 
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
+template<typename tkey, typename tvalue, typename tkey_comparer>
 tvalue const &binary_search_tree<tkey, tvalue, tkey_comparer>::reading_template_method::read_inner(
         tkey const &key,
         node *&subtree_root_address,
         std::stack<node **> &path_to_subtree_root_exclusive)
 {
-    before_read_inner(key, subtree_root_address, path_to_subtree_root_exclusive);
+    typename template_methods::was_found_find_a_node_place_function_response is_found;
+    before_read_inner(key, subtree_root_address, path_to_subtree_root_exclusive, &is_found);
 
-
-
+    if (is_found == template_methods::was_found_find_a_node_place_function_response::not_found) {
+        // TODO: response
+        this->information_with_guard("The value with such key not found");
+    } else {
+        // TODO: is this right?
+        this->information_with_guard("The value with such key was found successfully");
+        return (*(path_to_subtree_root_exclusive.top()))->value;
+    }
     after_read_inner(key, subtree_root_address, path_to_subtree_root_exclusive);
 }
 
@@ -482,9 +493,22 @@ template<
 void binary_search_tree<tkey, tvalue, tkey_comparer>::reading_template_method::before_read_inner(
         tkey const &key,
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *&subtree_root_address,
-        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive)
+        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive,
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::was_found_find_a_node_place_function_response *is_found)
 {
+    typename template_methods::direction_find_a_node_place_function_response direction;
 
+    template_methods::find_a_node_place(key, subtree_root_address, path_to_subtree_root_exclusive, is_found, &direction);
+
+    if (*is_found == template_methods::was_found_find_a_node_place_function_response::found) {
+        if (direction == template_methods::direction_find_a_node_place_function_response::left_subtree) {
+            path_to_subtree_root_exclusive.push(&((*(path_to_subtree_root_exclusive.top()))->left_subtree_address));
+        } else if (direction == template_methods::direction_find_a_node_place_function_response::right_subtree) {
+            path_to_subtree_root_exclusive.push(&((*(path_to_subtree_root_exclusive.top()))->right_subtree_address));
+        } else {
+            path_to_subtree_root_exclusive.push(&(subtree_root_address));
+        }
+    }
 }
 
 template<
@@ -509,25 +533,36 @@ template<
         typename tkey_comparer>
 tvalue &&binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_method::remove(
         tkey const &key,
-        binary_search_tree<tkey, tvalue, tkey_comparer>::node *&tree_root_address)
+        binary_search_tree<tkey, tvalue, tkey_comparer>::node *&tree_root_address,
+        binary_search_tree<tkey, tvalue, tkey_comparer> * context_tree)
 {
+    this->_context_tree = context_tree;
     return std::move(remove_inner(key, tree_root_address, std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **>()));
 }
 
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
+template<typename tkey, typename tvalue, typename tkey_comparer>
 tvalue &&binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_method::remove_inner(
         tkey const &key,
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *&subtree_root_address,
         std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive)
 {
-    before_remove_inner(key, subtree_root_address, path_to_subtree_root_exclusive);
+    // find a node to delete
+    typename template_methods::was_found_find_a_node_place_function_response is_found;
+    before_remove_inner(key, subtree_root_address, path_to_subtree_root_exclusive, &is_found);
+    // stack has all nodes to node_to_delete, excluding the node_to_delete
 
+    tvalue && to_return = 0;
 
+    if (is_found == template_methods::was_found_find_a_node_place_function_response::not_found) {
+        // TODO: handle response from found
+    } else {
+        subtree_root_address = (*path_to_subtree_root_exclusive.top());
+        to_return = (*path_to_subtree_root_exclusive.top())->value;
+        path_to_subtree_root_exclusive.pop();
+    }
 
     after_remove_inner(key, subtree_root_address, path_to_subtree_root_exclusive);
+    return to_return;
 }
 
 template<
@@ -537,9 +572,22 @@ template<
 void binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_method::before_remove_inner(
         tkey const &key,
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *&subtree_root_address,
-        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive)
+        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive,
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::was_found_find_a_node_place_function_response *is_found)
 {
+    typename template_methods::direction_find_a_node_place_function_response direction;
 
+    template_methods::find_a_node_place(key, subtree_root_address, path_to_subtree_root_exclusive, is_found, &direction);
+
+    if (*is_found == template_methods::was_found_find_a_node_place_function_response::found) {
+        if (direction == template_methods::direction_find_a_node_place_function_response::left_subtree) {
+            path_to_subtree_root_exclusive.push(&((*(path_to_subtree_root_exclusive.top()))->left_subtree_address));
+        } else if (direction == template_methods::direction_find_a_node_place_function_response::right_subtree) {
+            path_to_subtree_root_exclusive.push(&((*(path_to_subtree_root_exclusive.top()))->right_subtree_address));
+        } else {
+            path_to_subtree_root_exclusive.push(&(subtree_root_address));
+        }
+    }
 }
 
 template<
@@ -549,9 +597,53 @@ template<
 void binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_method::after_remove_inner(
         tkey const &key,
         binary_search_tree<tkey, tvalue, tkey_comparer>::node *&subtree_root_address,
-        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive)
+        std::stack<binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path_to_subtree_root_exclusive,
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::template_methods::direction_find_a_node_place_function_response &direction)
 {
+    // stack.top() is a parent of to_delete node
+    // subtree_root_address is a node to delete
+    if (path_to_subtree_root_exclusive.empty()
+        && subtree_root_address->left_subtree_address == nullptr
+        && subtree_root_address->right_subtree_address == nullptr) {
+        // root was just deleted from tree
+        // TODO: redo links in binary tree
+    }
 
+    node * to_delete = subtree_root_address, * to_replace = nullptr, * parent_to_to_replace = nullptr;
+
+    // there are 2 children
+    if (to_delete->right_subtree_address && to_delete->left_subtree_address) {
+        // go left, take the most right
+        to_replace = to_delete->left_subtree_address;
+        while (to_replace->right_subtree_address != nullptr) {
+            parent_to_to_replace = to_replace;
+            to_replace = to_replace->right_subtree_address;
+        }
+
+        if (to_replace->left_subtree_address != nullptr) {
+            parent_to_to_replace->right_subtree_address = to_replace->left_subtree_address;
+        }
+    }
+    // there is 1 child in the left
+    else if (to_delete->left_subtree_address != nullptr) {
+        to_replace = to_delete->left_subtree_address;
+    }
+    // there is 1 child in the right
+    else if (to_delete->right_subtree_address != nullptr) {
+        to_replace = to_delete->right_subtree_address;
+    }
+    // node to_delete is a list, no replacing required
+    else {
+        return;
+    }
+
+    if (direction == template_methods::direction_find_a_node_place_function_response::root) {
+        // TODO: попортить указатель на корень дерева в классе дерева
+    } else if (direction == template_methods::direction_find_a_node_place_function_response::left_subtree) {
+        (*(path_to_subtree_root_exclusive.top()))->left_subtree_address = to_replace;
+    } else {
+        (*(path_to_subtree_root_exclusive.top()))->right_subtree_address = to_replace;
+    }
 }
 
 // endregion implementation
