@@ -1,47 +1,19 @@
 cmake_minimum_required(VERSION 3.22)
 project(lab5)
 
-# find_package(RapidJSON CONFIG REQUIRED)
-# target_link_libraries(main PRIVATE rapidjson)
-# include_directories(vcpkg/installed/x86-windows/include/rapidjson)
-
 set(CMAKE_CXX_STANDARD 20)
 
-# task 1 executables are below
-#add_executable(lab5 base_classes/logger.h lab5task1/logger_showcase.cpp)
-
-# task 2 executables are below
-add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
-        base_classes/logger_builder.h base_classes/logger_builder.cpp
-        base_classes/logger_holder.cpp base_classes/logger_holder.h
-        base_classes/memory_base_class.h base_classes/memory_base_class.cpp
+# current configs
+add_executable(lab5
+        logger/logger.h logger/logger.cpp
+        logger/logger_builder.h logger/logger_builder.cpp
+        logger/logger_holder.h logger/logger_holder.cpp
+        allocator/memory_base_class.h allocator/memory_base_class.cpp
+        allocator/memory_holder.h allocator/memory_holder.cpp
+        binary_tree/associative_container.h binary_tree/associative_container.cpp
+        binary_tree/binary_search_tree.h binary_tree/binary_search_tree.cpp
         lab5task2/memory_from_global_heap.h lab5task2/memory_from_global_heap.cpp
         lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
         lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
         lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-        lab5task2/memory_from_global_heap_showcase.cpp
-        base_classes/binary_search_tree.h base_classes/binary_search_tree.cpp
-        base_classes/associative_container.h base_classes/associative_container.cpp)
-
-# task 3 executables are below
-#add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
-#        base_classes/Logger_builder.h base_classes/Logger_builder.cpp
-#        base_classes/Memory_base_class.h base_classes/Memory_base_class.cpp
-#        lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
-#        lab5task3/memory_with_sorted_list_deallocation_showcase.cpp)
-
-# task 4 executables are below
-#add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
-#        base_classes/Logger_builder.h base_classes/Logger_builder.cpp
-#        base_classes/Memory_base_class.h base_classes/Memory_base_class.cpp
-#        lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
-#        lab5task4/memory_with_boundary_tags_showcase.cpp)
-
-# task 5 executables are below
-#add_executable(lab5 base_classes/logger.h base_classes/logger.cpp
-#        base_classes/Logger_builder.h base_classes/Logger_builder.cpp
-#        base_classes/Memory_base_class.h base_classes/Memory_base_class.cpp
-#        lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-#        lab5task5/memory_with_buddy_system_showcase.cpp)
-
-
+        lab5task2/memory_from_global_heap_showcase.cpp)

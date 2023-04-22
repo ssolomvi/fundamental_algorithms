@@ -2,8 +2,8 @@
 #define MEMORY_BASE_CLASS_H
 
 #include <functional>
-#include "logger_builder.h"
-#include "logger_holder.h"
+#include "../logger/logger_builder.h"
+#include "../logger/logger_holder.h"
 
 /* Common structure for allocators:
  * size_t          -- size of allocator pull
