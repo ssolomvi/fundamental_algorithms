@@ -1,7 +1,7 @@
 #ifndef MEMORY_WITH_BUDDY_SYSTEM_H
 #define MEMORY_WITH_BUDDY_SYSTEM_H
 
-#include "../base_classes/memory_base_class.h"
+#include "../allocator/memory_base_class.h"
 #include <cmath>
 
 /* Structure:

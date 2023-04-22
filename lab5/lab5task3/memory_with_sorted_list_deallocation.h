@@ -1,7 +1,7 @@
 #ifndef MEMORY_WITH_SORTED_LIST_DEALLOCATION_H
 #define MEMORY_WITH_SORTED_LIST_DEALLOCATION_H
 
-#include "../base_classes/memory_base_class.h"
+#include "../allocator/memory_base_class.h"
 
 /* Structure of memory_with_sorted_list_deallocation allocator:
  *      basic

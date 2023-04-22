@@ -1,7 +1,7 @@
 #ifndef MEMORY_FROM_GLOBAL_HEAP_H
 #define MEMORY_FROM_GLOBAL_HEAP_H
 
-#include "../base_classes/memory_base_class.h"
+#include "../allocator/memory_base_class.h"
 
 
 class memory_from_global_heap final : public memory

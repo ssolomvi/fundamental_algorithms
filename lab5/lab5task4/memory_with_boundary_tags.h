@@ -1,7 +1,7 @@
 #ifndef MEMORY_WITH_BOUNDARY_TAGS_H
 #define MEMORY_WITH_BOUNDARY_TAGS_H
 
-#include "../base_classes/memory_base_class.h"
+#include "../allocator/memory_base_class.h"
 
 /* structure of occupied memory block:
         size_t size;
