@@ -40,7 +40,7 @@ template<
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator &binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::operator++()
 {
     if (_current_node == nullptr) {
-        // TODO: throw an exception
+        throw bst_exception("preorder iterator:: iterator is out of range");
     }
 
     if (_current_node->left_subtree_address != nullptr) {
@@ -110,6 +110,18 @@ binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::operator*() co
 {
     return std::tuple<unsigned int, const tkey &, const tvalue &>(_path.size(), _current_node->key, _current_node->value);
 }
+
+/*
+template<
+        typename tkey,
+        typename tvalue,
+        typename tkey_comparer>
+logger *binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator::get_logger() const noexcept
+{
+    return _iterable_context->_logger;
+}
+ */
+
 #pragma endregion
 
 #pragma region inorder iterator
@@ -159,7 +171,7 @@ typename binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator &binary
 {
     // левое--корень--правое
     if (_current_node == nullptr) {
-        // TODO: throw
+        throw bst_exception("inorder iterator:: iterator is out of range");
     }
 
     if (_current_node->right_subtree_address != nullptr) {
@@ -264,7 +276,7 @@ typename binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator &bina
 {
     // если можно идти налево, идём, если можно направо, идём
     if (_current_node == nullptr) {
-        // TODO: throw
+        throw bst_exception("postorder iterator:: iterator is out of range");
     }
 
     if (_path.empty()) // всё обошли
@@ -319,7 +331,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::begin_prefix() const noexcept
 {
-    return binary_search_tree::prefix_iterator(_root);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(_root);
 }
 
 template<
@@ -328,7 +340,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::end_prefix() const noexcept
 {
-    return binary_search_tree::prefix_iterator(nullptr);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(nullptr);
 }
 
 template<
@@ -337,7 +349,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::begin_infix() const noexcept
 {
-    return binary_search_tree::infix_iterator(_root);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator(_root);
 }
 
 template<
@@ -346,7 +358,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::end_infix() const noexcept
 {
-    return binary_search_tree::infix_iterator(nullptr);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator(nullptr);
 }
 
 template<
@@ -355,7 +367,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::begin_postfix() const noexcept
 {
-    return binary_search_tree::postfix_iterator(_root);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(_root);
 }
 
 template<
@@ -364,7 +376,7 @@ template<
         typename tkey_comparer>
 typename binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator binary_search_tree<tkey, tvalue, tkey_comparer>::end_postfix() const noexcept
 {
-    return binary_search_tree::postfix_iterator(nullptr);
+    return binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(nullptr);
 }
 
 #pragma endregion
@@ -450,7 +462,7 @@ binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method::inse
 
     if (*target_ptr != nullptr)
     {
-        // TODO: exception || update value
+        throw bst_exception("insertion_template_method::insert:: passed key is not unique");
     }
 
     *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
@@ -490,7 +502,7 @@ template<
 void binary_search_tree<tkey, tvalue, tkey_comparer>::insertion_template_method::after_insert_inner(
         std::stack<node * *> &path, binary_search_tree::node **target_ptr)
 {
-    // TODO: nothing to do here in BST context...
+    // nothing to do here in BST context...
 }
 
 template<
@@ -528,7 +540,7 @@ tvalue const &binary_search_tree<tkey, tvalue, tkey_comparer>::finding_template_
 
     if (*target_ptr == nullptr)
     {
-        // TODO: exception
+        throw bst_exception("finding_template_method::find:: no value with passed key in tree");
     }
 
     after_find_inner(path, target_ptr);
@@ -543,7 +555,7 @@ template<
 void
 binary_search_tree<tkey, tvalue, tkey_comparer>::finding_template_method::after_find_inner(std::stack<node * *> &path, binary_search_tree::node **target_ptr)
 {
-    // TODO: nothing to do here in BST context...
+    // nothing to do here in BST context...
 }
 
 #pragma endregion
@@ -572,7 +584,7 @@ tvalue &&binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_meth
 
     if (*target_ptr == nullptr)
     {
-        // TODO: exception
+        throw bst_exception("removing_template_method::remove:: no value with passed key in tree");
     }
 
     tvalue &&result = std::move((*target_ptr)->value);
@@ -839,7 +851,8 @@ template<
         typename tvalue,
         typename tkey_comparer>
 binary_search_tree<tkey, tvalue, tkey_comparer>::binary_search_tree(
-        logger *logger, memory *allocator,
+        logger *logger,
+        memory *allocator,
         binary_search_tree::insertion_template_method *insertion,
         binary_search_tree::finding_template_method *finding,
         binary_search_tree::removing_template_method *removing)
@@ -874,7 +887,7 @@ template<
         typename tkey,
         typename tvalue,
         typename tkey_comparer>
-void binary_search_tree<tkey, tvalue, tkey_comparer>::insert(const tkey &key, tvalue &&value)
+void binary_search_tree<tkey, tvalue, tkey_comparer>::insert(const tkey &key, tvalue const &&value)
 {
     _insertion->insert(key, std::move(value));
 }

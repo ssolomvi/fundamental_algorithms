@@ -125,7 +125,7 @@ memory_with_buddy_system::memory_with_buddy_system(
             _ptr_to_allocator_metadata = ::operator new(size_with_service_block);
         }
         catch (std::bad_alloc const &) {
-            throw memory::Memory_exception("An object of buddy system allocator cannot be constructed");
+            throw memory::memory_exception("An object of buddy system allocator cannot be constructed");
         }
     }
 
@@ -188,7 +188,7 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
         this->warning_with_guard("No memory available to allocate, allocator pool is less than memory requested")
             ->trace_with_guard("memory_with_buddy_system::allocate method execution finished");
 
-        throw memory::Memory_exception("A block in buddy system allocator cannot be allocated");
+        throw memory::memory_exception("A block in buddy system allocator cannot be allocated");
     }
 
     void * current_block = get_first_available_block_address(), * previous_to_current_block = nullptr,
@@ -211,7 +211,7 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
         this->warning_with_guard("There is no memory available to allocate")
             ->trace_with_guard("memory_with_buddy_system::allocate method execution finished");
 
-        throw memory::Memory_exception("A block in buddy system allocator cannot be allocated");
+        throw memory::memory_exception("A block in buddy system allocator cannot be allocated");
     }
 
     // delete target_block from list of available blocks

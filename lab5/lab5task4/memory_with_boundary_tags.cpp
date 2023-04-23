@@ -62,7 +62,7 @@ memory_with_boundary_tags::memory_with_boundary_tags(size_t size,
             _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
         }
         catch (std::bad_alloc const &) {
-            throw memory::Memory_exception("A constructor of allocator with boundary tags cannot be constructed");
+            throw memory::memory_exception("A constructor of allocator with boundary tags cannot be constructed");
         }
     }
 
@@ -179,7 +179,7 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
         this->warning_with_guard("There is no memory available to allocate")
             ->trace_with_guard("memory_with_boundary_tags::allocate method execution finished");
 
-        throw memory::Memory_exception("A block in allocator with boundary tags cannot be allocated");
+        throw memory::memory_exception("A block in allocator with boundary tags cannot be allocated");
     }
 
     size_t leftover = 0;

@@ -69,7 +69,7 @@ memory_with_sorted_list_deallocation::memory_with_sorted_list_deallocation(
             _ptr_to_allocator_metadata = ::operator new(size_with_service_size);
         }
         catch (std::bad_alloc const &ex) {
-            throw memory::Memory_exception("An allocator with sorted list deallocation cannot be allocated");
+            throw memory::memory_exception("An allocator with sorted list deallocation cannot be allocated");
         }
     }
 
@@ -153,7 +153,7 @@ void *memory_with_sorted_list_deallocation::allocate(size_t target_size) const {
         this->warning_with_guard(warning_message)
             ->trace_with_guard("memory_with_sorted_list_deallocation::allocate method execution failed");
 
-        throw memory::Memory_exception("A block in allocator with sorted list deallocation cannot be allocated");
+        throw memory::memory_exception("A block in allocator with sorted list deallocation cannot be allocated");
     }
 
     size_t leftover = get_available_block_size(target_block) - occupied_block_service_block_size - target_size;

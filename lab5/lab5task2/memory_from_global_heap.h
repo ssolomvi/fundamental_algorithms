@@ -8,7 +8,7 @@ class memory_from_global_heap final : public memory
 {
     logger** get_ptr_logger_of_allocator() const override;
 public:
-    memory_from_global_heap(logger * gh_allocator_logger);
+    explicit memory_from_global_heap(logger * gh_allocator_logger);
     ~memory_from_global_heap();
     memory_from_global_heap(memory_from_global_heap const &) = delete;
     memory_from_global_heap& operator=(memory_from_global_heap const&) = delete;
