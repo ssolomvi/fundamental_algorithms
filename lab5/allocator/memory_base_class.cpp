@@ -74,63 +74,63 @@ void operator-=(const memory &allocator, const void *const target_to_dealloc) {
 
 #pragma region virtual in-class methods implemention
 void *memory::get_first_available_block_address() const {
-    throw memory::Memory_exception("Method get_first_available_block_address not implemented");
+    throw memory::memory_exception("Method get_first_available_block_address not implemented");
 }
 
 void **memory::get_first_available_block_address_address() const {
-    throw memory::Memory_exception("Method get_first_available_block_address_address not implemented");
+    throw memory::memory_exception("Method get_first_available_block_address_address not implemented");
 }
 
 size_t memory::get_available_block_service_block_size() const {
-    throw memory::Memory_exception("Method get_available_block_service_block_size not implemented");
+    throw memory::memory_exception("Method get_available_block_service_block_size not implemented");
 }
 
 size_t memory::get_available_block_size(void * memory_block) const
 {
-    throw memory::Memory_exception("Method get_available_block_size not implemented");
+    throw memory::memory_exception("Method get_available_block_size not implemented");
 }
 
 void * memory::get_next_available_block_address(void * memory_block) const
 {
-    throw memory::Memory_exception("Method get_next_available_block_address not implemented");
+    throw memory::memory_exception("Method get_next_available_block_address not implemented");
 }
 
 void * memory::get_first_occupied_block_address() const
 {
-    throw memory::Memory_exception("Method get_first_occupied_block_address not implemented");
+    throw memory::memory_exception("Method get_first_occupied_block_address not implemented");
 }
 
 void ** memory::get_first_occupied_block_address_address() const
 {
-    throw memory::Memory_exception("Method get_first_occupied_block_address_address not implemented");
+    throw memory::memory_exception("Method get_first_occupied_block_address_address not implemented");
 }
 
 size_t memory::get_occupied_block_service_block_size() const
 {
-    throw memory::Memory_exception("Method get_occupied_block_service_block_size not implemented");
+    throw memory::memory_exception("Method get_occupied_block_service_block_size not implemented");
 }
 
 size_t memory::get_occupied_block_size(void * memory_block) const
 {
-    throw memory::Memory_exception("Method get_occupied_block_size not implemented");
+    throw memory::memory_exception("Method get_occupied_block_size not implemented");
 }
 
 void * memory::get_next_occupied_block_address(void * memory_block) const
 {
-    throw memory::Memory_exception("Method get_next_occupied_block_address not implemented");
+    throw memory::memory_exception("Method get_next_occupied_block_address not implemented");
 }
 
 void * memory::get_previous_occupied_block_address(void * memory_block) const
 {
-    throw memory::Memory_exception("Method get_previous_occupied_block_address not implemented");
+    throw memory::memory_exception("Method get_previous_occupied_block_address not implemented");
 }
 
 size_t memory::get_allocator_service_block_size() const {
-    throw memory::Memory_exception("Method get_allocator_service_block_size not implemented");
+    throw memory::memory_exception("Method get_allocator_service_block_size not implemented");
 }
 
 void *memory::get_ptr_to_allocator_trusted_pool() const {
-    throw memory::Memory_exception("Method get_ptr_to_allocator_trusted_pool not implemented");
+    throw memory::memory_exception("Method get_ptr_to_allocator_trusted_pool not implemented");
 }
 
 #pragma endregion

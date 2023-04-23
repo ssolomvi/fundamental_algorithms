@@ -26,13 +26,13 @@ public:
         worst_fit,
     };
 
-    class Memory_exception final : public std::exception
+    class memory_exception final : public std::exception
     {
     private:
         std::string _message;
 
     public:
-        explicit Memory_exception(std::string const & message)
+        explicit memory_exception(std::string const & message)
                 : _message(message)
         {
 

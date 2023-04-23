@@ -46,12 +46,12 @@ public:
 
     };
 
-public:
 #pragma region iterators
 #pragma region preorder iterator
-    class prefix_iterator final : private logger_holder
+public:
+    class prefix_iterator final
     {
-        friend class binary_search_tree<tkey, tvalue, tkey_comparer>;
+//        friend class binary_search_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
@@ -68,12 +68,18 @@ public:
         prefix_iterator operator++(int not_used);
 
         std::tuple<unsigned int, tkey const&, tvalue const&> operator*() const;
+
+//    private:
+//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 #pragma endregion
 
 #pragma region inorder iterator
+public:
     class infix_iterator final
     {
+        friend class binary_search_tree<tkey, tvalue, tkey_comparer>;
+
     private:
         node *_current_node;
         std::stack<node *> _path;
@@ -89,13 +95,19 @@ public:
         infix_iterator operator++(int not_used);
 
         std::tuple<unsigned int, tkey const&, tvalue const&> operator*() const;
+
+//    private:
+//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 
 #pragma endregion
 
 #pragma region postorder iterator
+public:
     class postfix_iterator final
     {
+        friend class binary_search_tree<tkey, tvalue, tkey_comparer>;
+
     private:
         node *_current_node;
         std::stack<node *> _path;
@@ -110,21 +122,25 @@ public:
         postfix_iterator operator++(int not_used);
 
         std::tuple<unsigned int, tkey const&, tvalue const&> operator*() const;
+
+//    private:
+//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 #pragma endregion
 
 public:
-    prefix_iterator begin_prefix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator begin_prefix() const noexcept;
 
-    prefix_iterator end_prefix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::prefix_iterator end_prefix() const noexcept;
 
-    infix_iterator begin_infix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator begin_infix() const noexcept;
 
-    infix_iterator end_infix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator end_infix() const noexcept;
 
-    postfix_iterator begin_postfix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator begin_postfix() const noexcept;
 
-    postfix_iterator end_postfix() const noexcept;
+    binary_search_tree<tkey, tvalue, tkey_comparer>::postfix_iterator end_postfix() const noexcept;
+
 #pragma endregion
 
 protected:
@@ -269,6 +285,8 @@ private:
     // TODO: think about usability in derived classes
     node *copy(node *from);
 
+//    virtual void copy_additional_data();
+
 protected:
 
     binary_search_tree(
@@ -279,13 +297,13 @@ protected:
             removing_template_method *removing);
 
 public:
-
+//    explicit binary_search_tree(logger *logger, memory *allocator);
     explicit binary_search_tree(logger *logger = nullptr, memory *allocator = nullptr);
 #pragma endregion
 
 public:
 #pragma region associative container contract
-    void insert(tkey const &key, tvalue &&value) override;
+    void insert(tkey const &key, tvalue const &&value) override;
 
     tvalue const &get(tkey const &key) override;
 

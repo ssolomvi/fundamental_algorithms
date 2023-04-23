@@ -17,7 +17,7 @@ void *memory_from_global_heap::allocate(size_t target_size) const {
     catch (std::bad_alloc const &) {
         this->error_with_guard("memory block with _size = " + std::to_string(target_size) + " cannot be allocated")
             ->trace_with_guard("memory_from_global_heap::allocate method execution finished");
-        throw memory::Memory_exception("A block cannot be allocated in global heap allocator");
+        throw memory::memory_exception("A block cannot be allocated in global heap allocator");
     }
     this->trace_with_guard("memory_from_global_heap::allocate method execution finished");
 }
@@ -47,7 +47,7 @@ memory_from_global_heap::memory_from_global_heap(logger * gh_allocator_logger)
         _ptr_to_allocator_metadata = ::operator new(sizeof(logger *));
     }
     catch (std::bad_alloc const &ex) {
-        throw memory::Memory_exception("An object of global heap allocator cannot be constructed");
+        throw memory::memory_exception("An object of global heap allocator cannot be constructed");
     }
     *get_ptr_logger_of_allocator() = gh_allocator_logger;
     this->trace_with_guard("An object of global heap allocator was constructed");
