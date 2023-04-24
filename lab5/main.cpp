@@ -13,7 +13,7 @@
 #include "lab5task3/memory_with_sorted_list_deallocation.h"
 #include "lab5task4/memory_with_boundary_tags.h"
 #include "lab5task5/memory_with_buddy_system.h"
-
+#include "binary_tree/bst_tree.h"
 
 class int_comparer
 {
@@ -233,35 +233,76 @@ void bst_test()
     delete binary_logger_builder;
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
-    auto tree = binary_search_tree<int, std::string, int_comparer>(binary_tree_logger, allocator);
-
-    tree.insert(4, "a");
-    tree.insert(2, "b");
-    tree.insert(3, "c");
-    tree.insert(1, "d");
-    tree.insert(5, "e");
-    tree.insert(7, "f");
-    tree.insert(6, "g");
+    solomatina_tree<int, std::string, int_comparer> kek_tree;
+    kek_tree.insert(4, "a");
+    kek_tree.insert(2, "b");
+    kek_tree.insert(3, "c");
+    kek_tree.insert(1, "d");
+    kek_tree.insert(5, "e");
+    kek_tree.insert(7, "f");
+    kek_tree.insert(6, "g");
 
     /*
-    auto *tree = new binary_search_tree<int, std::string, int_comparer>(binary_tree_logger, allocator);
+    auto end_prefix = kek_tree.end_prefix();
+    for (auto it = kek_tree.begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
 
-    tree->insert(4, "a");
-    tree->insert(2, "b");
-    tree->insert(3, "c");
-    tree->insert(1, "d");
-    tree->insert(5, "e");
-    tree->insert(7, "f");
-    tree->insert(6, "g");
-*/
-    auto value = std::move(tree.remove(4));
-    std::cout << value << std::endl;
-    value = std::move(tree.remove(2));
-    std::cout << value << std::endl;
-    value = std::move(tree.remove(6));
-    std::cout << value << std::endl;
-//    tree->insert(8, "h");
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+     */
 
+    /*
+    auto end_infix = kek_tree.end_infix();
+    for (auto it = kek_tree.begin_infix(); it != end_infix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+     */
+
+    auto end_postfix = kek_tree.end_postfix();
+    for (auto it = kek_tree.begin_postfix(); it != end_postfix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    auto value = std::move(kek_tree.remove(4));
+    std::cout << value << std::endl;
+    value = std::move(kek_tree.remove(3));
+    std::cout << value << std::endl;
+    value = std::move(kek_tree.remove(5));
+    std::cout << value << std::endl;
+
+    /*
+    auto * kek_tree = new solomatina_tree<int, std::string, int_comparer>(binary_tree_logger, allocator);
+    kek_tree->insert(4, "a");
+    kek_tree->insert(2, "b");
+    kek_tree->insert(3, "c");
+    kek_tree->insert(1, "d");
+    kek_tree->insert(5, "e");
+    kek_tree->insert(7, "f");
+    kek_tree->insert(6, "g");
+    auto value = std::move(kek_tree->remove(4));
+    std::cout << value << std::endl;
+    value = std::move(kek_tree->remove(3));
+    std::cout << value << std::endl;
+    value = std::move(kek_tree->remove(5));
+    std::cout << value << std::endl;
+    delete kek_tree;
+ */
 /*
     auto end_prefix = tree->end_prefix();
     for (auto it = tree->begin_prefix(); it != end_prefix; ++it)
@@ -277,7 +318,6 @@ void bst_test()
     delete allocator_logger;
     delete binary_tree_logger;
     delete allocator;
-//    delete tree;
 }
 
 int main()

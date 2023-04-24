@@ -1,0 +1,2 @@
+<--- [ trace ]  --->
+[ 24/04/2023 05:08:54 ][ trace ] An object of global heap allocator was constructed

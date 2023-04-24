@@ -221,7 +221,8 @@ template<
         typename tvalue,
         typename tkey_comparer>
 std::tuple<unsigned int, tkey const &, tvalue const &>
-binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator::operator*() const {
+binary_search_tree<tkey, tvalue, tkey_comparer>::infix_iterator::operator*() const
+{
     return std::tuple<unsigned int, const tkey &, const tvalue &>(_path.size(), _current_node->key, _current_node->value);
 }
 #pragma endregion
@@ -428,6 +429,85 @@ binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics::find_pa
     return { path, iterator };
 }
 
+template<typename tkey, typename tvalue, typename tkey_comparer>
+typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **
+binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics::find_parent(
+        std::stack<typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path,
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
+{
+    return path.empty() ? nullptr : path.top();
+}
+
+template<typename tkey, typename tvalue, typename tkey_comparer>
+typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **
+binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics::find_grandparent(
+        std::stack<typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path,
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
+{
+    auto ** parent = path.top();
+    path.pop();
+    if (path.empty()) {
+        path.push(parent);
+        return nullptr;
+    }
+    auto ** grandparent = path.top();
+    path.push(parent);
+    return grandparent;
+}
+
+template<typename tkey, typename tvalue, typename tkey_comparer>
+void binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics::rotate_left(
+        std::stack<node * *> &path,
+        binary_search_tree::node **target_ptr)
+{
+    node ** parent = find_parent(path, target_ptr);
+    node * grandparent = *find_grandparent(path, target_ptr);
+    path.pop();
+
+    // target_ptr will become a new root
+    if (grandparent == nullptr) {
+        _target_tree->_root = *target_ptr;
+    }
+    else if (grandparent->right_subtree == (*parent)) {
+        grandparent->right_subtree = *target_ptr;
+    }
+    else if (grandparent->left_subtree == (*parent)) {
+        grandparent->left_subtree = *target_ptr;
+    }
+
+    node * left_to_target_ptr = (*target_ptr)->left_subtree;
+    (*parent)->right_subtree = left_to_target_ptr;
+
+    (*target_ptr)->left_subtree = (*parent);
+}
+
+template<typename tkey, typename tvalue, typename tkey_comparer>
+void binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics::rotate_right(
+        std::stack<node * *> &path,
+        binary_search_tree::node **target_ptr)
+{
+    // redo ptrs in g || move keys and values
+    node ** parent = find_parent(path, target_ptr);
+    node * grandparent = *find_grandparent(path, target_ptr);
+    path.pop();
+
+    // target_ptr will become a new root
+    if (grandparent == nullptr) {
+        _target_tree->_root = *target_ptr;
+    }
+    else if (grandparent->right_subtree == (*parent)) {
+        grandparent->right_subtree = *target_ptr;
+    }
+    else if (grandparent->left_subtree == (*parent)) {
+        grandparent->left_subtree = *target_ptr;
+    }
+
+    node * right_to_target_ptr = (*target_ptr)->right_subtree;
+    (*parent)->left_subtree = right_to_target_ptr;
+
+    (*target_ptr)->right_subtree = (*parent);
+}
+
 template<
         typename tkey,
         typename tvalue,
@@ -436,6 +516,9 @@ logger *binary_search_tree<tkey, tvalue, tkey_comparer>::template_method_basics:
 {
     return _target_tree->get_logger();
 }
+
+
+
 
 #pragma region insertion template method
 template<
@@ -699,6 +782,7 @@ memory *binary_search_tree<tkey, tvalue, tkey_comparer>::removing_template_metho
 #pragma endregion
 
 #pragma region rool 5
+/*
 template<
         typename tkey,
         typename tvalue,
@@ -709,105 +793,7 @@ binary_search_tree<tkey, tvalue, tkey_comparer>::binary_search_tree(
 {
     _root = copy(obj._root);
 }
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer>::binary_search_tree(
-        binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
-        : binary_search_tree(obj._insertion,
-                             obj._finding,
-                             obj._removing,
-                             obj._allocator,
-                             obj._logger)
-{
-    _root = obj._root;
-    obj._root = nullptr;
-
-    _insertion->_target_tree = this;
-    obj._insertion = nullptr;
-
-    _finding->_target_tree = this;
-    obj._finding = nullptr;
-
-    _removing->_target_tree = this;
-    obj._removing = nullptr;
-
-    obj._allocator = nullptr;
-
-    obj._logger = nullptr;
-}
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer> &
-binary_search_tree<tkey, tvalue, tkey_comparer>::operator=(const binary_search_tree<tkey, tvalue, tkey_comparer> &obj)
-{
-    if (this == &obj)
-    {
-        return *this;
-    }
-
-    clear_up(_root);
-
-    _allocator = obj._allocator;
-    _logger = obj._logger;
-
-    _root = copy(obj._root);
-
-    return *this;
-}
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer> &
-binary_search_tree<tkey, tvalue, tkey_comparer>::operator=(binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
-{
-    if (this == &obj)
-    {
-        return *this;
-    }
-
-    clear_up(_root);
-    _root = obj._root;
-    obj._root = nullptr;
-
-    delete obj._insertion;
-    obj._insertion = nullptr;
-
-    delete obj._finding;
-    obj._finding = nullptr;
-
-    delete obj._removing;
-    obj._removing = nullptr;
-
-    _allocator = obj._allocator;
-    obj._allocator = nullptr;
-
-    _logger = obj._logger;
-    obj._logger = nullptr;
-
-    return *this;
-}
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer>::~binary_search_tree()
-{
-    delete _insertion;
-    delete _finding;
-    delete _removing;
-
-    clear_up(_root);
-}
-
+*/
 template<
         typename tkey,
         typename tvalue,
@@ -844,40 +830,6 @@ typename binary_search_tree<tkey, tvalue, tkey_comparer>::node *binary_search_tr
     result->right_subtree = copy(from->right_subtree);
 
     return result;
-}
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer>::binary_search_tree(
-        logger *logger,
-        memory *allocator,
-        binary_search_tree::insertion_template_method *insertion,
-        binary_search_tree::finding_template_method *finding,
-        binary_search_tree::removing_template_method *removing)
-        : _logger(logger),
-          _allocator(allocator),
-          _insertion(insertion),
-          _finding(finding),
-          _removing(removing),
-          _root(nullptr)
-{
-
-}
-
-template<
-        typename tkey,
-        typename tvalue,
-        typename tkey_comparer>
-binary_search_tree<tkey, tvalue, tkey_comparer>::binary_search_tree(logger *logger, memory *allocator)
-        : binary_search_tree(logger,
-                             allocator,
-                             new insertion_template_method(this),
-                             new finding_template_method(this),
-                             new removing_template_method(this))
-{
-
 }
 
 #pragma endregion
