@@ -17,7 +17,7 @@ class binary_search_tree  :
         private memory_holder,
         private logger_holder
 {
-protected:
+public:
     struct node
     {
         tkey key;
@@ -145,13 +145,11 @@ public:
 
 protected:
 #pragma region template methods
-    class template_method_basics:
-            protected logger_holder
+    class template_method_basics: protected logger_holder
     {
-
         friend class binary_search_tree<tkey, tvalue, tkey_comparer>;
 
-    private:
+    protected:
         binary_search_tree<tkey, tvalue, tkey_comparer> *_target_tree;
 
     public:
@@ -162,6 +160,14 @@ protected:
     public:
 
         std::pair<std::stack<node **>, node **> find_path(tkey const &key);
+
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::node** find_parent(std::stack<typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **target_ptr);
+
+        typename binary_search_tree<tkey, tvalue, tkey_comparer>::node** find_grandparent(std::stack<typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename binary_search_tree<tkey, tvalue, tkey_comparer>::node **target_ptr);
+
+        void rotate_left(std::stack<node **> &path, node **target_ptr);
+
+        void rotate_right(std::stack<node **> &path, node **target_ptr);
 
     private:
 
@@ -188,12 +194,9 @@ protected:
 
         [[nodiscard]] virtual size_t get_node_size() const;
 
-        virtual void initialize_memory_with_node(
-                node *target_ptr) const;
+        virtual void initialize_memory_with_node(node *target_ptr) const;
 
-        virtual void after_insert_inner(
-                std::stack<node **> &path,
-                node **target_ptr);
+        virtual void after_insert_inner(std::stack<node **> &path, node **target_ptr);
 
     private:
 
@@ -203,8 +206,7 @@ protected:
 #pragma endregion
 
 #pragma region finding template method
-    class finding_template_method :
-            public template_method_basics
+    class finding_template_method : public template_method_basics
     {
 
     public:
@@ -268,15 +270,95 @@ private:
 
 public:
 #pragma region rool 5
-    binary_search_tree(binary_search_tree<tkey, tvalue, tkey_comparer> const &obj);
+    // copy constructor
+    binary_search_tree(
+            binary_search_tree<tkey, tvalue, tkey_comparer> const &obj)
+            : binary_search_tree(obj._logger, obj._allocator)
+    {
+        _root = copy(obj._root);
+    }
 
-    binary_search_tree(binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept;
+    binary_search_tree(
+            binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+            : binary_search_tree(obj._insertion,
+                                 obj._finding,
+                                 obj._removing,
+                                 obj._allocator,
+                                 obj._logger)
+    {
+        _root = obj._root;
+        obj._root = nullptr;
 
-    binary_search_tree &operator=(binary_search_tree<tkey, tvalue, tkey_comparer> const &obj);
+        _insertion->_target_tree = this;
+        obj._insertion = nullptr;
 
-    binary_search_tree &operator=(binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept;
+        _finding->_target_tree = this;
+        obj._finding = nullptr;
 
-    ~binary_search_tree();
+        _removing->_target_tree = this;
+        obj._removing = nullptr;
+
+        obj._allocator = nullptr;
+
+        obj._logger = nullptr;
+    }
+
+    binary_search_tree &operator=(
+            binary_search_tree<tkey, tvalue, tkey_comparer> const &obj)
+    {
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        clear_up(_root);
+
+        _allocator = obj._allocator;
+        _logger = obj._logger;
+
+        _root = copy(obj._root);
+
+        return *this;
+    }
+
+    binary_search_tree &operator=(
+            binary_search_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    {
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        clear_up(_root);
+        _root = obj._root;
+        obj._root = nullptr;
+
+        delete obj._insertion;
+        obj._insertion = nullptr;
+
+        delete obj._finding;
+        obj._finding = nullptr;
+
+        delete obj._removing;
+        obj._removing = nullptr;
+
+        _allocator = obj._allocator;
+        obj._allocator = nullptr;
+
+        _logger = obj._logger;
+        obj._logger = nullptr;
+
+        return *this;
+    }
+
+    ~binary_search_tree() override
+    {
+        delete _insertion;
+        delete _finding;
+        delete _removing;
+
+        clear_up(_root);
+    }
 
 private:
 
@@ -294,11 +376,30 @@ protected:
             memory *allocator,
             insertion_template_method *insertion,
             finding_template_method *finding,
-            removing_template_method *removing);
+            removing_template_method *removing)
+            : _logger(logger),
+              _allocator(allocator),
+              _insertion(insertion),
+              _finding(finding),
+              _removing(removing),
+              _root(nullptr)
+    {
+
+    }
 
 public:
 //    explicit binary_search_tree(logger *logger, memory *allocator);
-    explicit binary_search_tree(logger *logger = nullptr, memory *allocator = nullptr);
+    explicit binary_search_tree(
+            logger *logger = nullptr,
+            memory *allocator = nullptr)
+            : binary_search_tree(logger,
+                              allocator,
+                              new insertion_template_method(this),
+                              new finding_template_method(this),
+                              new removing_template_method(this))
+    {
+
+    }
 #pragma endregion
 
 public:

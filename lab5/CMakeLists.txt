@@ -16,4 +16,4 @@ add_executable(lab5
         lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
         lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
         lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-        main.cpp)
+        main.cpp splay_tree/splay_tree.cpp splay_tree/splay_tree.h binary_tree/bst_tree.h)
