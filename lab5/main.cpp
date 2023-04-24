@@ -242,7 +242,7 @@ void bst_test()
     kek_tree.insert(7, "f");
     kek_tree.insert(6, "g");
 
-    /*
+
     auto end_prefix = kek_tree.end_prefix();
     for (auto it = kek_tree.begin_prefix(); it != end_prefix; ++it)
     {
@@ -253,7 +253,7 @@ void bst_test()
 
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
-     */
+
 
     /*
     auto end_infix = kek_tree.end_infix();

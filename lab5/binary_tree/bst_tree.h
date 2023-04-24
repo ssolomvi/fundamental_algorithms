@@ -91,12 +91,41 @@ public:
                 _current_node = _current_node->right_subtree;
             }
             else {
-                if (_path.empty()) {
+                if (_path.empty() == true) {
                     _current_node = nullptr;
                 }
                 else if (_path.top()->left_subtree == _current_node) {
                     while (true) {
-                        if (_path.empty()) {
+                        if (_path.empty() == true) {
+                            _current_node = nullptr;
+                            break;
+                        }
+
+                        // parent element has a right subtree
+                        if (_path.top()->right_subtree != nullptr) {
+                            _current_node = _path.top()->right_subtree;
+                            break;
+                        } else {
+                            while (true) {
+                                _current_node = _path.top();
+                                _path.pop();
+
+                                if (_path.empty() == true) {
+                                    _current_node = nullptr;
+                                    break;
+                                }
+
+                                if (_path.top()->left_subtree == _current_node && _path.top()->right_subtree != nullptr) {
+                                    _current_node = _path.top()->right_subtree;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                    /*
+                    while (true) {
+                        if (_path.empty() == true) {
                             _current_node = nullptr;
                             break;
                         }
@@ -109,16 +138,18 @@ public:
                             _path.pop();
                         }
                     }
+                     */
                 }
                 else if (_path.top()->right_subtree == _current_node) {
                     while (true) {
-                        if (_path.empty()) {
+                        _current_node = _path.top();
+                        _path.pop();
+
+                        if (_path.empty() == true) {
                             _current_node = nullptr;
                             break;
                         }
 
-                        _current_node = _path.top();
-                        _path.pop();
                         if (_path.top()->left_subtree == _current_node && _path.top()->right_subtree != nullptr) {
                             _current_node = _path.top()->right_subtree;
                             break;
