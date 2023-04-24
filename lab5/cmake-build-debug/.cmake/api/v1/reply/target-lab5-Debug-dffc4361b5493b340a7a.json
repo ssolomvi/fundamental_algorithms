@@ -62,10 +62,9 @@
 				9,
 				11,
 				13,
-				15,
-				17,
-				19,
-				21,
+				16,
+				18,
+				20,
 				22,
 				23
 			]
@@ -112,11 +111,10 @@
 				10,
 				12,
 				14,
-				16,
-				18,
-				20,
-				24,
-				25
+				15,
+				17,
+				19,
+				21
 			]
 		},
 		{
@@ -130,10 +128,9 @@
 				9,
 				11,
 				13,
-				15,
-				17,
-				19,
-				21,
+				16,
+				18,
+				20,
 				22,
 				23
 			]
@@ -209,14 +206,19 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "binary_tree/binary_search_tree.h",
+			"path" : "binary_tree/bst_tree.h",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "binary_tree/binary_search_tree.cpp",
+			"path" : "splay_tree/splay_tree.cpp",
 			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "splay_tree/splay_tree.h",
+			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
@@ -267,22 +269,6 @@
 			"compileGroupIndex" : 0,
 			"path" : "main.cpp",
 			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "splay_tree/splay_tree.cpp",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "splay_tree/splay_tree.h",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "binary_tree/bst_tree.h",
-			"sourceGroupIndex" : 0
 		}
 	],
 	"type" : "EXECUTABLE"

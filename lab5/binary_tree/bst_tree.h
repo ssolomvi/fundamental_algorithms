@@ -1,5 +1,5 @@
-#ifndef DATA_STRUCTURES_CPP_SOLOMATINA_TREE_H
-#define DATA_STRUCTURES_CPP_SOLOMATINA_TREE_H
+#ifndef BST_TREE_H
+#define BST_TREE_H
 
 #include <stack>
 #include "associative_container.h"
@@ -9,7 +9,7 @@
 #include "../allocator/memory_holder.h"
 
 template<typename tkey, typename tvalue, typename tkey_comparer>
-class solomatina_tree:
+class bst_tree:
         public associative_container<tkey, tvalue>,
         private memory_holder,
         private logger_holder
@@ -52,12 +52,11 @@ public:
 public:
     class prefix_iterator final
     {
-    friend class solomatina_tree<tkey, tvalue, tkey_comparer>;
+    friend class bst_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
         std::stack<node *> _path;
-//        solomatina_tree<tkey, tvalue, tkey_comparer> const *_iterable_context;
 
     public:
         explicit prefix_iterator(node *current_node)
@@ -182,12 +181,11 @@ public:
 public:
     class infix_iterator final
     {
-        friend class solomatina_tree<tkey, tvalue, tkey_comparer>;
+        friend class bst_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
         std::stack<node *> _path;
-//        solomatina_tree<tkey, tvalue, tkey_comparer> const *_iterable_context;
 
     public:
         explicit infix_iterator(node *current_node)
@@ -275,12 +273,11 @@ public:
 public:
     class postfix_iterator final
     {
-        friend class solomatina_tree<tkey, tvalue, tkey_comparer>;
+        friend class bst_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
         std::stack<node *> _path;
-//        solomatina_tree<tkey, tvalue, tkey_comparer> const *_iterable_context;
     public:
         explicit postfix_iterator(node *current_node)
                 : _current_node(current_node)
@@ -362,52 +359,52 @@ public:
 public:
     prefix_iterator begin_prefix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(_root);
+        return bst_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(_root);
     }
 
     prefix_iterator end_prefix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(nullptr);
+        return bst_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(nullptr);
     }
 
     infix_iterator begin_infix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::infix_iterator(_root);
+        return bst_tree<tkey, tvalue, tkey_comparer>::infix_iterator(_root);
     }
 
     infix_iterator end_infix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::infix_iterator(nullptr);
+        return bst_tree<tkey, tvalue, tkey_comparer>::infix_iterator(nullptr);
     }
 
     postfix_iterator begin_postfix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(_root);
+        return bst_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(_root);
     }
 
     postfix_iterator end_postfix() const noexcept
     {
-        return solomatina_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(nullptr);
+        return bst_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(nullptr);
     }
 
 #pragma endregion
 
 protected:
-
+#pragma region template methods
     class template_method_basics:
             protected logger_holder
     {
 
-        friend class solomatina_tree<tkey, tvalue, tkey_comparer>;
+        friend class bst_tree<tkey, tvalue, tkey_comparer>;
 
     private:
 
-        solomatina_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+        bst_tree<tkey, tvalue, tkey_comparer> *_target_tree;
 
     public:
 
         explicit template_method_basics(
-                solomatina_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : _target_tree(target_tree)
         {
 
@@ -445,6 +442,74 @@ protected:
             return { path, iterator };
         }
 
+
+        node** find_parent(std::stack<node **> &path, node **target_ptr)
+        {
+            return path.empty() ? nullptr : path.top();
+        }
+
+        node** find_grandparent(std::stack<node **> &path, node **target_ptr)
+        {
+            auto ** parent = path.top();
+            path.pop();
+            if (path.empty()) {
+                path.push(parent);
+                return nullptr;
+            }
+            auto ** grandparent = path.top();
+            path.push(parent);
+            return grandparent;
+        }
+
+        void rotate_left(std::stack<node **> &path, node **target_ptr)
+
+        {
+            node ** parent = find_parent(path, target_ptr);
+            node * grandparent = *find_grandparent(path, target_ptr);
+            path.pop();
+
+            // target_ptr will become a new root
+            if (grandparent == nullptr) {
+                _target_tree->_root = *target_ptr;
+            }
+            else if (grandparent->right_subtree == (*parent)) {
+                grandparent->right_subtree = *target_ptr;
+            }
+            else if (grandparent->left_subtree == (*parent)) {
+                grandparent->left_subtree = *target_ptr;
+            }
+
+            node * left_to_target_ptr = (*target_ptr)->left_subtree;
+            (*parent)->right_subtree = left_to_target_ptr;
+
+            (*target_ptr)->left_subtree = (*parent);
+        }
+
+        void rotate_right(std::stack<node **> &path, node **target_ptr)
+
+        {
+            // redo ptrs in g || move keys and values
+            node ** parent = find_parent(path, target_ptr);
+            node * grandparent = *find_grandparent(path, target_ptr);
+            path.pop();
+
+            // target_ptr will become a new root
+            if (grandparent == nullptr) {
+                _target_tree->_root = *target_ptr;
+            }
+            else if (grandparent->right_subtree == (*parent)) {
+                grandparent->right_subtree = *target_ptr;
+            }
+            else if (grandparent->left_subtree == (*parent)) {
+                grandparent->left_subtree = *target_ptr;
+            }
+
+            node * right_to_target_ptr = (*target_ptr)->right_subtree;
+            (*parent)->left_subtree = right_to_target_ptr;
+
+            (*target_ptr)->right_subtree = (*parent);
+        }
+
     private:
 
         logger *get_logger() const noexcept override
@@ -454,6 +519,7 @@ protected:
 
     };
 
+#pragma region insertion template method
     class insertion_template_method :
             public template_method_basics,
             private memory_holder
@@ -462,7 +528,7 @@ protected:
     public:
 
         explicit insertion_template_method(
-                solomatina_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -479,7 +545,7 @@ protected:
 
             if (*target_ptr != nullptr)
             {
-                // TODO: exception || update value
+                throw bst_exception("insertion_template_method::insert:: passed key is not unique");
             }
 
             *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
@@ -521,7 +587,9 @@ protected:
         }
 
     };
+#pragma endregion
 
+#pragma region finding template method
     class finding_template_method :
             public template_method_basics
     {
@@ -529,7 +597,7 @@ protected:
     public:
 
         explicit finding_template_method(
-                solomatina_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -546,7 +614,7 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                // TODO: exception
+                throw bst_exception("finding_template_method::find:: no value with passed key in tree");
             }
 
             after_find_inner(path, target_ptr);
@@ -565,6 +633,10 @@ protected:
 
     };
 
+#pragma endregion
+
+
+#pragma region removing template method
     class removing_template_method:
             public template_method_basics,
             private memory_holder
@@ -573,7 +645,7 @@ protected:
     public:
 
         explicit removing_template_method(
-                solomatina_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -590,7 +662,7 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                // TODO: exception
+                throw bst_exception("finding_template_method::find:: no value with passed key in tree");
             }
 
             tvalue &&result = std::move((*target_ptr)->value);
@@ -690,6 +762,9 @@ protected:
 
     };
 
+#pragma endregion
+#pragma endregion
+
 private:
 
     node *_root;
@@ -701,20 +776,20 @@ private:
 
 public:
 
-    solomatina_tree(
-            solomatina_tree<tkey, tvalue, tkey_comparer> const &obj)
-            : solomatina_tree(obj._logger, obj._allocator)
+    bst_tree(
+            bst_tree<tkey, tvalue, tkey_comparer> const &obj)
+            : bst_tree(obj._logger, obj._allocator)
     {
         _root = copy(obj._root);
     }
 
-    solomatina_tree(
-            solomatina_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
-            : solomatina_tree(obj._insertion,
-                              obj._finding,
-                              obj._removing,
-                              obj._allocator,
-                              obj._logger)
+    bst_tree(
+            bst_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+            : bst_tree(obj._insertion,
+                      obj._finding,
+                      obj._removing,
+                      obj._allocator,
+                      obj._logger)
     {
         _root = obj._root;
         obj._root = nullptr;
@@ -733,8 +808,8 @@ public:
         obj._logger = nullptr;
     }
 
-    solomatina_tree &operator=(
-            solomatina_tree<tkey, tvalue, tkey_comparer> const &obj)
+    bst_tree &operator=(
+            bst_tree<tkey, tvalue, tkey_comparer> const &obj)
     {
         if (this == &obj)
         {
@@ -751,8 +826,8 @@ public:
         return *this;
     }
 
-    solomatina_tree &operator=(
-            solomatina_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    bst_tree &operator=(
+            bst_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
     {
         if (this == &obj)
         {
@@ -781,7 +856,7 @@ public:
         return *this;
     }
 
-    ~solomatina_tree()
+    ~bst_tree()
     {
         delete _insertion;
         delete _finding;
@@ -827,7 +902,7 @@ private:
 
 protected:
 
-    solomatina_tree(
+    bst_tree(
             logger *logger,
             memory *allocator,
             insertion_template_method *insertion,
@@ -845,14 +920,14 @@ protected:
 
 public:
 
-    explicit solomatina_tree(
+    explicit bst_tree(
             logger *logger = nullptr,
             memory *allocator = nullptr)
-            : solomatina_tree(logger,
-                              allocator,
-                              new insertion_template_method(this),
-                              new finding_template_method(this),
-                              new removing_template_method(this))
+            : bst_tree(logger,
+                       allocator,
+                       new insertion_template_method(this),
+                       new finding_template_method(this),
+                       new removing_template_method(this))
     {
 
     }
@@ -895,4 +970,4 @@ private:
 };
 
 
-#endif //DATA_STRUCTURES_CPP_SOLOMATINA_TREE_H
+#endif //BST_TREE_H
