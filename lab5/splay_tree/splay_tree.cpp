@@ -1,7 +1,8 @@
 #include "splay_tree.h"
 
+/*
 template<typename tkey, typename tvalue, typename tkey_comparer>
-void splay_tree<tkey, tvalue, tkey_comparer>::template_splay_tree::splay(
+void splay_tree<tkey, tvalue, tkey_comparer>::splay(
         std::stack<typename bst_tree<tkey, tvalue, tkey_comparer>::node **> &path,
         typename bst_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
 {
@@ -55,30 +56,32 @@ void splay_tree<tkey, tvalue, tkey_comparer>::template_splay_tree::splay(
         }
     }
 }
-
-
+*/
+/*
 template<typename tkey, typename tvalue, typename tkey_comparer>
 void splay_tree<tkey, tvalue, tkey_comparer>::insertion_splay_tree::after_insert_inner(
         std::stack<typename bst_tree<tkey, tvalue, tkey_comparer>::node **> &path,
         typename bst_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
 {
-    template_splay_tree::splay(path, target_ptr);
+    splay(path, target_ptr);
 }
-
+*/
+/*
 template<typename tkey, typename tvalue, typename tkey_comparer>
 void splay_tree<tkey, tvalue, tkey_comparer>::finding_splay_tree::after_find_inner(
         std::stack<typename bst_tree<tkey, tvalue, tkey_comparer>::node **> &path,
         typename bst_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
 {
-    template_splay_tree::splay(path, target_ptr);
+    splay(path, target_ptr);
 }
-
-
+*/
+/*
 template<typename tkey, typename tvalue, typename tkey_comparer>
 void splay_tree<tkey, tvalue, tkey_comparer>::removing_splay_tree::after_remove(
         const std::stack<typename bst_tree<tkey, tvalue, tkey_comparer>::node **> &path)
 {
     typename bst_tree<tkey, tvalue, tkey_comparer>::node ** parent_to_deleted_node = path.top();
     path.pop();
-    template_splay_tree::splay(path, parent_to_deleted_node);
+    splay(path, parent_to_deleted_node);
 }
+*/

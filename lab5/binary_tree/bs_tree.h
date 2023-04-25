@@ -1,5 +1,5 @@
-#ifndef BST_TREE_H
-#define BST_TREE_H
+#ifndef BS_TREE_H
+#define BS_TREE_H
 
 #include <stack>
 #include "associative_container.h"
@@ -9,7 +9,7 @@
 #include "../allocator/memory_holder.h"
 
 template<typename tkey, typename tvalue, typename tkey_comparer>
-class bst_tree:
+class bs_tree:
         public associative_container<tkey, tvalue>,
         private memory_holder,
         private logger_holder
@@ -52,7 +52,7 @@ public:
 public:
     class prefix_iterator final
     {
-    friend class bst_tree<tkey, tvalue, tkey_comparer>;
+    friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
@@ -181,7 +181,7 @@ public:
 public:
     class infix_iterator final
     {
-        friend class bst_tree<tkey, tvalue, tkey_comparer>;
+        friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
@@ -273,7 +273,7 @@ public:
 public:
     class postfix_iterator final
     {
-        friend class bst_tree<tkey, tvalue, tkey_comparer>;
+        friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
     private:
         node *_current_node;
@@ -359,32 +359,32 @@ public:
 public:
     prefix_iterator begin_prefix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(_root);
+        return bs_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(_root);
     }
 
     prefix_iterator end_prefix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(nullptr);
+        return bs_tree<tkey, tvalue, tkey_comparer>::prefix_iterator(nullptr);
     }
 
     infix_iterator begin_infix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::infix_iterator(_root);
+        return bs_tree<tkey, tvalue, tkey_comparer>::infix_iterator(_root);
     }
 
     infix_iterator end_infix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::infix_iterator(nullptr);
+        return bs_tree<tkey, tvalue, tkey_comparer>::infix_iterator(nullptr);
     }
 
     postfix_iterator begin_postfix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(_root);
+        return bs_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(_root);
     }
 
     postfix_iterator end_postfix() const noexcept
     {
-        return bst_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(nullptr);
+        return bs_tree<tkey, tvalue, tkey_comparer>::postfix_iterator(nullptr);
     }
 
 #pragma endregion
@@ -395,16 +395,16 @@ protected:
             protected logger_holder
     {
 
-        friend class bst_tree<tkey, tvalue, tkey_comparer>;
+        friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
     private:
 
-        bst_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+        bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
 
     public:
 
         explicit template_method_basics(
-                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : _target_tree(target_tree)
         {
 
@@ -461,9 +461,25 @@ protected:
             return grandparent;
         }
 
+        virtual void rotate_fix_additional_data(node * target_ptr)
+        {
+
+        }
+
+    public:
         void rotate_left(std::stack<node **> &path, node **target_ptr)
 
         {
+            node ** parent = find_parent(path, target_ptr);
+            path.pop();
+
+            node * left_to_target_ptr = (*target_ptr)->left_subtree;
+
+            (*parent)->right_subtree = left_to_target_ptr;
+            (*target_ptr)->left_subtree = (*parent);
+
+            (*parent) = (*target_ptr);
+            /*
             node ** parent = find_parent(path, target_ptr);
             node * grandparent = *find_grandparent(path, target_ptr);
             path.pop();
@@ -483,12 +499,23 @@ protected:
             (*parent)->right_subtree = left_to_target_ptr;
 
             (*target_ptr)->left_subtree = (*parent);
+             */
         }
 
         void rotate_right(std::stack<node **> &path, node **target_ptr)
 
         {
-            // redo ptrs in g || move keys and values
+            node ** parent = find_parent(path, target_ptr);
+            path.pop();
+
+            node * right_to_target_ptr = (*target_ptr)->right_subtree;
+
+            (*parent)->left_subtree = right_to_target_ptr;
+            (*target_ptr)->right_subtree = (*parent);
+
+            (*parent) = (*target_ptr);
+
+            /*
             node ** parent = find_parent(path, target_ptr);
             node * grandparent = *find_grandparent(path, target_ptr);
             path.pop();
@@ -508,6 +535,7 @@ protected:
             (*parent)->left_subtree = right_to_target_ptr;
 
             (*target_ptr)->right_subtree = (*parent);
+             */
         }
 
     private:
@@ -528,7 +556,7 @@ protected:
     public:
 
         explicit insertion_template_method(
-                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -597,7 +625,7 @@ protected:
     public:
 
         explicit finding_template_method(
-                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -645,7 +673,7 @@ protected:
     public:
 
         explicit removing_template_method(
-                bst_tree<tkey, tvalue, tkey_comparer> *target_tree)
+                bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
@@ -653,8 +681,7 @@ protected:
 
     public:
 
-        tvalue &&remove(
-                tkey const &key)
+        tvalue &&remove(tkey const &key)
         {
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
@@ -748,7 +775,7 @@ protected:
         }
 
         virtual void after_remove(
-                std::stack<node **> const &path)
+                std::stack<node **> &path) const
         {
 
         }
@@ -765,6 +792,23 @@ protected:
 #pragma endregion
 #pragma endregion
 
+public:
+    bs_tree(
+            logger *logger,
+            memory *allocator,
+            insertion_template_method *insertion,
+            finding_template_method *finding,
+            removing_template_method *removing)
+            : _logger(logger),
+              _allocator(allocator),
+              _insertion(insertion),
+              _finding(finding),
+              _removing(removing),
+              _root(nullptr)
+    {
+
+    }
+
 private:
 
     node *_root;
@@ -776,16 +820,16 @@ private:
 
 public:
 
-    bst_tree(
-            bst_tree<tkey, tvalue, tkey_comparer> const &obj)
-            : bst_tree(obj._logger, obj._allocator)
+    bs_tree(
+            bs_tree<tkey, tvalue, tkey_comparer> const &obj)
+            : bs_tree(obj._logger, obj._allocator)
     {
         _root = copy(obj._root);
     }
 
-    bst_tree(
-            bst_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
-            : bst_tree(obj._insertion,
+    bs_tree(
+            bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+            : bs_tree(obj._insertion,
                       obj._finding,
                       obj._removing,
                       obj._allocator,
@@ -808,8 +852,8 @@ public:
         obj._logger = nullptr;
     }
 
-    bst_tree &operator=(
-            bst_tree<tkey, tvalue, tkey_comparer> const &obj)
+    bs_tree &operator=(
+            bs_tree<tkey, tvalue, tkey_comparer> const &obj)
     {
         if (this == &obj)
         {
@@ -826,8 +870,8 @@ public:
         return *this;
     }
 
-    bst_tree &operator=(
-            bst_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    bs_tree &operator=(
+            bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
     {
         if (this == &obj)
         {
@@ -856,7 +900,7 @@ public:
         return *this;
     }
 
-    ~bst_tree()
+    ~bs_tree()
     {
         delete _insertion;
         delete _finding;
@@ -900,34 +944,16 @@ private:
         return result;
     }
 
-protected:
-
-    bst_tree(
-            logger *logger,
-            memory *allocator,
-            insertion_template_method *insertion,
-            finding_template_method *finding,
-            removing_template_method *removing)
-            : _logger(logger),
-              _allocator(allocator),
-              _insertion(insertion),
-              _finding(finding),
-              _removing(removing),
-              _root(nullptr)
-    {
-
-    }
-
 public:
 
-    explicit bst_tree(
+    explicit bs_tree(
             logger *logger = nullptr,
             memory *allocator = nullptr)
-            : bst_tree(logger,
-                       allocator,
-                       new insertion_template_method(this),
-                       new finding_template_method(this),
-                       new removing_template_method(this))
+            : bs_tree(logger,
+                      allocator,
+                      new insertion_template_method(this),
+                      new finding_template_method(this),
+                      new removing_template_method(this))
     {
 
     }
@@ -970,4 +996,4 @@ private:
 };
 
 
-#endif //BST_TREE_H
+#endif //BS_TREE_H
