@@ -60,9 +60,9 @@ public:
 
     public:
         explicit prefix_iterator(node *current_node)
-        : _current_node(current_node)
+//        : _current_node(current_node)
         {
-
+            this->_current_node = current_node;
         }
 
         bool operator==(prefix_iterator const &other) const
@@ -397,7 +397,7 @@ protected:
 
         friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
-    private:
+    public:
 
         bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
 
@@ -415,6 +415,7 @@ protected:
         std::pair<std::stack<node **>, node **> find_path(
                 tkey const &key)
         {
+            // todo: smth is here?
             std::stack<node **> path;
 
             if (_target_tree->_root == nullptr)
@@ -467,7 +468,7 @@ protected:
         }
 
     public:
-        void rotate_left(std::stack<node **> &path, node **target_ptr)
+        node** rotate_left(std::stack<node **> &path, node **target_ptr)
 
         {
             node ** parent = find_parent(path, target_ptr);
@@ -475,67 +476,29 @@ protected:
 
             node * left_to_target_ptr = (*target_ptr)->left_subtree;
 
-            (*parent)->right_subtree = left_to_target_ptr;
             (*target_ptr)->left_subtree = (*parent);
-
             (*parent) = (*target_ptr);
-            /*
-            node ** parent = find_parent(path, target_ptr);
-            node * grandparent = *find_grandparent(path, target_ptr);
-            path.pop();
 
-            // target_ptr will become a new root
-            if (grandparent == nullptr) {
-                _target_tree->_root = *target_ptr;
-            }
-            else if (grandparent->right_subtree == (*parent)) {
-                grandparent->right_subtree = *target_ptr;
-            }
-            else if (grandparent->left_subtree == (*parent)) {
-                grandparent->left_subtree = *target_ptr;
-            }
+            (*target_ptr)->left_subtree->right_subtree = left_to_target_ptr;
 
-            node * left_to_target_ptr = (*target_ptr)->left_subtree;
-            (*parent)->right_subtree = left_to_target_ptr;
-
-            (*target_ptr)->left_subtree = (*parent);
-             */
+            rotate_fix_additional_data(*parent);
+            return parent;
         }
 
-        void rotate_right(std::stack<node **> &path, node **target_ptr)
-
+        node** rotate_right(std::stack<node **> &path, node **target_ptr)
         {
             node ** parent = find_parent(path, target_ptr);
             path.pop();
 
             node * right_to_target_ptr = (*target_ptr)->right_subtree;
 
-            (*parent)->left_subtree = right_to_target_ptr;
             (*target_ptr)->right_subtree = (*parent);
-
             (*parent) = (*target_ptr);
 
-            /*
-            node ** parent = find_parent(path, target_ptr);
-            node * grandparent = *find_grandparent(path, target_ptr);
-            path.pop();
+            (*target_ptr)->right_subtree->left_subtree = right_to_target_ptr;
 
-            // target_ptr will become a new root
-            if (grandparent == nullptr) {
-                _target_tree->_root = *target_ptr;
-            }
-            else if (grandparent->right_subtree == (*parent)) {
-                grandparent->right_subtree = *target_ptr;
-            }
-            else if (grandparent->left_subtree == (*parent)) {
-                grandparent->left_subtree = *target_ptr;
-            }
-
-            node * right_to_target_ptr = (*target_ptr)->right_subtree;
-            (*parent)->left_subtree = right_to_target_ptr;
-
-            (*target_ptr)->right_subtree = (*parent);
-             */
+            rotate_fix_additional_data(*parent);
+            return parent;
         }
 
     private:
@@ -681,7 +644,7 @@ protected:
 
     public:
 
-        tvalue &&remove(tkey const &key)
+        virtual tvalue &&remove(tkey const &key)
         {
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
@@ -809,9 +772,9 @@ public:
 
     }
 
-private:
-
+public:
     node *_root;
+protected:
     logger *_logger;
     memory *_allocator;
     insertion_template_method *_insertion;
