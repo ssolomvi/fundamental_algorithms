@@ -157,19 +157,243 @@ protected:
 #pragma endregion
 
 #pragma region removing rb tree
+    void swap_additional_data(
+            typename bs_tree<tkey, tvalue, tkey_comparer>::node *one_node,
+            typename bs_tree<tkey, tvalue, tkey_comparer>::node *another_node) override
+    {
+        auto *first  = reinterpret_cast<rb_node *>(one_node);
+        auto *second = reinterpret_cast<rb_node *>(another_node);
+        typename rb_node::color first_color = first->get_color();
+        first->change_color(second->get_color());
+        second->change_color(first_color);
+    }
+
     class removing_rb_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::removing_template_method
     {
         tvalue &&remove(tkey const &key) override
+
         {
-            // todo: delete a node following rb remove rules
-            // todo: call after_remove in case we delete a black node without children
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            auto **target_ptr = reinterpret_cast<rb_node **>(path_and_target.second);
+
+            if (*target_ptr == nullptr)
+            {
+                throw bs_tree<tkey, tvalue, tkey_comparer>::bst_exception("finding_template_method::find:: no value with passed key in tree");
+            }
+
+            tvalue &&result = std::move((*target_ptr)->value);
+
+            // deleting element with 2 children (color does not matter)
+            if ((*target_ptr)->left_subtree != nullptr &&
+                (*target_ptr)->right_subtree != nullptr)
+            {
+                auto **element_to_swap_with = &(*target_ptr)->left_subtree;
+
+                while ((*element_to_swap_with)->right_subtree != nullptr)
+                {
+                    path.push(element_to_swap_with);
+                    element_to_swap_with = &(*element_to_swap_with)->right_subtree;
+                }
+
+                swap_nodes(element_to_swap_with, target_ptr);
+                target_ptr = reinterpret_cast<rb_node **>(element_to_swap_with);
+            }
+
+            typename rb_node::color target_ptr_color = (*target_ptr)->get_color();
+            // deleting an element with no children
+            if ((*target_ptr)->left_subtree == nullptr && (*target_ptr)->right_subtree == nullptr)
+            {
+                cleanup_node(target_ptr);
+                if (target_ptr_color == rb_node::color::black) {
+                    after_remove(path);
+                    reinterpret_cast<rb_node *>(this->_target_tree->_root)->change_color(rb_node::color::black);
+                }
+            }
+            // deleting an element with 1 child (target_ptr is of black color)
+            else if ((*target_ptr)->left_subtree != nullptr)
+            {
+                auto *target_left_subtree = (*target_ptr)->left_subtree;
+                cleanup_node(target_ptr);
+                *target_ptr = reinterpret_cast<rb_node *>(target_left_subtree);
+                (*target_ptr)->change_color(rb_node::color::black);
+            }
+            else
+            {
+                auto *target_right_subtree = (*target_ptr)->right_subtree;
+                cleanup_node(target_ptr);
+                *target_ptr = reinterpret_cast<rb_node *>(target_right_subtree);
+                (*target_ptr)->change_color(rb_node::color::black);
+            }
+
+            return std::move(result);
         }
 
         void after_remove(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path) override
         {
             // path содержит все узлы до удалённого, верхний узел в стеке -- родитель удалённого
+            // warning! color of root may change. Change color if needed
+            if (path.empty()) {
+                return;
+            }
+            rb_node ** parent = reinterpret_cast<rb_node **>(path.top());
+            auto **brother_to_deleted = reinterpret_cast<rb_node **>(((*parent)->left_subtree == nullptr ?
+                                                                      &((*parent)->right_subtree) : &((*parent)->left_subtree)));
+            if ((*brother_to_deleted) == nullptr) {
+                return;
+            }
+
+            rb_node **brother_right_subtree = reinterpret_cast<rb_node **>(&(*brother_to_deleted)->right_subtree);
+            rb_node **brother_left_subtree = reinterpret_cast<rb_node **>(&(*brother_to_deleted)->left_subtree);
+
+            if ((*brother_left_subtree) == nullptr && (*brother_right_subtree) == nullptr) {
+                return;
+            }
+
+            rb_node **grandchild_left = nullptr, ** grandchild_right = nullptr;
+
+            if ((*parent)->left_subtree == (*brother_to_deleted)) {
+                if ((*parent)->get_color() == rb_node::color::red) {
+                    (*brother_to_deleted)->change_color(rb_node::color::red);
+                    (*parent)->change_color(rb_node::color::black);
+
+                    if ((*brother_left_subtree)->get_color() == rb_node::color::red) {
+                        (*brother_left_subtree)->change_color(rb_node::color::black);
+                        this->rotate_right(path, brother_to_deleted);
+                    }
+                }
+                // if parent color == black
+                else {
+                    grandchild_left = reinterpret_cast<rb_node **>(&((*brother_right_subtree)->left_subtree));
+                    grandchild_right = reinterpret_cast<rb_node **>(&((*brother_right_subtree)->right_subtree));
+                    if ((*brother_to_deleted)->get_color() == rb_node::color::red) {
+                        if ((*grandchild_left)->get_color() == rb_node::color::black && (*grandchild_right)->get_color() == rb_node::color::black) {
+                            (*brother_to_deleted)->change_color(rb_node::color::black);
+                            (*brother_right_subtree)->change_color(rb_node::color::red);
+                            this->rotate_right(path, brother_to_deleted);
+                        }
+                        else if ((*grandchild_left)->get_color() == rb_node::color::red) {
+                            (*grandchild_left)->change_color(rb_node::color::black);
+                            path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                            brother_right_subtree = this->rotate_left(path, brother_right_subtree);
+                            this->rotate_right(path, brother_right_subtree);
+                        }
+                    }
+                    // brother is black
+                    else {
+                        if ((*brother_right_subtree)->get_color() == rb_node::color::red &&
+                            (*grandchild_left)->get_color() == rb_node::color::black &&
+                            (*grandchild_right)->get_color() == rb_node::color::black) {
+                            (*brother_right_subtree)->change_color(rb_node::color::black);
+                            path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                            brother_right_subtree = this->rotate_left(path, brother_right_subtree);
+                            this->rotate_right(path, brother_right_subtree);
+                        }
+                        else if ((*brother_left_subtree)->get_color() == rb_node::color::black &&
+                                (*brother_right_subtree)->get_color() == rb_node::color::black) {
+                            (*brother_to_deleted)->change_color(rb_node::color::red);
+                            path.pop();
+                            after_remove(path);
+                        }
+                    }
+                }
+            }
+            else {
+                if ((*parent)->get_color() == rb_node::color::red) {
+                    (*brother_to_deleted)->change_color(rb_node::color::red);
+                    (*parent)->change_color(rb_node::color::black);
+
+                    if ((*brother_right_subtree)->get_color() == rb_node::color::red) {
+                        (*brother_right_subtree)->change_color(rb_node::color::black);
+                        this->rotate_left(path, brother_to_deleted);
+                    }
+                }
+                // if parent color == black
+                else {
+                    grandchild_left = reinterpret_cast<rb_node **>(&((*brother_left_subtree)->left_subtree));
+                    grandchild_right = reinterpret_cast<rb_node **>(&((*brother_left_subtree)->right_subtree));
+                    if ((*brother_to_deleted)->get_color() == rb_node::color::red) {
+                        if ((*grandchild_left)->get_color() == rb_node::color::black && (*grandchild_right)->get_color() == rb_node::color::black) {
+                            (*brother_to_deleted)->change_color(rb_node::color::black);
+                            (*brother_left_subtree)->change_color(rb_node::color::red);
+                            this->rotate_left(path, brother_to_deleted);
+                        }
+                        else if ((*grandchild_right)->get_color() == rb_node::color::red) {
+                            (*grandchild_right)->change_color(rb_node::color::black);
+                            path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                            brother_left_subtree = this->rotate_right(path, brother_left_subtree);
+                            this->rotate_left(path, brother_left_subtree);
+                        }
+                    }
+                    // brother is black
+                    else {
+                        if ((*brother_left_subtree)->get_color() == rb_node::color::red &&
+                            (*grandchild_left)->get_color() == rb_node::color::black &&
+                            (*grandchild_right)->get_color() == rb_node::color::black) {
+                            (*brother_right_subtree)->change_color(rb_node::color::black);
+                            path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                            brother_left_subtree = this->rotate_right(path, brother_left_subtree);
+                            this->rotate_right(path, brother_left_subtree);
+                        }
+                        else if ((*brother_left_subtree)->get_color() == rb_node::color::black &&
+                                 (*brother_right_subtree)->get_color() == rb_node::color::black) {
+                            (*brother_to_deleted)->change_color(rb_node::color::red);
+                            path.pop();
+                            after_remove(path);
+                        }
+                    }
+                }
+            }
+            // TODO: check if current root color is black ?
         }
+
+        /*
+        void after_remove(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path) override
+        {
+            // path содержит все узлы до удалённого, верхний узел в стеке -- родитель удалённого
+            if (path.empty()) {
+                return;
+            }
+            rb_node ** parent = reinterpret_cast<rb_node **>(path.top());
+            path.pop();
+            auto **brother_to_deleted = reinterpret_cast<rb_node **>(((*parent)->left_subtree == nullptr ?
+                                                               &((*parent)->right_subtree) : &((*parent)->left_subtree)));
+            if ((*brother_to_deleted) == nullptr) {
+                return;
+            }
+
+            auto **brother_right_subtree = reinterpret_cast<rb_node **>(&(*brother_to_deleted)->right_subtree);
+            auto **brother_left_subtree = reinterpret_cast<rb_node **>(&(*brother_to_deleted)->left_subtree);
+            if ((*brother_right_subtree) == nullptr && (*brother_left_subtree) == nullptr) {
+                return;
+            }
+
+            if ((*brother_left_subtree)->get_color() == rb_node::color::black &&
+                (*brother_right_subtree)->get_color() == rb_node::color::black) {
+                typename rb_node::color parent_color = (*parent)->get_color();
+                (*parent)->change_color(rb_node::color::black);
+                (*brother_to_deleted)->change_color(rb_node::color::red);
+                if (parent_color == rb_node::color::red) {
+                    return;
+                }
+                path.pop();
+                after_remove(path);
+            }
+            else if ((*brother_left_subtree)->get_color() == rb_node::color::red) {
+                // todo: переставить связи
+            }
+            if ((*brother_right_subtree)->get_color() == rb_node::color::red) {
+                (*brother_to_deleted)->change_color(rb_node::color::red);
+                (*parent)->change_color(rb_node::color::black);
+                if ((*parent)->left_subtree == (*brother_to_deleted)) {
+                    this->rotate_right(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                } else {
+                    this->rotate_left(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted));
+                }
+            }
+        }
+         */
 
     public:
         explicit removing_rb_tree(rb_tree<tkey, tvalue, tkey_comparer> * target_tree)

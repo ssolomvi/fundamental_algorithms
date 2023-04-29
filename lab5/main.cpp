@@ -239,7 +239,7 @@ void my_bst_test()
 
     }
     catch (bs_tree<int, std::string, int_comparer>::bst_exception const &ex) {
-
+        std::cout << ex.what() << std::endl;
     }
 
     BST_tree->insert(4, "A");
@@ -467,6 +467,7 @@ int main()
 //    bst_test();
 //    allocators_demo(250000, memory::worst_fit, 7500);
 //    splay_tree_test();
+    my_bst_test();
 
     return 0;
 }
