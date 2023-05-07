@@ -63,14 +63,16 @@ public:
     }
 */
 #pragma region template methods splay tree
-    class template_method_splay
+    friend class template_method_splay;
+
+    class template_method_splay final
             : public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
     {
     public:
-        void splay(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr)
+        void splay(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) const
         {
             typename bs_tree<tkey, tvalue, tkey_comparer>::node ** parent, **grandparent = nullptr;
-            typename bs_tree<tkey, tvalue, tkey_comparer>::node *tree_root = reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics *>(this)->_target_tree->_root;
+            typename bs_tree<tkey, tvalue, tkey_comparer>::node *tree_root = (reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree))->_root;
             typename bs_tree<tkey, tvalue, tkey_comparer>::node ** current_node = target_ptr;
 
             while ((*current_node) != tree_root) {
@@ -121,7 +123,7 @@ public:
                     }
                 }
 
-                tree_root = reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics *>(this)->_target_tree->_root;
+                tree_root = /*reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics *>(const_cast<template_method_splay *>(this))->*/reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->_root;
             }
         }
 
@@ -130,7 +132,7 @@ public:
                 splay_tree<tkey, tvalue, tkey_comparer> *target_tree)
         : bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics(target_tree)
                 {
-
+            target_tree->_root = nullptr;
                 }
 
             virtual ~template_method_splay() = default;
@@ -194,7 +196,7 @@ public:
 
             if (path.empty() == false) {
                 path.pop();
-                reinterpret_cast<template_method_splay *>(const_cast<removing_splay_tree *>(this))->splay(path, parent_to_deleted_node);
+                (reinterpret_cast<template_method_splay *>(const_cast<removing_splay_tree *>(this)))->splay(path, parent_to_deleted_node);
 //                template_method_splay::splay(path, parent_to_deleted_node);
 //                reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->splay(path, parent_to_deleted_node);
 //                splay_tree<tkey, tvalue, tkey_comparer>::splay(path, parent_to_deleted_node);

@@ -54,6 +54,7 @@ memory_from_global_heap::memory_from_global_heap(logger * gh_allocator_logger)
 }
 
 memory_from_global_heap::~memory_from_global_heap() {
+    this->trace_with_guard("An object of global heap allocator was destructed");
     ::operator delete(_ptr_to_allocator_metadata);
 }
 

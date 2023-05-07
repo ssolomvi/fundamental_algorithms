@@ -260,34 +260,14 @@ void my_bst_test()
 
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
-/*
-    auto ptr_end_infix = BST_tree->end_infix();
-    for (auto it = BST_tree->begin_infix(); it != ptr_end_infix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
 
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto ptr_end_postfix = BST_tree->end_postfix();
-    for (auto it = BST_tree->begin_postfix(); it != ptr_end_postfix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-*/
-    ptr_value = std::move(BST_tree->remove(4));
+    ptr_value = BST_tree->remove(4);
     std::cout << ptr_value << std::endl;
-    ptr_value = std::move(BST_tree->remove(3));
+    ptr_value = BST_tree->remove(3);
     std::cout << ptr_value << std::endl;
-    ptr_value = std::move(BST_tree->remove(5));
+    ptr_value = BST_tree->remove(5);
+    std::cout << ptr_value << std::endl;
+    ptr_value = BST_tree->remove(2);
     std::cout << ptr_value << std::endl;
 
     for (auto it = BST_tree->begin_prefix(); it != ptr_end_prefix; ++it)
@@ -304,74 +284,35 @@ void my_bst_test()
     delete allocator_logger;
     delete binary_tree_logger;
     delete allocator;
-/*
-    bs_tree<int, std::string, int_comparer> kek_tree;
-    kek_tree.insert(4, "a");
-    kek_tree.insert(2, "b");
-    kek_tree.insert(3, "c");
-    kek_tree.insert(1, "d");
-    kek_tree.insert(5, "e");
-    kek_tree.insert(7, "f");
-    kek_tree.insert(6, "g");
-
-    auto end_prefix = kek_tree.end_prefix();
-    for (auto it = kek_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto end_infix = kek_tree.end_infix();
-    for (auto it = kek_tree.begin_infix(); it != end_infix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto end_postfix = kek_tree.end_postfix();
-    for (auto it = kek_tree.begin_postfix(); it != end_postfix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto value = std::move(kek_tree.remove(4));
-    std::cout << value << std::endl;
-    value = std::move(kek_tree.remove(3));
-    std::cout << value << std::endl;
-    value = std::move(kek_tree.remove(5));
-    std::cout << value << std::endl;
-    */
 }
 
 void splay_tree_test()
 {
-    splay_tree<int, std::string, int_comparer> sp_tree;
+    logger_builder *allocator_logger_builder = new logger_builder_impl();
+    logger *allocator_logger = allocator_logger_builder
+            ->with_stream("allocator_splay_tests.txt", logger::severity::trace)
+            ->build();
+    delete allocator_logger_builder;
 
-    sp_tree.insert(4, "a");
-    sp_tree.insert(2, "b");
-    sp_tree.insert(3, "c");
-    sp_tree.insert(1, "d");
-    sp_tree.insert(5, "e");
-    sp_tree.insert(7, "f");
-    sp_tree.insert(6, "g");
+    logger_builder *splay_tree_logger_builder = new logger_builder_impl();
+    logger *splay_tree_logger = splay_tree_logger_builder
+            ->with_stream("splay_t_tests.txt", logger::severity::trace)
+            ->build();
+    delete splay_tree_logger_builder;
 
-/*
-    std::cout << "Prefix iterator" << std::endl;
-    auto end_prefix = sp_tree.end_prefix();
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
+    memory *allocator = new memory_from_global_heap(allocator_logger);
+    bs_tree<int, std::string, int_comparer> * sp_tree = new splay_tree<int, std::string, int_comparer>(splay_tree_logger, allocator);
+
+    sp_tree->insert(4, "a");
+    sp_tree->insert(2, "b");
+    sp_tree->insert(3, "c");
+    sp_tree->insert(1, "d");
+    sp_tree->insert(5, "e");
+    sp_tree->insert(7, "f");
+    sp_tree->insert(6, "g");
+
+    auto end_prefix = sp_tree->end_prefix();
+    for (auto it = sp_tree->begin_prefix(); it != end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -381,10 +322,14 @@ void splay_tree_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
+    auto value = sp_tree->remove(4);
+    std::cout << value << std::endl;
+    value = sp_tree->remove(3);
+    std::cout << value << std::endl;
+    value = sp_tree->remove(1);
+    std::cout << value << std::endl;
 
-    std::cout << std::endl << "Infix iterator" << std::endl;
-    auto end_infix = sp_tree.end_infix();
-    for (auto it = sp_tree.begin_infix(); it != end_infix; ++it)
+    for (auto it = sp_tree->begin_prefix(); it != end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -394,80 +339,17 @@ void splay_tree_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    std::cout << std::endl << "Postfix iterator" << std::endl;
-    auto end_postfix = sp_tree.end_postfix();
-    for (auto it = sp_tree.begin_postfix(); it != end_postfix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-*/
-//    std::cout << value << std::endl;
-    auto end_prefix = sp_tree.end_prefix();
-
-    auto value = std::move(sp_tree.remove(4));
-    std::cout << sp_tree._root->key;
-
-    /*
-     короче я не знаю в чём проблема, нужна помощь
-     // todo: разобраться чё эта такое и почему
-    std::cout << "Prefix iterator" << std::endl;
-    auto end_prefix = sp_tree.end_prefix();
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-*/
-
-    value = std::move(sp_tree.remove(3));
-    std::cout << sp_tree._root->key;
-
-    /*
-    std::cout << "Prefix iterator" << std::endl;
-    end_prefix = sp_tree.end_prefix();
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-*/
-    value = std::move(sp_tree.remove(5));
-    std::cout << sp_tree._root->key;
-
-    /*
-    std::cout << "Prefix iterator" << std::endl;
-    end_prefix = sp_tree.end_prefix();
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-     */
+    delete sp_tree;
+    delete splay_tree_logger;
+    delete allocator;
 }
 
 int main()
 {
 //    bst_test();
 //    allocators_demo(250000, memory::worst_fit, 7500);
-//    splay_tree_test();
-    my_bst_test();
+    splay_tree_test();
+//    my_bst_test();
 
     return 0;
 }
