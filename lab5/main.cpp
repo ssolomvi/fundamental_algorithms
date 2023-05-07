@@ -10,6 +10,8 @@
 #include "binary_tree/associative_container.h"
 #include "binary_tree/bs_tree.h"
 #include "splay_tree/splay_tree.h"
+#include "avl_tree/avl_tree.h"
+#include "rb_tree/rb_tree.h"
 #include "lab5task2/memory_from_global_heap.h"
 #include "lab5task3/memory_with_sorted_list_deallocation.h"
 #include "lab5task4/memory_with_boundary_tags.h"
@@ -342,14 +344,76 @@ void splay_tree_test()
     delete sp_tree;
     delete splay_tree_logger;
     delete allocator;
+    delete allocator_logger;
 }
+
+void avl_tree_test()
+{
+    logger_builder *allocator_logger_builder = new logger_builder_impl();
+    logger *allocator_logger = allocator_logger_builder
+            ->with_stream("allocator_avl_tests.txt", logger::severity::trace)
+            ->build();
+    delete allocator_logger_builder;
+
+    logger_builder *avl_tree_logger_builder = new logger_builder_impl();
+    logger *avl_tree_logger = avl_tree_logger_builder
+            ->with_stream("avl_t_tests.txt", logger::severity::trace)
+            ->build();
+    delete avl_tree_logger_builder;
+
+    memory *allocator = new memory_from_global_heap(allocator_logger);
+    bs_tree<int, std::string, int_comparer> * avl_tree = new avl_tree<int, std::string, int_comparer>(nullptr, nullptr);
+
+    avl_tree->insert(4, "a");
+    avl_tree->insert(2, "b");
+    avl_tree->insert(3, "c");
+    avl_tree->insert(1, "d");
+    avl_tree->insert(5, "e");
+    avl_tree->insert(7, "f");
+    avl_tree->insert(6, "g");
+
+    auto end_prefix = avl_tree->end_prefix();
+    for (auto it = avl_tree->begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    auto value = avl_tree->remove(4);
+    std::cout << value << std::endl;
+    value = avl_tree->remove(3);
+    std::cout << value << std::endl;
+    value = avl_tree->remove(1);
+    std::cout << value << std::endl;
+
+    for (auto it = avl_tree->begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    delete avl_tree;
+    delete avl_tree_logger;
+    delete allocator;
+    delete allocator_logger;
+}
+
 
 int main()
 {
 //    bst_test();
 //    allocators_demo(250000, memory::worst_fit, 7500);
-    splay_tree_test();
+//    splay_tree_test();
 //    my_bst_test();
+    avl_tree_test();
 
     return 0;
 }

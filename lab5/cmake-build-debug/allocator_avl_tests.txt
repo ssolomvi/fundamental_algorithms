@@ -1,0 +1,10 @@
+<--- [ trace ]  --->
+[ 08/05/2023 02:12:33 ][ trace ] An object of global heap allocator was constructed
+[ 08/05/2023 02:12:33 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 08/05/2023 02:12:33 ][ information ] memory block with _size = 64 was allocated successfully
+[ 08/05/2023 02:12:33 ][ debug ] Allocated block address: 0x000002c2f7195180
+[ 08/05/2023 02:12:33 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 08/05/2023 02:12:33 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 08/05/2023 02:12:33 ][ information ] memory block with _size = 64 was allocated successfully
+[ 08/05/2023 02:12:33 ][ debug ] Allocated block address: 0x000002c2f7195200
+[ 08/05/2023 02:12:33 ][ trace ] memory_from_global_heap::allocate method execution finished

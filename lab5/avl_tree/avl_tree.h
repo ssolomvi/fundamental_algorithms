@@ -3,10 +3,15 @@
 
 #include "../binary_tree/bs_tree.h"
 
-template<typename tkey, typename tvalue, typename tkey_comparer>
-class avl_tree
-        : public bs_tree<tkey, tvalue, tkey_comparer>,
-          public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
+// TODO: add get node size
+
+template<
+        typename tkey,
+        typename tvalue,
+        typename tkey_comparer>
+class avl_tree final
+        : public bs_tree<tkey, tvalue, tkey_comparer>
+//          public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
 {
     struct avl_node
             : bs_tree<tkey, tvalue, tkey_comparer>::node
@@ -32,23 +37,20 @@ class avl_tree
 
 protected:
 #pragma region template methods avl tree
-    class insertion_avl_tree;
-    class removing_avl_tree;
-
     class template_methods_avl :
         public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
     {
-        friend class insertion_avl_tree;
-        friend class removing_avl_tree;
-    protected:
+//        friend class insertion_avl_tree;
+//        friend class removing_avl_tree;
+    public:
         // TODO: check if this works
-        void rotate_fix_additional_data(typename bs_tree<tkey, tvalue, tkey_comparer>::node * curr_node) override
+        void rotate_fix_additional_data(typename bs_tree<tkey, tvalue, tkey_comparer>::node * curr_node) const override
         {
             auto * tmp = reinterpret_cast<avl_node *>(curr_node);
             tmp->height = reinterpret_cast<avl_node *>(tmp->left_subtree)->get_max_height_of_two_nodes(reinterpret_cast<avl_node *>(tmp->right_subtree) + 1);
         }
 
-        void do_balance(std::stack<avl_node **> &path, avl_node **target_ptr)
+        void do_balance(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, avl_node **target_ptr)
         {
             avl_node ** current_node = target_ptr;
             int balance, left_subtree_balance, right_subtree_balance;
@@ -78,7 +80,7 @@ protected:
                 if (path.empty()) {
                     break;
                 }
-                current_node = path.top();
+                current_node = reinterpret_cast<avl_node **>(path.top());
                 path.pop();
             } while (true);
         }
@@ -96,6 +98,10 @@ protected:
     class insertion_avl_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::insertion_template_method
     {
+        size_t get_node_size() const override
+        {
+            return sizeof(avl_node);
+        }
 
         void after_insert_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
         {
@@ -111,7 +117,8 @@ protected:
             path.pop();
 
 //            3) do_balance
-            template_methods_avl::do_balance();
+            reinterpret_cast<template_methods_avl *>(this)->do_balance(path, grandparent);
+//            template_methods_avl::do_balance();
         }
 
     public:
@@ -157,7 +164,18 @@ protected:
             path.pop();
 
             // 2) do_balance
-            template_methods_avl::do_balance(path, grandparent);
+            reinterpret_cast<template_methods_avl *>(this)->do_balance(path, grandparent);
+//            template_methods_avl::do_balance(path, grandparent);
+        }
+
+        void swap_additional_data(
+                typename bs_tree<tkey, tvalue, tkey_comparer>::node *one_node,
+                typename bs_tree<tkey, tvalue, tkey_comparer>::node *another_node) override
+        {
+            auto* one = reinterpret_cast<avl_node*>(one_node), *second = reinterpret_cast<avl_node *>(another_node);
+            unsigned height_tmp = one->get_height();
+            one->height = second->height;
+            second->height = height_tmp;
         }
 
     public:
@@ -175,12 +193,12 @@ public:
     explicit avl_tree(
             logger *_logger = nullptr,
             memory *_allocator = nullptr)
-    : bs_tree<tkey, tvalue, tkey_comparer>(
-            _logger,
-            _allocator,
-    new insertion_avl_tree(this),
-    new typename bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method(this),
-    new removing_avl_tree(this))
+            : bs_tree<tkey, tvalue, tkey_comparer>(
+                _logger,
+                _allocator,
+                new insertion_avl_tree(this),
+                new typename bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method(this),
+                new removing_avl_tree(this))
     {
 
     }
