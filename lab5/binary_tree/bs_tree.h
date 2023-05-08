@@ -396,7 +396,6 @@ protected:
     class template_method_basics:
             protected logger_holder
     {
-
         friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
     protected:
@@ -444,7 +443,6 @@ protected:
             return { path, iterator };
         }
 
-
         node** find_parent(std::stack<node **> &path, node **target_ptr) const
         {
             return path.empty() ? nullptr : path.top();
@@ -452,6 +450,8 @@ protected:
 
         node** find_grandparent(std::stack<node **> &path, node **target_ptr) const
         {
+            if (path.empty())
+                return nullptr;
             auto ** parent = path.top();
             path.pop();
             if (path.empty()) {
@@ -463,6 +463,7 @@ protected:
             return grandparent;
         }
 
+    public:
         virtual void rotate_fix_additional_data(node * target_ptr) const
         {
 
@@ -470,7 +471,6 @@ protected:
 
     public:
         node** rotate_left(std::stack<node **> &path, node **target_ptr) const
-
         {
             node ** parent = find_parent(path, target_ptr);
             path.pop();
@@ -482,7 +482,7 @@ protected:
 
             (*target_ptr)->left_subtree->right_subtree = left_to_target_ptr;
 
-            rotate_fix_additional_data(*parent);
+            this->rotate_fix_additional_data(*parent);
             return parent;
         }
 
@@ -498,7 +498,7 @@ protected:
 
             (*target_ptr)->right_subtree->left_subtree = right_to_target_ptr;
 
-            rotate_fix_additional_data(*parent);
+            this->rotate_fix_additional_data(*parent);
             return parent;
         }
 

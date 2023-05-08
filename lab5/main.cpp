@@ -347,6 +347,8 @@ void splay_tree_test()
     delete allocator_logger;
 }
 
+#include "avl_tree/avl_tree.h"
+
 void avl_tree_test()
 {
     logger_builder *allocator_logger_builder = new logger_builder_impl();
@@ -362,18 +364,18 @@ void avl_tree_test()
     delete avl_tree_logger_builder;
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
-    bs_tree<int, std::string, int_comparer> * avl_tree = new avl_tree<int, std::string, int_comparer>(nullptr, nullptr);
+    bs_tree<int, std::string, int_comparer> * avl_t = new avl_tree<int, std::string, int_comparer>(avl_tree_logger, allocator);
 
-    avl_tree->insert(4, "a");
-    avl_tree->insert(2, "b");
-    avl_tree->insert(3, "c");
-    avl_tree->insert(1, "d");
-    avl_tree->insert(5, "e");
-    avl_tree->insert(7, "f");
-    avl_tree->insert(6, "g");
+    avl_t->insert(4, "a");
+    avl_t->insert(2, "b");
+    avl_t->insert(3, "c");
+    avl_t->insert(1, "d");
+    avl_t->insert(5, "e");
+    avl_t->insert(7, "f");
+    avl_t->insert(6, "g");
 
-    auto end_prefix = avl_tree->end_prefix();
-    for (auto it = avl_tree->begin_prefix(); it != end_prefix; ++it)
+    auto end_prefix = avl_t->end_prefix();
+    for (auto it = avl_t->begin_prefix(); it != end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -383,14 +385,14 @@ void avl_tree_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    auto value = avl_tree->remove(4);
+    auto value = avl_t->remove(4);
     std::cout << value << std::endl;
-    value = avl_tree->remove(3);
+    value = avl_t->remove(3);
     std::cout << value << std::endl;
-    value = avl_tree->remove(1);
+    value = avl_t->remove(1);
     std::cout << value << std::endl;
 
-    for (auto it = avl_tree->begin_prefix(); it != end_prefix; ++it)
+    for (auto it = avl_t->begin_prefix(); it != end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -400,7 +402,7 @@ void avl_tree_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    delete avl_tree;
+    delete avl_t;
     delete avl_tree_logger;
     delete allocator;
     delete allocator_logger;
