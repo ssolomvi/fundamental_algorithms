@@ -400,7 +400,11 @@ protected:
 
     protected:
 
-        bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+    bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+    node * get_root_node()
+    {
+        return _target_tree->_root;
+    }
 
     public:
 
@@ -697,7 +701,7 @@ protected:
             return result;
         }
 
-    private:
+    protected:
 
         template<typename T>
         void swap(
@@ -780,6 +784,7 @@ protected:
 #pragma endregion
 #pragma endregion
 
+    node *_root;
 public:
     bs_tree(
             logger *logger,
@@ -798,7 +803,6 @@ public:
     }
 
 protected:
-    node *_root;
     logger *_logger;
     memory *_allocator;
     insertion_template_method *_insertion;

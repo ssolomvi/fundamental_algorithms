@@ -347,8 +347,6 @@ void splay_tree_test()
     delete allocator_logger;
 }
 
-#include "avl_tree/avl_tree.h"
-
 void avl_tree_test()
 {
     logger_builder *allocator_logger_builder = new logger_builder_impl();
@@ -404,6 +402,65 @@ void avl_tree_test()
 
     delete avl_t;
     delete avl_tree_logger;
+    delete allocator;
+    delete allocator_logger;
+}
+
+void rb_tree_test()
+{
+    logger_builder *allocator_logger_builder = new logger_builder_impl();
+    logger *allocator_logger = allocator_logger_builder
+            ->with_stream("allocator_rb_tests.txt", logger::severity::trace)
+            ->build();
+    delete allocator_logger_builder;
+
+    logger_builder *rb_tree_logger_builder = new logger_builder_impl();
+    logger *rb_tree_logger = rb_tree_logger_builder
+            ->with_stream("rb_t_tests.txt", logger::severity::trace)
+            ->build();
+    delete rb_tree_logger_builder;
+
+    memory *allocator = new memory_from_global_heap(allocator_logger);
+    bs_tree<int, std::string, int_comparer> * rb_t = new rb_tree<int, std::string, int_comparer>(rb_tree_logger, allocator);
+
+    rb_t->insert(4, "a");
+    rb_t->insert(2, "b");
+    rb_t->insert(3, "c");
+    rb_t->insert(1, "d");
+    rb_t->insert(5, "e");
+    rb_t->insert(7, "f");
+    rb_t->insert(6, "g");
+
+    auto end_prefix = rb_t->end_prefix();
+    for (auto it = rb_t->begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    auto value = rb_t->remove(4);
+    std::cout << value << std::endl;
+    value = rb_t->remove(3);
+    std::cout << value << std::endl;
+    value = rb_t->remove(1);
+    std::cout << value << std::endl;
+
+    for (auto it = rb_t->begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    delete rb_t;
+    delete rb_tree_logger;
     delete allocator;
     delete allocator_logger;
 }
