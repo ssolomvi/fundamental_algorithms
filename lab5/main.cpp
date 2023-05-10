@@ -472,7 +472,8 @@ int main()
 //    allocators_demo(250000, memory::worst_fit, 7500);
 //    splay_tree_test();
 //    my_bst_test();
-    avl_tree_test();
+//    avl_tree_test();
+    rb_tree_test();
 
     return 0;
 }
