@@ -265,7 +265,9 @@ protected:
                 this->cleanup_node(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr));
                 if (target_ptr_color == BLACK) {
                     after_remove(path);
-                    reinterpret_cast<rb_node *>(this->get_root_node())->change_color(BLACK);
+                    if (this->get_root_node() != nullptr) {
+                        reinterpret_cast<rb_node *>(this->get_root_node())->change_color(BLACK);
+                    }
                 }
             }
             // deleting an element with 1 child. There cannot be a red element to delete with one child

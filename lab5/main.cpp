@@ -245,6 +245,7 @@ void my_bst_test()
     }
 
     BST_tree->insert(4, "A");
+    BST_tree->remove(4);
     BST_tree->insert(2, "B");
     BST_tree->insert(3, "C");
     BST_tree->insert(1, "D");
@@ -424,6 +425,7 @@ void rb_tree_test()
     bs_tree<int, std::string, int_comparer> * rb_t = new rb_tree<int, std::string, int_comparer>(rb_tree_logger, allocator);
 
     rb_t->insert(4, "a");
+    rb_t->remove(4);
     rb_t->insert(2, "b");
     rb_t->insert(3, "c");
     rb_t->insert(1, "d");
