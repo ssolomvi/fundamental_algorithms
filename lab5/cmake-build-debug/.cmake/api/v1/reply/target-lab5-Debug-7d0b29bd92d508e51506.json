@@ -60,14 +60,12 @@
 				5,
 				7,
 				9,
-				11,
 				14,
-				16,
+				17,
 				19,
 				21,
 				23,
-				25,
-				26
+				24
 			]
 		}
 	],
@@ -110,14 +108,14 @@
 				6,
 				8,
 				10,
+				11,
 				12,
 				13,
 				15,
-				17,
+				16,
 				18,
 				20,
-				22,
-				24
+				22
 			]
 		},
 		{
@@ -129,14 +127,12 @@
 				5,
 				7,
 				9,
-				11,
 				14,
-				16,
+				17,
 				19,
 				21,
 				23,
-				25,
-				26
+				24
 			]
 		}
 	],
@@ -204,12 +200,6 @@
 		},
 		{
 			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "binary_tree/associative_container.cpp",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"path" : "binary_tree/bs_tree.h",
 			"sourceGroupIndex" : 0
 		},
@@ -217,12 +207,6 @@
 			"backtrace" : 1,
 			"path" : "splay_tree/splay_tree.h",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "avl_tree/avl_tree.cpp",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,

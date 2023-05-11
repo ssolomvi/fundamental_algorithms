@@ -26,6 +26,8 @@ public:
 
     public:
 
+        node() = default;
+
         virtual ~node() noexcept = default;
 
     };
@@ -394,12 +396,15 @@ protected:
     class template_method_basics:
             protected logger_holder
     {
-
         friend class bs_tree<tkey, tvalue, tkey_comparer>;
 
-    public:
+    protected:
 
-        bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+    bs_tree<tkey, tvalue, tkey_comparer> *_target_tree;
+    node * get_root_node()
+    {
+        return _target_tree->_root;
+    }
 
     public:
 
@@ -412,10 +417,8 @@ protected:
 
     public:
 
-        std::pair<std::stack<node **>, node **> find_path(
-                tkey const &key)
+        std::pair<std::stack<node **>, node **> find_path(tkey const &key)
         {
-            // todo: smth is here?
             std::stack<node **> path;
 
             if (_target_tree->_root == nullptr)
@@ -431,7 +434,8 @@ protected:
                 auto comparison_result = comparer(key, (*iterator)->key);
                 if (comparison_result == 0)
                 {
-                    return { path, iterator };
+                    return std::pair<std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>,
+                            typename bs_tree<tkey, tvalue, tkey_comparer>::node**>(path, iterator);
                 }
 
                 path.push(iterator);
@@ -443,14 +447,15 @@ protected:
             return { path, iterator };
         }
 
-
-        node** find_parent(std::stack<node **> &path, node **target_ptr)
+        node** find_parent(std::stack<node **> &path, node **target_ptr) const
         {
             return path.empty() ? nullptr : path.top();
         }
 
-        node** find_grandparent(std::stack<node **> &path, node **target_ptr)
+        node** find_grandparent(std::stack<node **> &path, node **target_ptr) const
         {
+            if (path.empty())
+                return nullptr;
             auto ** parent = path.top();
             path.pop();
             if (path.empty()) {
@@ -462,14 +467,14 @@ protected:
             return grandparent;
         }
 
-        virtual void rotate_fix_additional_data(node * target_ptr)
+    public:
+        virtual void rotate_fix_additional_data(node * target_ptr) const
         {
 
         }
 
     public:
-        node** rotate_left(std::stack<node **> &path, node **target_ptr)
-
+        node** rotate_left(std::stack<node **> &path, node **target_ptr) const
         {
             node ** parent = find_parent(path, target_ptr);
             path.pop();
@@ -481,11 +486,11 @@ protected:
 
             (*target_ptr)->left_subtree->right_subtree = left_to_target_ptr;
 
-            rotate_fix_additional_data(*parent);
+            this->rotate_fix_additional_data(*parent);
             return parent;
         }
 
-        node** rotate_right(std::stack<node **> &path, node **target_ptr)
+        node** rotate_right(std::stack<node **> &path, node **target_ptr) const
         {
             node ** parent = find_parent(path, target_ptr);
             path.pop();
@@ -497,7 +502,7 @@ protected:
 
             (*target_ptr)->right_subtree->left_subtree = right_to_target_ptr;
 
-            rotate_fix_additional_data(*parent);
+            this->rotate_fix_additional_data(*parent);
             return parent;
         }
 
@@ -528,7 +533,7 @@ protected:
     public:
         void insert(
                 tkey const &key,
-                tvalue const &&value)
+                tvalue &&value)
         {
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
@@ -644,7 +649,7 @@ protected:
 
     public:
 
-        virtual tvalue &&remove(tkey const &key)
+        virtual tvalue remove(tkey const &key)
         {
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
@@ -652,10 +657,11 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                throw bst_exception("finding_template_method::find:: no value with passed key in tree");
+                throw bst_exception("finding_template_method::remove:: no value with passed key in tree");
             }
 
-            tvalue &&result = std::move((*target_ptr)->value);
+            // здесь могла быть move-семантика
+            tvalue result = (*target_ptr)->value;
 
             if ((*target_ptr)->left_subtree != nullptr &&
                 (*target_ptr)->right_subtree != nullptr)
@@ -668,8 +674,8 @@ protected:
                     element_to_swap_with = &(*element_to_swap_with)->right_subtree;
                 }
 
-                swap_nodes(element_to_swap_with, target_ptr);
-                target_ptr = element_to_swap_with;
+                target_ptr = swap_nodes(element_to_swap_with, target_ptr);
+//                target_ptr = element_to_swap_with;
             }
 
             if ((*target_ptr)->left_subtree == nullptr &&
@@ -692,10 +698,10 @@ protected:
 
             after_remove(path);
 
-            return std::move(result);
+            return result;
         }
 
-    private:
+    protected:
 
         template<typename T>
         void swap(
@@ -707,16 +713,39 @@ protected:
             *right = temp;
         }
 
-        void swap_nodes(
+        node** swap_nodes(
                 node **one_node,
                 node **another_node)
         {
-            swap(&(*one_node)->left_subtree, &(*another_node)->left_subtree);
-            swap(&(*one_node)->right_subtree, &(*another_node)->right_subtree);
+            // близкородственный свап до хорошего не доводит
+            if ((*another_node)->left_subtree == (*one_node)) {
+                node * grandfather = (*another_node);
+                node * grandchild = (*one_node)->left_subtree;
+                (*another_node) = (*one_node);
+                (*another_node)->left_subtree = grandfather;
+                (*another_node)->right_subtree = grandfather->right_subtree;
+                (*another_node)->left_subtree->left_subtree = grandchild;
+                (*another_node)->left_subtree->right_subtree = nullptr;
+//                grandfather->left_subtree = grandchild;
+//                grandfather->right_subtree = nullptr;
+                return (&(*another_node)->left_subtree);
+                /*
+                node* tmp = (*one_node);
+                (*another_node)->left_subtree = tmp->left_subtree;
+                tmp->right_subtree = (*another_node)->right_subtree;
+                (*another_node)->right_subtree = nullptr;
+                tmp->left_subtree = (*another_node);
+                return another_node;
+                */
+            } else {
+                swap(&((*one_node)->left_subtree), &((*another_node)->left_subtree));
+                swap(&((*one_node)->right_subtree), &((*another_node)->right_subtree));
 
-            swap_additional_data(*one_node, *another_node);
+                swap_additional_data(*one_node, *another_node);
 
-            swap(one_node, another_node);
+                swap(one_node, another_node);
+                return one_node;
+            }
         }
 
         void cleanup_node(
@@ -755,6 +784,7 @@ protected:
 #pragma endregion
 #pragma endregion
 
+    node *_root;
 public:
     bs_tree(
             logger *logger,
@@ -772,8 +802,6 @@ public:
 
     }
 
-public:
-    node *_root;
 protected:
     logger *_logger;
     memory *_allocator;
@@ -925,7 +953,7 @@ public:
 
     void insert(
             tkey const &key,
-            tvalue const &&value) override
+            tvalue &&value) override
     {
         _insertion->insert(key, std::move(value));
     }
@@ -936,10 +964,10 @@ public:
         return _finding->find(key);
     }
 
-    tvalue &&remove(
+    tvalue remove(
             tkey const &key) override
     {
-        return std::move(_removing->remove(key));
+        return _removing->remove(key);
     }
 
 private:

@@ -10,10 +10,10 @@ add_executable(lab5
         logger/logger_holder.h logger/logger_holder.cpp
         allocator/memory_base_class.h allocator/memory_base_class.cpp
         allocator/memory_holder.h allocator/memory_holder.cpp
-        binary_tree/associative_container.h binary_tree/associative_container.cpp
+        binary_tree/associative_container.h
         binary_tree/bs_tree.h
         splay_tree/splay_tree.h
-        avl_tree/avl_tree.cpp avl_tree/avl_tree.h
+        avl_tree/avl_tree.h
         rb_tree/rb_tree.cpp rb_tree/rb_tree.h
         lab5task2/memory_from_global_heap.h lab5task2/memory_from_global_heap.cpp
         lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
