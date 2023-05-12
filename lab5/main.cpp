@@ -12,10 +12,10 @@
 #include "splay_tree/splay_tree.h"
 #include "avl_tree/avl_tree.h"
 #include "rb_tree/rb_tree.h"
-#include "lab5task2/memory_from_global_heap.h"
-#include "lab5task3/memory_with_sorted_list_deallocation.h"
-#include "lab5task4/memory_with_boundary_tags.h"
-#include "lab5task5/memory_with_buddy_system.h"
+#include "allocator_from_global_heap/memory_from_global_heap.h"
+#include "allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h"
+#include "allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
+#include "allocator_with_buddy_system/memory_with_buddy_system.h"
 
 class int_comparer
 {
@@ -233,10 +233,11 @@ void my_bst_test()
     delete binary_logger_builder;
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
-    auto * BST_tree = new bs_tree<int, std::string, int_comparer>(binary_tree_logger, allocator);
+    bs_tree<int, std::string, int_comparer> BST_tree_initial(binary_tree_logger, allocator);
+    bs_tree<int, std::string, int_comparer> BST_tree = BST_tree_initial;
     std::string ptr_value;
     try {
-        ptr_value = std::move(BST_tree->remove(4));
+        ptr_value = std::move(BST_tree.remove(4));
         std::cout << ptr_value << std::endl;
 
     }
@@ -244,17 +245,16 @@ void my_bst_test()
         std::cout << ex.what() << std::endl;
     }
 
-    BST_tree->insert(4, "A");
-    BST_tree->remove(4);
-    BST_tree->insert(2, "B");
-    BST_tree->insert(3, "C");
-    BST_tree->insert(1, "D");
-    BST_tree->insert(5, "E");
-    BST_tree->insert(7, "F");
-    BST_tree->insert(6, "G");
+    BST_tree.insert(4, "A");
+    BST_tree.insert(2, "B");
+    BST_tree.insert(3, "C");
+    BST_tree.insert(1, "D");
+    BST_tree.insert(5, "E");
+    BST_tree.insert(7, "F");
+    BST_tree.insert(6, "G");
 
-    auto ptr_end_prefix = BST_tree->end_prefix();
-    for (auto it = BST_tree->begin_prefix(); it != ptr_end_prefix; ++it)
+    auto ptr_end_prefix = BST_tree.end_prefix();
+    for (auto it = BST_tree.begin_prefix(); it != ptr_end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -264,16 +264,16 @@ void my_bst_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    ptr_value = BST_tree->remove(4);
+    ptr_value = BST_tree.remove(4);
     std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree->remove(3);
+    ptr_value = BST_tree.remove(3);
     std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree->remove(5);
+    ptr_value = BST_tree.remove(5);
     std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree->remove(2);
+    ptr_value = BST_tree.remove(2);
     std::cout << ptr_value << std::endl;
 
-    for (auto it = BST_tree->begin_prefix(); it != ptr_end_prefix; ++it)
+    for (auto it = BST_tree.begin_prefix(); it != ptr_end_prefix; ++it)
     {
         for (auto x = 0; x < std::get<0>(*it); x++)
         {
@@ -283,10 +283,10 @@ void my_bst_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    delete BST_tree;
-    delete allocator_logger;
+//    delete BST_tree;
     delete binary_tree_logger;
     delete allocator;
+    delete allocator_logger;
 }
 
 void splay_tree_test()
@@ -304,8 +304,54 @@ void splay_tree_test()
     delete splay_tree_logger_builder;
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
-    bs_tree<int, std::string, int_comparer> * sp_tree = new splay_tree<int, std::string, int_comparer>(splay_tree_logger, allocator);
+//    bs_tree<int, std::string, int_comparer> * sp_tree = new splay_tree<int, std::string, int_comparer>(splay_tree_logger, allocator);
+    splay_tree<int, std::string, int_comparer> sp_tree_initial(splay_tree_logger, allocator);
+    splay_tree<int, std::string, int_comparer> sp_tree = sp_tree_initial;
 
+#pragma region rule 5 splay tree test
+    sp_tree.insert(4, "a");
+    sp_tree.insert(2, "b");
+    sp_tree.insert(3, "c");
+    sp_tree.insert(1, "d");
+    sp_tree.insert(5, "e");
+    sp_tree.insert(7, "f");
+    sp_tree.insert(6, "g");
+
+    auto end_prefix = sp_tree.end_prefix();
+    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+    auto value = sp_tree.remove(4);
+    std::cout << value << std::endl;
+    value = sp_tree.remove(3);
+    std::cout << value << std::endl;
+    value = sp_tree.remove(1);
+    std::cout << value << std::endl;
+
+    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+    }
+
+//    delete sp_tree;
+    delete splay_tree_logger;
+    delete allocator;
+    delete allocator_logger;
+#pragma endregion
+
+    /*
     sp_tree->insert(4, "a");
     sp_tree->insert(2, "b");
     sp_tree->insert(3, "c");
@@ -346,6 +392,7 @@ void splay_tree_test()
     delete splay_tree_logger;
     delete allocator;
     delete allocator_logger;
+     */
 }
 
 void avl_tree_test()
@@ -473,9 +520,9 @@ int main()
 //    bst_test();
 //    allocators_demo(250000, memory::worst_fit, 7500);
 //    splay_tree_test();
-//    my_bst_test();
+    my_bst_test();
 //    avl_tree_test();
-    rb_tree_test();
+//    rb_tree_test();
 
     return 0;
 }

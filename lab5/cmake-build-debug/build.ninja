@@ -79,35 +79,29 @@ build CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj: CXX_COMPILER__lab5_De
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator
 
-build CMakeFiles/lab5.dir/rb_tree/rb_tree.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/rb_tree/rb_tree.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\rb_tree\rb_tree.cpp.obj.d
+build CMakeFiles/lab5.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/allocator_from_global_heap/memory_from_global_heap.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\allocator_from_global_heap\memory_from_global_heap.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
-  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\rb_tree
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator_from_global_heap
 
-build CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task2/memory_from_global_heap.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\lab5task2\memory_from_global_heap.cpp.obj.d
+build CMakeFiles/lab5.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\allocator_with_sorted_list_deallocation\memory_with_sorted_list_deallocation.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
-  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task2
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator_with_sorted_list_deallocation
 
-build CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task3/memory_with_sorted_list_deallocation.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\lab5task3\memory_with_sorted_list_deallocation.cpp.obj.d
+build CMakeFiles/lab5.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\allocator_with_boundary_tags_deallocation\memory_with_boundary_tags.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
-  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task3
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator_with_boundary_tags_deallocation
 
-build CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task4/memory_with_boundary_tags.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\lab5task4\memory_with_boundary_tags.cpp.obj.d
+build CMakeFiles/lab5.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/allocator_with_buddy_system/memory_with_buddy_system.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\allocator_with_buddy_system\memory_with_buddy_system.cpp.obj.d
   FLAGS = -g -std=gnu++20
   OBJECT_DIR = CMakeFiles\lab5.dir
-  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task4
-
-build CMakeFiles/lab5.dir/lab5task5/memory_with_buddy_system.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/lab5task5/memory_with_buddy_system.cpp || cmake_object_order_depends_target_lab5
-  DEP_FILE = CMakeFiles\lab5.dir\lab5task5\memory_with_buddy_system.cpp.obj.d
-  FLAGS = -g -std=gnu++20
-  OBJECT_DIR = CMakeFiles\lab5.dir
-  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\lab5task5
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator_with_buddy_system
 
 build CMakeFiles/lab5.dir/main.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/main.cpp || cmake_object_order_depends_target_lab5
   DEP_FILE = CMakeFiles\lab5.dir\main.cpp.obj.d
@@ -123,7 +117,7 @@ build CMakeFiles/lab5.dir/main.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths
 #############################################
 # Link the executable lab5.exe
 
-build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/logger/logger.cpp.obj CMakeFiles/lab5.dir/logger/logger_builder.cpp.obj CMakeFiles/lab5.dir/logger/logger_holder.cpp.obj CMakeFiles/lab5.dir/allocator/memory_base_class.cpp.obj CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj CMakeFiles/lab5.dir/rb_tree/rb_tree.cpp.obj CMakeFiles/lab5.dir/lab5task2/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/lab5task3/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/lab5task4/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/lab5task5/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/main.cpp.obj
+build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/logger/logger.cpp.obj CMakeFiles/lab5.dir/logger/logger_builder.cpp.obj CMakeFiles/lab5.dir/logger/logger_holder.cpp.obj CMakeFiles/lab5.dir/allocator/memory_base_class.cpp.obj CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj CMakeFiles/lab5.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\lab5.dir

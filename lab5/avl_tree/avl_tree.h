@@ -174,25 +174,6 @@ protected:
 
 #pragma endregion
 
-
-    // TODO: нам на фиг не нужен этот класс, мы ни фига не делаем после нахождения конкретной ноды
-    class finding_avl_tree final :
-            public bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method
-    {
-        /*
-        void after_find_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
-        {
-            // nothing to do here in avl_tree context
-        }
-         */
-    public:
-        explicit finding_avl_tree(avl_tree<tkey, tvalue, tkey_comparer> * target_tree)
-            : bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method(target_tree)
-        {
-
-        }
-    };
-
 #pragma region removing avl tree
     class removing_avl_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::removing_template_method
@@ -237,6 +218,7 @@ protected:
 #pragma endregion
 #pragma endregion
 
+#pragma region rule 5
 public:
     explicit avl_tree(
             logger *_logger = nullptr,
@@ -245,10 +227,163 @@ public:
                 _logger,
                 _allocator,
                 new insertion_avl_tree(this),
-                new finding_avl_tree(this),
+                new typename bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method(this),
                 new removing_avl_tree(this))
     {
     }
+
+private:
+    // constructor
+    avl_tree(
+            logger *logger,
+            memory *allocator,
+            insertion_avl_tree *insertion,
+            typename bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method *finding,
+            removing_avl_tree *removing)
+    {
+        this->_logger(logger);
+        this->_allocator(allocator);
+        this->_insertion(insertion);
+        this->_finding(finding);
+        this->_removing(removing);
+        this->_root(nullptr);
+
+        this->trace_with_guard("avl_tree constructor was called");
+    }
+
+public:
+    // copy constructor
+    avl_tree(avl_tree<tkey, tvalue, tkey_comparer> const &obj)
+            : avl_tree(obj._logger, obj._allocator)
+    {
+        this->trace_with_guard("avl_tree copy constructor was called");
+        this->_root = this->copy(obj._root);
+    }
+
+    // move constructor
+    avl_tree(avl_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    : avl_tree(obj._insertion,
+               obj._finding,
+               obj._removing,
+               obj._allocator,
+               obj._logger)
+    {
+        this->trace_with_guard("avl_tree move constructor was called");
+
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        this->_insertion->_target_tree = this;
+        obj._insertion = nullptr;
+
+        this->_finding->_target_tree = this;
+        obj._finding = nullptr;
+
+        this->_removing->_target_tree = this;
+        obj._removing = nullptr;
+
+        obj._allocator = nullptr;
+
+        obj._logger = nullptr;
+    }
+
+    // copy assignment (оператор присваивания)
+    avl_tree &operator=(avl_tree<tkey, tvalue, tkey_comparer> const &obj)
+    {
+        this->trace_with_guard("avl_tree copy assignment constructor was called");
+
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        this->clearup(this->_root);
+
+        this->_allocator = obj._allocator;
+        this->_logger = obj._logger;
+        this->_root = this->copy(obj._root);
+
+        return *this;
+    }
+
+    // move assignment (оператор присваивания перемещением)
+    avl_tree &operator=(avl_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    {
+        this->trace_with_guard("avl_tree move assignment constructor was called");
+
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        this->clearup(this->_root);
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        delete obj._insertion;
+        obj._insertion = nullptr;
+
+        delete obj._finding;
+        obj._finding = nullptr;
+
+        delete obj._removing;
+        obj._removing = nullptr;
+
+        this->_allocator = obj._allocator;
+        obj._allocator = nullptr;
+
+        this->_logger = obj._logger;
+        obj._logger = nullptr;
+
+        return *this;
+    }
+
+    // destructor
+    ~avl_tree()
+    {
+        this->trace_with_guard("avl_tree destructor was called");
+
+        delete this->_insertion;
+        delete this->_finding;
+        delete this->_removing;
+
+        this->clearup(this->_root);
+    }
+
+private:
+    void clearup(typename bs_tree<tkey, tvalue, tkey_comparer>::node *element) override
+    {
+        if (element == nullptr)
+        {
+            return;
+        }
+
+        clearup(element->left_subtree);
+        clearup(element->right_subtree);
+
+        reinterpret_cast<avl_node *>(element)->~avl_node();
+        this->deallocate_with_guard(element);
+    }
+
+    typename bs_tree<tkey, tvalue, tkey_comparer>::node *copy(typename bs_tree<tkey, tvalue, tkey_comparer>::node *from) override
+    {
+        if (from == nullptr)
+        {
+            return nullptr;
+        }
+
+        avl_node *result = reinterpret_cast<avl_node *>(this->allocate_with_guard(sizeof(avl_node)));
+        new (result) avl_node(*reinterpret_cast<avl_node *>(from));
+        result->set_height(reinterpret_cast<avl_node *>(from)->get_height());
+
+        result->left_subtree = copy(from->left_subtree);
+        result->right_subtree = copy(from->right_subtree);
+
+        return result;
+    }
+
+#pragma endregion
+
 };
 
 #endif //AVL_TREE_H

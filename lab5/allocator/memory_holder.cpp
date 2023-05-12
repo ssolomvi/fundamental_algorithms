@@ -11,7 +11,14 @@ void *memory_holder::allocate_with_guard(size_t block_size) const {
 void memory_holder::deallocate_with_guard(void *block_pointer) const {
     auto *allocator = get_memory();
 
+    if (allocator == nullptr) {
+        ::operator delete(block_pointer);
+    } else {
+        allocator->deallocate(block_pointer);
+    }
+    /*
     allocator == nullptr ?
         ::operator delete(block_pointer)
         : allocator->deallocate(block_pointer);
-}
+    */
+ }

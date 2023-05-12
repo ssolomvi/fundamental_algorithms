@@ -1,0 +1,16 @@
+{
+  "streams": [
+    {
+      "name": "console",
+      "severity": "trace"
+    },
+    {
+      "name": "1.txt",
+      "severity": "critical"
+    },
+    {
+      "name": "2.txt",
+      "severity": "error"
+    }
+  ]
+}

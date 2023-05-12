@@ -11,8 +11,8 @@
 template<typename tkey, typename tvalue, typename tkey_comparer>
 class bs_tree:
         public associative_container<tkey, tvalue>,
-        private memory_holder,
-        private logger_holder
+        protected memory_holder,
+        protected logger_holder
 {
 
 public:
@@ -62,7 +62,6 @@ public:
 
     public:
         explicit prefix_iterator(node *current_node)
-//        : _current_node(current_node)
         {
             this->_current_node = current_node;
         }
@@ -80,7 +79,7 @@ public:
         prefix_iterator& operator++()
         {
             if (_current_node == nullptr) {
-                throw bst_exception("preorder iterator:: iterator is out of range");
+                throw bst_exception("prefix_iterator iterator is out of range");
             }
 
             if (_current_node->left_subtree != nullptr) {
@@ -124,22 +123,6 @@ public:
                         }
 
                     }
-                    /*
-                    while (true) {
-                        if (_path.empty() == true) {
-                            _current_node = nullptr;
-                            break;
-                        }
-
-                        _current_node = _path.top();
-                        if (_current_node->right_subtree != nullptr) {
-                            _current_node = _current_node->right_subtree;
-                            break;
-                        } else {
-                            _path.pop();
-                        }
-                    }
-                     */
                 }
                 else if (_path.top()->right_subtree == _current_node) {
                     while (true) {
@@ -174,8 +157,6 @@ public:
             return std::tuple<unsigned int, const tkey &, const tvalue &>(_path.size(), _current_node->key, _current_node->value);
         }
 
-//    private:
-//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 #pragma endregion
 
@@ -214,11 +195,10 @@ public:
         }
 
         infix_iterator& operator++()
-
         {
             // левое--корень--правое
             if (_current_node == nullptr) {
-                throw bst_exception("inorder iterator:: iterator is out of range");
+                throw bst_exception("infix_iterator iterator is out of range");
             }
 
             if (_current_node->right_subtree != nullptr) {
@@ -264,9 +244,6 @@ public:
         {
             return std::tuple<unsigned int, const tkey &, const tvalue &>(_path.size(), _current_node->key, _current_node->value);
         }
-
-//    private:
-//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 
 #pragma endregion
@@ -308,11 +285,10 @@ public:
         }
 
         postfix_iterator &operator++()
-
         {
             // если можно идти налево, идём, если можно направо, идём
             if (_current_node == nullptr) {
-                throw bst_exception("postorder iterator:: iterator is out of range");
+                throw bst_exception("postfix_iterator iterator is out of range");
             }
 
             if (_path.empty() == true) {
@@ -353,8 +329,6 @@ public:
             return std::tuple<unsigned int, const tkey &, const tvalue &>(_path.size(), _current_node->key, _current_node->value);
         }
 
-//    private:
-//        [[nodiscard]] logger *get_logger() const noexcept override;
     };
 #pragma endregion
 
@@ -417,7 +391,7 @@ protected:
 
     public:
 
-        std::pair<std::stack<node **>, node **> find_path(tkey const &key)
+        std::pair<std::stack<node **>, node **> find_path(tkey const &key) const
         {
             std::stack<node **> path;
 
@@ -531,17 +505,17 @@ protected:
         }
 
     public:
-        void insert(
-                tkey const &key,
-                tvalue &&value)
+        void insert(tkey const &key, tvalue &&value)
         {
+            this->trace_with_guard("bs_tree::insertion_template_method::insert method started");
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
             auto **target_ptr = path_and_target.second;
 
             if (*target_ptr != nullptr)
             {
-                throw bst_exception("insertion_template_method::insert:: passed key is not unique");
+                debug_with_guard("bs_tree::insertion_template_method::insert passed key is not unique");
+                throw bst_exception("bs_tree::insertion_template_method::insert passed key is not unique");
             }
 
             *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
@@ -553,6 +527,7 @@ protected:
             (*target_ptr)->right_subtree = nullptr;
 
             after_insert_inner(path, target_ptr);
+            this->trace_with_guard("bs_tree::insertion_template_method::insert method finished");
         }
 
     protected:
@@ -572,7 +547,7 @@ protected:
                 std::stack<node **> &path,
                 node **target_ptr)
         {
-            // TODO: nothing to do here in BST context...
+
         }
 
     private:
@@ -591,7 +566,6 @@ protected:
     {
 
     public:
-
         explicit finding_template_method(
                 bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
@@ -601,20 +575,22 @@ protected:
 
     public:
 
-        tvalue const &find(
-                tkey const &key)
+        tvalue const &find(tkey const &key)
         {
+            this->trace_with_guard("bs_tree::finding_template_method::find method started");
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
             auto **target_ptr = path_and_target.second;
 
             if (*target_ptr == nullptr)
             {
-                throw bst_exception("finding_template_method::find:: no value with passed key in tree");
+                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree");
+                throw bst_exception("bs_tree::finding_template_method::find no value with passed key in tree");
             }
 
             after_find_inner(path, target_ptr);
 
+            this->trace_with_guard("bs_tree::finding_template_method::find method finished");
             return (*target_ptr)->value;
         }
 
@@ -651,12 +627,14 @@ protected:
 
         virtual tvalue remove(tkey const &key)
         {
+            this->trace_with_guard("bs_tree::removing_template_method::remove method started");
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
             auto **target_ptr = path_and_target.second;
 
             if (*target_ptr == nullptr)
             {
+                this->debug_with_guard("finding_template_method::remove:: no value with passed key in tree");
                 throw bst_exception("finding_template_method::remove:: no value with passed key in tree");
             }
 
@@ -698,6 +676,7 @@ protected:
 
             after_remove(path);
 
+            this->trace_with_guard("bs_tree::removing_template_method::remove method finished");
             return result;
         }
 
@@ -726,17 +705,7 @@ protected:
                 (*another_node)->right_subtree = grandfather->right_subtree;
                 (*another_node)->left_subtree->left_subtree = grandchild;
                 (*another_node)->left_subtree->right_subtree = nullptr;
-//                grandfather->left_subtree = grandchild;
-//                grandfather->right_subtree = nullptr;
                 return (&(*another_node)->left_subtree);
-                /*
-                node* tmp = (*one_node);
-                (*another_node)->left_subtree = tmp->left_subtree;
-                tmp->right_subtree = (*another_node)->right_subtree;
-                (*another_node)->right_subtree = nullptr;
-                tmp->left_subtree = (*another_node);
-                return another_node;
-                */
             } else {
                 swap(&((*one_node)->left_subtree), &((*another_node)->left_subtree));
                 swap(&((*one_node)->right_subtree), &((*another_node)->right_subtree));
@@ -785,7 +754,8 @@ protected:
 #pragma endregion
 
     node *_root;
-public:
+protected:
+    // constructor
     bs_tree(
             logger *logger,
             memory *allocator,
@@ -799,7 +769,7 @@ public:
               _removing(removing),
               _root(nullptr)
     {
-
+        this->trace_with_guard("bs_tree constructor was called");
     }
 
 protected:
@@ -810,22 +780,23 @@ protected:
     removing_template_method *_removing;
 
 public:
-
-    bs_tree(
-            bs_tree<tkey, tvalue, tkey_comparer> const &obj)
+    // copy constructor
+    bs_tree(bs_tree<tkey, tvalue, tkey_comparer> const &obj)
             : bs_tree(obj._logger, obj._allocator)
     {
+        this->trace_with_guard("bs_tree copy constructor was called");
         _root = copy(obj._root);
     }
 
-    bs_tree(
-            bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    // move constructor
+    bs_tree(bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
             : bs_tree(obj._insertion,
                       obj._finding,
                       obj._removing,
                       obj._allocator,
                       obj._logger)
     {
+        this->trace_with_guard("bs_tree move constructor was called");
         _root = obj._root;
         obj._root = nullptr;
 
@@ -843,9 +814,10 @@ public:
         obj._logger = nullptr;
     }
 
-    bs_tree &operator=(
-            bs_tree<tkey, tvalue, tkey_comparer> const &obj)
+    // copy assignment (оператор присваивания)
+    bs_tree &operator=(bs_tree<tkey, tvalue, tkey_comparer> const &obj)
     {
+        this->trace_with_guard("bs_tree copy assignment constructor was called");
         if (this == &obj)
         {
             return *this;
@@ -861,9 +833,10 @@ public:
         return *this;
     }
 
-    bs_tree &operator=(
-            bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    // move assignment (оператор присваивания перемещением)
+    bs_tree &operator=(bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
     {
+        this->trace_with_guard("bs_tree move assignment constructor was called");
         if (this == &obj)
         {
             return *this;
@@ -891,8 +864,10 @@ public:
         return *this;
     }
 
+    // destructor
     ~bs_tree()
     {
+        this->trace_with_guard("bs_tree destructor was called");
         delete _insertion;
         delete _finding;
         delete _removing;
@@ -900,10 +875,8 @@ public:
         clearup(_root);
     }
 
-private:
-
-    void clearup(
-            node *element)
+protected:
+    virtual void clearup(node *element)
     {
         if (element == nullptr)
         {
@@ -917,16 +890,14 @@ private:
         deallocate_with_guard(element);
     }
 
-    // TODO: think about usability in derived classes
-    node *copy(
-            node *from)
+    virtual node *copy(node *from)
     {
         if (from == nullptr)
         {
             return nullptr;
         }
 
-        node *result = allocate_with_guard(sizeof(node));
+        node *result = reinterpret_cast<node *>(allocate_with_guard(sizeof(node)));
         new (result) node(*from);
 
         result->left_subtree = copy(from->left_subtree);
@@ -936,7 +907,7 @@ private:
     }
 
 public:
-
+    // constructor
     explicit bs_tree(
             logger *logger = nullptr,
             memory *allocator = nullptr)
@@ -985,6 +956,5 @@ private:
     }
 
 };
-
 
 #endif //BS_TREE_H
