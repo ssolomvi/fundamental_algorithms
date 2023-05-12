@@ -442,6 +442,156 @@ public:
     {
 
     }
+
+private:
+    // constructor
+    rb_tree(
+            logger *logger,
+            memory *allocator,
+            insertion_rb_tree *insertion,
+            typename bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method *finding,
+            removing_rb_tree *removing)
+    {
+        this->_logger(logger);
+        this->_allocator(allocator);
+        this->_insertion(insertion);
+        this->_finding(finding);
+        this->_removing(removing);
+        this->_root(nullptr);
+
+        this->trace_with_guard("rb_tree constructor was called");
+    }
+
+public:
+    // copy constructor
+    rb_tree(rb_tree<tkey, tvalue, tkey_comparer> const &obj)
+    : rb_tree(obj._logger, obj._allocator)
+    {
+        this->trace_with_guard("rb_tree copy constructor was called");
+        this->_root = this->copy(obj._root);
+    }
+
+    // move constructor
+    rb_tree(rb_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    : rb_tree(obj._insertion,
+              obj._finding,
+              obj._removing,
+              obj._allocator,
+              obj._logger)
+    {
+        this->trace_with_guard("rb_tree move constructor was called");
+
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        this->_insertion->_target_tree = this;
+        obj._insertion = nullptr;
+
+        this->_finding->_target_tree = this;
+        obj._finding = nullptr;
+
+        this->_removing->_target_tree = this;
+        obj._removing = nullptr;
+
+        obj._allocator = nullptr;
+
+        obj._logger = nullptr;
+    }
+
+    // copy assignment (оператор присваивания)
+    rb_tree &operator=(rb_tree<tkey, tvalue, tkey_comparer> const &obj)
+    {
+        this->trace_with_guard("rb_tree copy assignment constructor was called");
+
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        this->clearup(this->_root);
+
+        this->_allocator = obj._allocator;
+        this->_logger = obj._logger;
+        this->_root = this->copy(obj._root);
+
+        return *this;
+    }
+
+    // move assignment (оператор присваивания перемещением)
+    rb_tree &operator=(rb_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    {
+        this->trace_with_guard("rb_tree move assignment constructor was called");
+
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        this->clearup(this->_root);
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        delete obj._insertion;
+        obj._insertion = nullptr;
+
+        delete obj._finding;
+        obj._finding = nullptr;
+
+        delete obj._removing;
+        obj._removing = nullptr;
+
+        this->_allocator = obj._allocator;
+        obj._allocator = nullptr;
+
+        this->_logger = obj._logger;
+        obj._logger = nullptr;
+
+        return *this;
+    }
+
+    // destructor
+    ~rb_tree()
+    {
+        this->trace_with_guard("rb_tree destructor was called");
+
+        delete this->_insertion;
+        delete this->_finding;
+        delete this->_removing;
+
+        this->clearup(this->_root);
+    }
+
+private:
+    void clearup(typename bs_tree<tkey, tvalue, tkey_comparer>::node *element) override
+    {
+        if (element == nullptr)
+        {
+            return;
+        }
+
+        clearup(element->left_subtree);
+        clearup(element->right_subtree);
+
+        reinterpret_cast<rb_node *>(element)->~rb_node();
+        this->deallocate_with_guard(element);
+    }
+
+    typename bs_tree<tkey, tvalue, tkey_comparer>::node *copy(typename bs_tree<tkey, tvalue, tkey_comparer>::node *from) override
+    {
+        if (from == nullptr)
+        {
+            return nullptr;
+        }
+
+        rb_node *result = reinterpret_cast<rb_node *>(this->allocate_with_guard(sizeof(rb_node)));
+        new (result) rb_node(*reinterpret_cast<rb_node *>(from));
+        result->change_color(reinterpret_cast<rb_node *>(from)->get_color());
+
+        result->left_subtree = copy(from->left_subtree);
+        result->right_subtree = copy(from->right_subtree);
+
+        return result;
+    }
 };
 
 

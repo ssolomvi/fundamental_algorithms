@@ -14,9 +14,9 @@ add_executable(lab5
         binary_tree/bs_tree.h
         splay_tree/splay_tree.h
         avl_tree/avl_tree.h
-        rb_tree/rb_tree.cpp rb_tree/rb_tree.h
-        lab5task2/memory_from_global_heap.h lab5task2/memory_from_global_heap.cpp
-        lab5task3/memory_with_sorted_list_deallocation.h lab5task3/memory_with_sorted_list_deallocation.cpp
-        lab5task4/memory_with_boundary_tags.h lab5task4/memory_with_boundary_tags.cpp
-        lab5task5/memory_with_buddy_system.h lab5task5/memory_with_buddy_system.cpp
-        main.cpp )
+        rb_tree/rb_tree.h
+        allocator_from_global_heap/memory_from_global_heap.h allocator_from_global_heap/memory_from_global_heap.cpp
+        allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp
+        allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp
+        allocator_with_buddy_system/memory_with_buddy_system.h allocator_with_buddy_system/memory_with_buddy_system.cpp
+        main.cpp b_tree/b_tree.h b_plus_tree/b_plus_tree.h)

@@ -90,12 +90,11 @@ public:
     class insertion_splay_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::insertion_template_method
     {
-//        friend class template_method_splay;
         void after_insert_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
         {
-//            splay_tree<tkey, tvalue, tkey_comparer>::splay(path, target_ptr);
+            this->trace_with_guard("splay_tree::insertion_splay_tree::after_insert_inner::splay method started");
             reinterpret_cast<template_method_splay *>(this)->splay(path, target_ptr);
-//            template_method_splay::splay(path, target_ptr);
+            this->trace_with_guard("splay_tree::insertion_splay_tree::after_insert_inner::splay method finished");
         }
 
     public:
@@ -112,14 +111,11 @@ public:
     class finding_splay_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method
     {
-//        friend class template_method_splay;
-
         void after_find_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
         {
-//            reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->splay(path, target_ptr);
-//            template_method_splay::splay(path, target_ptr);
+            this->trace_with_guard("splay_tree::finding_splay_tree::after_find_inner::splay method started");
             reinterpret_cast<template_method_splay *>(this)->splay(path, target_ptr);
-//            splay_tree<tkey, tvalue, tkey_comparer>::splay(path, target_ptr);
+            this->trace_with_guard("splay_tree::finding_splay_tree::after_find_inner::splay method started");
         }
 
     public:
@@ -136,19 +132,16 @@ public:
     class removing_splay_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::removing_template_method
     {
-//        friend class template_method_splay;
-
         void after_remove(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path) const override
         {
+            this->trace_with_guard("splay_tree::removing_splay_tree::after_remove::splay method started");
             typename bs_tree<tkey, tvalue, tkey_comparer>::node ** parent_to_deleted_node = path.top();
 
             if (path.empty() == false) {
                 path.pop();
                 (reinterpret_cast<template_method_splay *>(const_cast<removing_splay_tree *>(this)))->splay(path, parent_to_deleted_node);
-//                template_method_splay::splay(path, parent_to_deleted_node);
-//                reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->splay(path, parent_to_deleted_node);
-//                splay_tree<tkey, tvalue, tkey_comparer>::splay(path, parent_to_deleted_node);
             }
+            this->trace_with_guard("splay_tree::removing_splay_tree::after_remove::splay method started");
         }
 
     public:
@@ -162,10 +155,9 @@ public:
 #pragma endregion
 #pragma endregion
 
+#pragma region rule 5
 public:
-    explicit splay_tree(
-            logger *_logger = nullptr,
-            memory *_allocator = nullptr)
+    explicit splay_tree(logger *_logger = nullptr, memory *_allocator = nullptr)
             : bs_tree<tkey, tvalue, tkey_comparer>(
                     _logger,
                     _allocator,
@@ -175,6 +167,124 @@ public:
     {
 
     }
+
+private:
+    // constructor
+    splay_tree(
+            logger *logger,
+            memory *allocator,
+            insertion_splay_tree *insertion,
+            finding_splay_tree *finding,
+            removing_splay_tree *removing)
+    {
+        this->_logger(logger);
+        this->_allocator(allocator);
+        this->_insertion(insertion);
+        this->_finding(finding);
+        this->_removing(removing);
+        this->_root(nullptr);
+
+        this->trace_with_guard("splay_tree constructor was called");
+    }
+
+public:
+    // copy constructor
+    explicit splay_tree(bs_tree<tkey, tvalue, tkey_comparer> const &obj)
+            : splay_tree(obj._logger, obj._allocator)
+    {
+        this->trace_with_guard("splay_tree copy constructor was called");
+        this->_root = this->copy(obj._root);
+    }
+
+    // move constructor
+    explicit splay_tree(bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    : splay_tree(obj._insertion,
+                 obj._finding,
+                 obj._removing,
+                 obj._allocator,
+                 obj._logger)
+    {
+        this->trace_with_guard("splay_tree move constructor was called");
+
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        this->_insertion->_target_tree = this;
+        obj._insertion = nullptr;
+
+        this->_finding->_target_tree = this;
+        obj._finding = nullptr;
+
+        this->_removing->_target_tree = this;
+        obj._removing = nullptr;
+
+        obj._allocator = nullptr;
+
+        obj._logger = nullptr;
+    }
+
+    // copy assignment (оператор присваивания)
+    splay_tree &operator=(splay_tree<tkey, tvalue, tkey_comparer> const &obj)
+    {
+        this->trace_with_guard("splay_tree copy assignment constructor was called");
+
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        this->clearup(this->_root);
+
+        this->_allocator = obj._allocator;
+        this->_logger = obj._logger;
+        this->_root = this->copy(obj._root);
+
+        return *this;
+    }
+
+    // move assignment (оператор присваивания перемещением)
+    splay_tree &operator=(splay_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    {
+        this->trace_with_guard("splay_tree move assignment constructor was called");
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        clearup(this->_root);
+        this->_root = obj._root;
+        obj._root = nullptr;
+
+        delete obj._insertion;
+        obj._insertion = nullptr;
+
+        delete obj._finding;
+        obj._finding = nullptr;
+
+        delete obj._removing;
+        obj._removing = nullptr;
+
+        this->_allocator = obj._allocator;
+        obj._allocator = nullptr;
+
+        this->_logger = obj._logger;
+        obj._logger = nullptr;
+
+        return *this;
+    }
+
+    // destructor
+    ~splay_tree()
+    {
+        this->trace_with_guard("splay_tree destructor was called");
+
+        delete this->_insertion;
+        delete this->_finding;
+        delete this->_removing;
+
+        this->clearup(this->_root);
+    }
+#pragma endregion
 };
 
 #endif //SPLAY_TREE_H
