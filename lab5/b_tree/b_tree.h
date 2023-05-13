@@ -39,11 +39,31 @@ protected:
     finding_template_method * _finding;
     removing_template_method * _removing;
 
+protected:
+    class bt_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit bt_exception(std::string const &message)
+                : _message(message) {
+
+        }
+
+        char const *what() const noexcept override {
+            return _message.c_str();
+        }
+    };
+
+public:
+    // todo: iterators
+
+protected:
 #pragma region template methods
-    // todo: do find_path
     class template_method_basics:
             protected logger_holder
     {
+        // TODO: split node, make it virtual
         friend class b_tree<tkey, tvalue, tkey_comparer>;
 
     protected:
@@ -54,9 +74,52 @@ protected:
             return _target_tree->_root;
         }
 
-        std::pair<std::stack<node **>, node **> find_path(tkey const &key) const
+        std::pair<std::stack<node **>, std::pair<node **, unsigned>> find_path(tkey const &key) const
         {
+            // todo: should we break nodes here?
+            std::stack<node **> path;
 
+            if (_target_tree->_root == nullptr)
+            {
+                return { path, &_target_tree->_root };
+            }
+
+            node **iterator = &_target_tree->_root;
+            tkey_comparer comparer;
+
+            unsigned high = 0, low = 0, mid = 0;
+            while (true)
+            {
+                low = 0;
+                high = (*iterator)->_number_of_keys;
+
+                while (low <= high) {
+                    mid = (low + high) / 2;
+                    auto comparison_result = comparer(key, (*iterator)->_keys[mid]);
+                    if (comparison_result == 0) {
+                        return std::pair<std::stack<typename b_tree<tkey, tvalue, tkey_comparer>::node **>,
+                                std::pair<typename b_tree<tkey, tvalue, tkey_comparer>::node**, unsigned>>(path, iterator, mid);
+                    }
+
+                    comparison_result < 0
+                            ? (high = mid - 1)
+                            : (low = mid + 1);
+                }
+
+                path.push(iterator);
+
+                if (!((*iterator)->_is_leaf)) {
+                    auto comparison_result = comparer(key, (*iterator)->_keys[mid]);
+                    comparison_result > 0
+                        ? ( iterator = &((*iterator)->_sub_nodes[mid + 1]) )
+                        : ( iterator = &((*iterator)->_sub_nodes[mid]) );
+                } else {
+                    break;
+                }
+            }
+
+            return std::pair<std::stack<typename b_tree<tkey, tvalue, tkey_comparer>::node **>,
+                    std::pair<typename b_tree<tkey, tvalue, tkey_comparer>::node**, unsigned>>(path, iterator, mid);;
         }
 
     private:
@@ -78,9 +141,24 @@ protected:
             private memory_holder
     {
     public:
-        void insert(
-                tkey const &key,
-                tvalue &&value) {
+        void insert(tkey const &key, tvalue &&value)
+        {
+            this->trace_with_guard("bs_tree::insertion_template_method::insert method started");
+
+            // returned by find path is std::pair<std::stack<node **>, std::pair<node **, unsigned>>
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            node **target_ptr = path_and_target.second.first;
+            unsigned target_index = path_and_target.second.second;
+
+            if (tkey_comparer(key, (*target_ptr)->_keys[target_index]) == 0)
+            {
+                this->debug_with_guard("b_tree::insertion_template_method::insert passed key is not unique")
+                    ->trace_with_guard("b_tree::insertion_template_method::insert method finished");
+                throw bt_exception("b_tree::insertion_template_method::insert passed key is not unique");
+            }
+
+            this->trace_with_guard("b_tree::insertion_template_method::insert method finished");
         }
 
         [[nodiscard]] virtual size_t get_node_size() const
@@ -116,10 +194,36 @@ protected:
             public template_method_basics
     {
     public:
-        tvalue const &find(
-                tkey const &key)
+        tvalue const &find(tkey const &key)
         {
+            this->trace_with_guard("b_tree::finding_template_method::find method started");
+            if (this->get_root_node() == nullptr) {
+                this->information_with_guard("b_tree::finding_template_method::find the tree is empty")
+                    ->trace_with_guard("b_tree::finding_template_method::find method finished");
+            }
 
+            // returned by find path is std::pair<std::stack<node **>, std::pair<node **, unsigned>>
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            node **target_ptr = path_and_target.second.first;
+            unsigned index = path_and_target.second.second;
+
+            if (tkey_comparer(key, (*target_ptr)->_keys[index]) != 0)
+            {
+                this->debug_with_guard("b_tree::finding_template_method::find no value with passed key in tree")
+                    ->trace_with_guard("b_tree::finding_template_method::find method finished");
+                throw bt_exception("b_tree::finding_template_method::find no value with passed key in tree");
+            }
+
+//            after_find_inner(path, target_ptr);
+
+            this->trace_with_guard("b_tree::finding_template_method::find method finished");
+            return (*target_ptr)->value;
+        }
+
+        virtual void after_find_inner(std::stack<node **> &path, node **target_ptr)
+        {
+            // TODO: nothing to do here in BT context...
         }
 
     public:
@@ -143,14 +247,32 @@ protected:
 
         virtual tvalue remove(tkey const &key)
         {
+            this->trace_with_guard("bs_tree::removing_template_method::remove method started");
 
+            // returned by find path is std::pair<std::stack<node **>, std::pair<node **, unsigned>>
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            node **target_ptr = path_and_target.second.first;
+            unsigned target_index = path_and_target.second.second;
+
+            if (tkey_comparer(key, (*target_ptr)->_keys[target_index]) != 0)
+            {
+                this->debug_with_guard("b_tree::removing_template_method::remove passed key is not found")
+                    ->trace_with_guard("b_tree::removing_template_method::remove method finished");
+                throw bt_exception("b_tree::removing_template_method::remove passed key is not found");
+            }
+
+            // 2 case: deleting from leaf and not-leaf
+            // + 2 sub_cases: deleting from non-full node and full node
+
+            this->trace_with_guard("b_tree::removing_template_method::remove method finished");
         }
 
     protected:
         void cleanup_node(node **node_address)
         {
             (*node_address)->~node();
-            deallocate_with_guard(reinterpret_cast<void *>(*node_address));
+            this->deallocate_with_guard(reinterpret_cast<void *>(*node_address));
 
             *node_address = nullptr;
         }

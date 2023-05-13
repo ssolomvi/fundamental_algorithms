@@ -514,7 +514,8 @@ protected:
 
             if (*target_ptr != nullptr)
             {
-                debug_with_guard("bs_tree::insertion_template_method::insert passed key is not unique");
+                this->debug_with_guard("bs_tree::insertion_template_method::insert passed key is not unique")
+                    ->trace_with_guard("bs_tree::insertion_template_method::insert method finished");
                 throw bst_exception("bs_tree::insertion_template_method::insert passed key is not unique");
             }
 
@@ -584,7 +585,8 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree");
+                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree")
+                    ->trace_with_guard("bs_tree::finding_template_method::find method finished");
                 throw bst_exception("bs_tree::finding_template_method::find no value with passed key in tree");
             }
 
@@ -634,8 +636,9 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                this->debug_with_guard("finding_template_method::remove:: no value with passed key in tree");
-                throw bst_exception("finding_template_method::remove:: no value with passed key in tree");
+                this->debug_with_guard("bs_tree::removing_template_method::remove no value with passed key in tree")
+                    ->trace_with_guard("bs_tree::removing_template_method::remove method finished");
+                throw bst_exception("bs_tree::removing_template_method::remove no value with passed key in tree");
             }
 
             // здесь могла быть move-семантика

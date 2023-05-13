@@ -198,10 +198,14 @@ protected:
 
         void after_insert_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
         {
+            this->trace_with_guard("rb_tree::insertion_rb_tree::after_insert_inner method started");
             rb_node ** current_node = reinterpret_cast<rb_node **>(target_ptr);
             (*current_node)->change_color(RED);
 
+            this->trace_with_guard("rb_tree::insertion_rb_tree::insertion_do_balance method started");
             insertion_do_balance(path, target_ptr);
+            this->trace_with_guard("rb_tree::insertion_rb_tree::insertion_do_balance method finished")
+                ->trace_with_guard("rb_tree::insertion_rb_tree::after_insert_inner method finished");
         }
 
     public:
@@ -231,13 +235,17 @@ protected:
 
         tvalue remove(tkey const &key) override
         {
+            this->trace_with_guard("rb_tree::removing_rb_tree::remove method started");
+
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
             rb_node **target_ptr = reinterpret_cast<rb_node **>(path_and_target.second);
 
             if (*target_ptr == nullptr)
             {
-                throw typename bs_tree<tkey, tvalue, tkey_comparer>::bst_exception("finding_template_method::remove::no value with passed key in tree");
+                this->debug_with_guard("rb_tree::removing_rb_tree::remove no value with passed key in tree")
+                    ->trace_with_guard("rb_tree::removing_rb_tree::remove method finished");
+                throw typename bs_tree<tkey, tvalue, tkey_comparer>::bst_exception("rb_tree::removing_rb_tree::remove::no value with passed key in tree");
             }
 
             tvalue result = (*target_ptr)->value;
@@ -255,7 +263,6 @@ protected:
                 }
 
                 target_ptr = reinterpret_cast<rb_node **>(this->swap_nodes(element_to_swap_with, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr)));
-//                target_ptr = reinterpret_cast<rb_node **>(element_to_swap_with);
             }
 
             bool target_ptr_color = (*target_ptr)->get_color();
@@ -286,11 +293,13 @@ protected:
                 (*target_ptr)->change_color(BLACK);
             }
 
+            this->trace_with_guard("rb_tree::removing_template_method::remove method finished");
             return result;
         }
 
         void after_remove(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path) const override
         {
+            this->trace_with_guard("rb_tree::removing_rb_tree::after_remove method started");
             // path содержит все узлы до удалённого, верхний узел в стеке -- родитель удалённого
             // warning! color of root may change. Change color if needed
             if (path.empty()) {
@@ -415,6 +424,7 @@ protected:
                     }
                 }
             }
+            this->trace_with_guard("rb_tree::removing_rb_tree::after_remove method finished");
         }
 
     public:
