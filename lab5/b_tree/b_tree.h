@@ -150,6 +150,7 @@ protected:
         friend class b_tree<tkey, tvalue, tkey_comparer>;
 
     public:
+        // returns an index of element with such key or the closest one to key
         unsigned dichotomy_search(node * current_node, tkey const &key)
         {
             unsigned low = 0, mid = 0;
@@ -224,12 +225,6 @@ protected:
                     std::pair<node**, unsigned>>(path, iterator, mid);;
         }
 
-        virtual void split_node(std::stack<std::pair< node **, unsigned > > &path, node ** current_node)
-        {
-            // todo: split node
-            auto stack_top;
-        }
-
     private:
         logger *get_logger() const noexcept override
         {
@@ -249,15 +244,19 @@ protected:
             private memory_holder
     {
     protected:
-
-
-        virtual unsigned insert_key_in_nonfull_node(node * current_node, tkey const & key, tvalue &&value)
+        // returns an index of inserted element
+        virtual unsigned insert_key_in_nonfull_node(node * current_node, tkey const &key, tvalue &&value)
         {
+            this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
+
             if (current_node->_number_of_keys == 0) {
+                // insertion in root
                 current_node->_keys[0] = key;
                 current_node->_values[0] = std::move(value);
                 current_node->_number_of_keys = 1;
                 current_node->_sub_nodes[current_node->_number_of_keys] = nullptr;
+
+                this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
                 return 0;
             }
 
@@ -265,7 +264,7 @@ protected:
             auto comparison_result = tkey_comparer(key, current_node->_keys[closest_index]);
 
             if (comparison_result == 0) {
-                throw insert_exception("b_tree::insertion_template_method::insert::insert_key_in_nonfull_node key is not unique");
+                throw insert_exception("b_tree::insertion_template_method::insert_key_in_nonfull_node key is not unique");
             }
 
             unsigned number_of_keys_in_node = current_node->_number_of_keys;
@@ -281,21 +280,24 @@ protected:
             }
             current_node->_keys[position_of_key_to_insert] = key;
             current_node->_values[position_of_key_to_insert] = std::move(value);
-//            current_node->_sub_nodes[number_of_keys_in_node + 1] = nullptr;
-
             current_node->_number_of_keys++;
+
+            this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
             return position_of_key_to_insert;
         }
 
     public:
+        // returns a node where key value may, possibly, be inserted
         virtual node ** split(std::stack<std::pair< node **, unsigned >> &path, node ** current_node, tkey const &key)
         {
+            this->trace_with_guard("b_tree::insertion_template_method::split method started");
+
             node ** split_element_left_subtree, **split_element_right_subtree;
-            unsigned max_number_of_keys_in_node = this->_target_tree->_tree_parameter * 2 - 1;
             unsigned mid_index = (*current_node)->_number_of_keys / 2;
             auto comparison_result = tkey_comparer(key, (*current_node)->_keys[mid_index]);
-// TODO: memmove subtrees
+
             if (path.empty()) {
+                // splitting root
                 path.push(std::pair<node **, unsigned >(current_node, 0));
 
                 split_element_left_subtree = &((*current_node)->_sub_nodes[0]);
@@ -316,26 +318,28 @@ protected:
                 (*current_node)->_keys[0] = (*current_node)->_keys[mid_index];
                 (*current_node)->_values[0] = std::move((*current_node)->_values[mid_index]);
 
-                return (comparison_result < 0 ? split_element_left_subtree : split_element_right_subtree);
             } else {
+                // splitting not root
+                // current node will be a left subtree to mid element
                 auto tmp = path.top();
                 node **parent_node = tmp.first;
-                unsigned closest_index = tmp.second;
 
-                // todo: move key as well?
+                // todo: move key as well? so current node wouldn't have a ghost key
+                // parent element is 100% not full, so we can use insert_key_in_nonfull_node here
                 unsigned mid_element_position_in_parent_node = insert_key_in_nonfull_node((*parent_node), ((*current_node)->_keys[mid_index]), std::move((*current_node)->_values[mid_index]));
 
                 split_element_left_subtree = current_node;
                 (*split_element_left_subtree)->_number_of_keys = mid_index;
-                split_element_right_subtree = (*parent_node)->_sub_nodes[mid_element_position_in_parent_node + 1];
+                split_element_right_subtree = &((*parent_node)->_sub_nodes[mid_element_position_in_parent_node + 1]);
 
                 initialize_memory_with_node((*split_element_right_subtree));
                 memmove(((*split_element_right_subtree)->_keys), ((*current_node)->_keys + mid_index + 1), sizeof(tvalue) * mid_index);
                 memmove(((*split_element_right_subtree)->_values), ((*current_node)->_values + mid_index + 1), sizeof(tvalue) * mid_index);
                 memmove(((*split_element_right_subtree)->_sub_nodes), ((*current_node)->_sub_nodes + mid_index + 1), sizeof(node *) + (mid_index + 1))
                 (*split_element_right_subtree)->_number_of_keys = mid_index;
-
             }
+            this->trace_with_guard("b_tree::insertion_template_method::split method finished");
+            return (comparison_result < 0 ? split_element_left_subtree : split_element_right_subtree);
         }
 
         void insert(tkey const &key, tvalue &&value)
@@ -344,6 +348,7 @@ protected:
             node ** current_node = &(this->_target_tree->_root);
 
             if ((*current_node) == nullptr) {
+                // tree is empty
                 *current_node = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
                 initialize_memory_with_node(*current_node);
                 insert_key_in_nonfull_node(*current_node, key, std::move(value));
@@ -351,19 +356,33 @@ protected:
             }
 
             bool current_key_is_full = false;
-
             std::stack<std::pair< node **, unsigned >> path;
+            unsigned max_number_of_keys_in_node = this->_target_tree->_tree_parameter * 2 - 1;
+            unsigned closest_index = 0;
 
-            while (!((*current_node)->_is_leaf) || (current_key_is_full = ((*current_node)->_number_of_keys == max_number_of_keys_in_node))) {
+            while (((*current_node) != nullptr) || (current_key_is_full = ((*current_node)->_number_of_keys == max_number_of_keys_in_node))) {
                 // split and go down to leaf
                 if (current_key_is_full) {
-                    mid_index = (*current_node)->_number_of_keys / 2;
-                    auto comparison_result = tkey_comparer(key, (*current_node)->_keys[mid_index]);
-                    if (path.empty()) {
-                        path.push(std::pair<node **, unsigned >(current_node, 0));
-                    } else {
+                    current_node = split(path, current_node, key);
+                }
 
-                    }
+                closest_index = this->dichotomy_search((*current_node), key);
+
+                // if under index returned is the same key, throw, key not unique
+                auto comparison_result = tkey_comparer(key, (*current_node)->_keys[closest_index]);
+                if (comparison_result == 0) {
+                    throw insert_exception("b_tree::insertion_template_method::insert::insert_key_in_nonfull_node key is not unique");
+                }
+
+                if (!((*current_node)->_is_leaf)) {
+                    // push in path, go down
+                    path.push(std::pair< node**, unsigned >(current_node, closest_index));
+                    current_node = (comparison_result < 0
+                            ? &((*current_node)->_sub_nodes[closest_index])
+                            : &((*current_node)->_sub_nodes[closest_index + 1]));
+                } else {
+                    // insert an element
+                    insert_key_in_nonfull_node((*current_node), key, std::move(value));
                 }
             }
 
@@ -377,7 +396,8 @@ protected:
 
         virtual void initialize_memory_with_node(node *target_ptr) const
         {
-            new(target_ptr) node;
+            new(target_ptr) node(this->_target_tree);
+//            new(target_ptr) node();
         }
 
     private:
@@ -420,18 +440,11 @@ protected:
             {
                 this->debug_with_guard("b_tree::finding_template_method::find no value with passed key in tree")
                     ->trace_with_guard("b_tree::finding_template_method::find method finished");
-                throw bt_exception("b_tree::finding_template_method::find no value with passed key in tree");
+                throw find_exception("b_tree::finding_template_method::find no value with passed key in tree");
             }
-
-//            after_find_inner(path, target_ptr);
 
             this->trace_with_guard("b_tree::finding_template_method::find method finished");
             return (*target_ptr)->value;
-        }
-
-        virtual void after_find_inner(std::stack<node **> &path, node **target_ptr)
-        {
-            // TODO: nothing to do here in BT context...
         }
 
     public:
@@ -467,7 +480,7 @@ protected:
             {
                 this->debug_with_guard("b_tree::removing_template_method::remove passed key is not found")
                     ->trace_with_guard("b_tree::removing_template_method::remove method finished");
-                throw bt_exception("b_tree::removing_template_method::remove passed key is not found");
+                throw remove_exception("b_tree::removing_template_method::remove passed key is not found");
             }
 
             // 2 case: deleting from leaf and not-leaf
