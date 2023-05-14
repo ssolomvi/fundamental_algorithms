@@ -1,7 +1,5 @@
 #include <list>
 #include <random>
-//#include <cmath>
-
 #include "allocator/memory_base_class.h"
 #include "allocator/memory_holder.h"
 #include "logger/logger.h"
@@ -26,30 +24,42 @@ public:
     }
 };
 
+typedef enum trees {
+    BST,
+    AVL,
+    SPLAY,
+    RB,
+    B_TREE,
+    B_PLUS
+} trees;
 
-void bst_test()
+void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type)
 {
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
-
-    logger_builder *binary_logger_builder = new logger_builder_impl();
-    logger *binary_tree_logger = binary_logger_builder
-            ->with_stream("rbtree_tests.txt", logger::severity::trace)
-            ->build();
-    delete binary_logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-//    associative_container<int, std::string> *tree = new red_black_tree<int, std::string, int_comparer>(allocator, rbtree_logger);
-    associative_container<int, std::string> *tree = new bs_tree<int, std::string, int_comparer>(binary_tree_logger, allocator);
+    associative_container<int, std::string> *tree = nullptr;
+    switch (tree_type) {
+        case BST:
+            tree = new bs_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            break;
+        case AVL:
+            tree = new avl_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            break;
+        case SPLAY:
+            tree = new splay_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            break;
+        case RB:
+            tree = new rb_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            break;
+        default:
+            return;
+    }
 
     srand((unsigned)time(nullptr));
 
     int i = 1;
     while (1)
     {
+        if (i == iterations)
+            break;
         std::cout << "----------------------------------------" << std::endl << "Iteration #" << i << std::endl;
 
         auto key = rand() % 500;
@@ -61,7 +71,7 @@ void bst_test()
                     tree->insert(key, "");
                     std::cout << "successfully inserted key \"" << key << "\"" << std::endl;
                 }
-                catch (bs_tree<int, std::string, int_comparer>::bst_exception const &)
+                catch (bs_tree<int, std::string, int_comparer>::insert_exception const &)
                 {
                     std::cout << "insertion error - duplicate key \"" << key << "\" detected" << std::endl;
                 }
@@ -76,7 +86,7 @@ void bst_test()
                     tree->remove(key);
                     std::cout << "successfully removed key \"" << key << "\"" << std::endl;
                 }
-                catch (bs_tree<int, std::string, int_comparer>::bst_exception const &)
+                catch (bs_tree<int, std::string, int_comparer>::remove_exception const &)
                 {
                     std::cout << "removing error - key \"" << key << "\" not found" << std::endl;
                 }
@@ -102,14 +112,9 @@ void bst_test()
     }
 
     delete tree;
-    delete allocator;
-    delete binary_tree_logger;
-    delete allocator_logger;
 }
 
-void allocator_demo(
-        memory *allocator,
-        unsigned int iterations_count)
+void allocator_demo(memory *allocator, unsigned int iterations_count)
 {
     std::list<void *> allocated_blocks;
     std::random_device rd;
@@ -163,10 +168,7 @@ void allocator_demo(
     }
 }
 
-void allocators_demo(
-        size_t trusted_memory_size,
-        memory::Allocation_strategy fit_mode,
-        unsigned int iterations_count)
+void allocators_demo(size_t trusted_memory_size, memory::Allocation_strategy fit_mode, unsigned int iterations_count)
 {
     logger_builder *builder = new logger_builder_impl();
     auto *global_heap_allocator_logger = builder
@@ -218,243 +220,7 @@ void allocators_demo(
     delete buddy_system_allocator_logger;
 }
 
-void my_bst_test()
-{
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
-
-    logger_builder *binary_logger_builder = new logger_builder_impl();
-    logger *binary_tree_logger = binary_logger_builder
-            ->with_stream("bst_tests.txt", logger::severity::trace)
-            ->build();
-    delete binary_logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-    bs_tree<int, std::string, int_comparer> BST_tree_initial(binary_tree_logger, allocator);
-    bs_tree<int, std::string, int_comparer> BST_tree = BST_tree_initial;
-    std::string ptr_value;
-    try {
-        ptr_value = std::move(BST_tree.remove(4));
-        std::cout << ptr_value << std::endl;
-
-    }
-    catch (bs_tree<int, std::string, int_comparer>::bst_exception const &ex) {
-        std::cout << ex.what() << std::endl;
-    }
-
-    BST_tree.insert(4, "A");
-    BST_tree.insert(2, "B");
-    BST_tree.insert(3, "C");
-    BST_tree.insert(1, "D");
-    BST_tree.insert(5, "E");
-    BST_tree.insert(7, "F");
-    BST_tree.insert(6, "G");
-
-    auto ptr_end_prefix = BST_tree.end_prefix();
-    for (auto it = BST_tree.begin_prefix(); it != ptr_end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    ptr_value = BST_tree.remove(4);
-    std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree.remove(3);
-    std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree.remove(5);
-    std::cout << ptr_value << std::endl;
-    ptr_value = BST_tree.remove(2);
-    std::cout << ptr_value << std::endl;
-
-    for (auto it = BST_tree.begin_prefix(); it != ptr_end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-//    delete BST_tree;
-    delete binary_tree_logger;
-    delete allocator;
-    delete allocator_logger;
-}
-
-void splay_tree_test()
-{
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_splay_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
-
-    logger_builder *splay_tree_logger_builder = new logger_builder_impl();
-    logger *splay_tree_logger = splay_tree_logger_builder
-            ->with_stream("splay_t_tests.txt", logger::severity::trace)
-            ->build();
-    delete splay_tree_logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-//    bs_tree<int, std::string, int_comparer> * sp_tree = new splay_tree<int, std::string, int_comparer>(splay_tree_logger, allocator);
-    splay_tree<int, std::string, int_comparer> sp_tree_initial(splay_tree_logger, allocator);
-    splay_tree<int, std::string, int_comparer> sp_tree = sp_tree_initial;
-
-#pragma region rule 5 splay tree test
-    sp_tree.insert(4, "a");
-    sp_tree.insert(2, "b");
-    sp_tree.insert(3, "c");
-    sp_tree.insert(1, "d");
-    sp_tree.insert(5, "e");
-    sp_tree.insert(7, "f");
-    sp_tree.insert(6, "g");
-
-    auto end_prefix = sp_tree.end_prefix();
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto value = sp_tree.remove(4);
-    std::cout << value << std::endl;
-    value = sp_tree.remove(3);
-    std::cout << value << std::endl;
-    value = sp_tree.remove(1);
-    std::cout << value << std::endl;
-
-    for (auto it = sp_tree.begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-//    delete sp_tree;
-    delete splay_tree_logger;
-    delete allocator;
-    delete allocator_logger;
-#pragma endregion
-
-    /*
-    sp_tree->insert(4, "a");
-    sp_tree->insert(2, "b");
-    sp_tree->insert(3, "c");
-    sp_tree->insert(1, "d");
-    sp_tree->insert(5, "e");
-    sp_tree->insert(7, "f");
-    sp_tree->insert(6, "g");
-
-    auto end_prefix = sp_tree->end_prefix();
-    for (auto it = sp_tree->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto value = sp_tree->remove(4);
-    std::cout << value << std::endl;
-    value = sp_tree->remove(3);
-    std::cout << value << std::endl;
-    value = sp_tree->remove(1);
-    std::cout << value << std::endl;
-
-    for (auto it = sp_tree->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    delete sp_tree;
-    delete splay_tree_logger;
-    delete allocator;
-    delete allocator_logger;
-     */
-}
-
-void avl_tree_test()
-{
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_avl_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
-
-    logger_builder *avl_tree_logger_builder = new logger_builder_impl();
-    logger *avl_tree_logger = avl_tree_logger_builder
-            ->with_stream("avl_t_tests.txt", logger::severity::trace)
-            ->build();
-    delete avl_tree_logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-    bs_tree<int, std::string, int_comparer> * avl_t = new avl_tree<int, std::string, int_comparer>(avl_tree_logger, allocator);
-
-    avl_t->insert(4, "a");
-    avl_t->insert(2, "b");
-    avl_t->insert(3, "c");
-    avl_t->insert(1, "d");
-    avl_t->insert(5, "e");
-    avl_t->insert(7, "f");
-    avl_t->insert(6, "g");
-
-    auto end_prefix = avl_t->end_prefix();
-    for (auto it = avl_t->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto value = avl_t->remove(4);
-    std::cout << value << std::endl;
-    value = avl_t->remove(3);
-    std::cout << value << std::endl;
-    value = avl_t->remove(1);
-    std::cout << value << std::endl;
-
-    for (auto it = avl_t->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    delete avl_t;
-    delete avl_tree_logger;
-    delete allocator;
-    delete allocator_logger;
-}
-
-void rb_tree_test()
+void my_rb_tree_test()
 {
     logger_builder *allocator_logger_builder = new logger_builder_impl();
     logger *allocator_logger = allocator_logger_builder
@@ -471,15 +237,21 @@ void rb_tree_test()
     memory *allocator = new memory_from_global_heap(allocator_logger);
     bs_tree<int, std::string, int_comparer> * rb_t = new rb_tree<int, std::string, int_comparer>(rb_tree_logger, allocator);
 
+    rb_t->insert(10, "a");
+    rb_t->insert(3, "b");
+    rb_t->insert(8, "c");
+    rb_t->insert(7, "d");
+
+    rb_t->remove(8);
+    /*
     rb_t->insert(4, "a");
-    rb_t->remove(4);
     rb_t->insert(2, "b");
     rb_t->insert(3, "c");
     rb_t->insert(1, "d");
     rb_t->insert(5, "e");
     rb_t->insert(7, "f");
     rb_t->insert(6, "g");
-
+*/
     auto end_prefix = rb_t->end_prefix();
     for (auto it = rb_t->begin_prefix(); it != end_prefix; ++it)
     {
@@ -491,7 +263,7 @@ void rb_tree_test()
         std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
     }
 
-    auto value = rb_t->remove(4);
+    auto value = rb_t->remove(2);
     std::cout << value << std::endl;
     value = rb_t->remove(3);
     std::cout << value << std::endl;
@@ -514,15 +286,31 @@ void rb_tree_test()
     delete allocator_logger;
 }
 
-
 int main()
 {
-//    bst_test();
-//    allocators_demo(250000, memory::worst_fit, 7500);
-//    splay_tree_test();
-    my_bst_test();
-//    avl_tree_test();
-//    rb_tree_test();
+#pragma region tree test
+    unsigned iterations = 5001;
+
+    logger_builder *allocator_logger_builder = new logger_builder_impl();
+    logger *allocator_logger = allocator_logger_builder
+            ->with_stream("allocator_tests.txt", logger::severity::trace)
+            ->build();
+    delete allocator_logger_builder;
+
+    logger_builder *logger_builder = new logger_builder_impl();
+    logger *tree_logger = logger_builder
+            ->with_stream("tree_tests.txt", logger::severity::trace)
+            ->build();
+    delete logger_builder;
+
+    memory *allocator = new memory_from_global_heap(allocator_logger);
+
+    my_tree_test(iterations, allocator, tree_logger, RB);
+
+    delete allocator;
+    delete allocator_logger;
+    delete tree_logger;
+#pragma endregion
 
     return 0;
 }

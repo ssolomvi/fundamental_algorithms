@@ -73,7 +73,7 @@ protected:
                 left_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->left_subtree)->get_balance();
                 right_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->right_subtree)->get_balance();
 
-                if (balance > 1) {
+                if (balance > 1) { // == 2
                     path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(current_node));
                     // to_do: add path
                     // returned by rotations values are current top node
@@ -192,9 +192,6 @@ protected:
             avl_node ** parent = reinterpret_cast<avl_node **>(path.top());
             (*parent)->update_height();
             path.pop();
-
-//            auto ** grandparent = reinterpret_cast<avl_node **>(path.top());
-//            path.pop();
 
             // 2) do_balance
             this->trace_with_guard("avl_tree::template_methods_avl::do_balance method started");
@@ -348,12 +345,13 @@ public:
     ~avl_tree()
     {
         this->trace_with_guard("avl_tree destructor was called");
-
+/*
         delete this->_insertion;
         delete this->_finding;
         delete this->_removing;
 
         this->clearup(this->_root);
+  */
     }
 
 private:

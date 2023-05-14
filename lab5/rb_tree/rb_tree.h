@@ -82,6 +82,7 @@ protected:
     class insertion_rb_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::insertion_template_method
     {
+    private:
         size_t get_node_size() const override
         {
             return sizeof(rb_node);
@@ -245,30 +246,69 @@ protected:
             {
                 this->debug_with_guard("rb_tree::removing_rb_tree::remove no value with passed key in tree")
                     ->trace_with_guard("rb_tree::removing_rb_tree::remove method finished");
-                throw typename bs_tree<tkey, tvalue, tkey_comparer>::bst_exception("rb_tree::removing_rb_tree::remove::no value with passed key in tree");
+                throw typename bs_tree<tkey, tvalue, tkey_comparer>::remove_exception("rb_tree::removing_rb_tree::remove::no value with passed key in tree");
             }
 
             tvalue result = (*target_ptr)->value;
+            bool target_ptr_color = (*target_ptr)->get_color();
 
             // deleting element with 2 children (color does not matter)
             if ((*target_ptr)->left_subtree != nullptr &&
                 (*target_ptr)->right_subtree != nullptr)
             {
-                auto **element_to_swap_with = &(*target_ptr)->left_subtree;
+                if (target_ptr_color == RED) {
+                    this->debug_with_guard("rb_tree::removing_rb_tree::remove deleting an RED element with 2 children");
+                } else {
+                    this->debug_with_guard("rb_tree::removing_rb_tree::remove deleting an BLACK element with 2 children");
+                }
 
-                while ((*element_to_swap_with)->right_subtree != nullptr)
-                {
+                typename bs_tree<tkey, tvalue, tkey_comparer>::node **element_to_swap_with = &((*target_ptr)->left_subtree);
+                path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr));
+
+                bool element_to_swap_with_has_non_null_right_subtree = false;
+                std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> swap_stack;
+
+                if ((*element_to_swap_with)->right_subtree != nullptr) {
+                    element_to_swap_with_has_non_null_right_subtree = true;
                     path.push(element_to_swap_with);
-                    element_to_swap_with = &(*element_to_swap_with)->right_subtree;
+                    element_to_swap_with = &((*element_to_swap_with)->right_subtree);
+
+                    bool local_element_to_swap_with_has_non_null_right_subtree = false;
+                    do
+                    {
+                        if ((*element_to_swap_with)->right_subtree != nullptr) {
+                            local_element_to_swap_with_has_non_null_right_subtree = true;
+                            swap_stack.push(element_to_swap_with);
+                            element_to_swap_with = &((*element_to_swap_with)->right_subtree);
+                        } else {
+                            local_element_to_swap_with_has_non_null_right_subtree = false;
+                        }
+                    } while (local_element_to_swap_with_has_non_null_right_subtree);
                 }
 
                 target_ptr = reinterpret_cast<rb_node **>(this->swap_nodes(element_to_swap_with, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr)));
+
+                if (element_to_swap_with_has_non_null_right_subtree) {
+                    path.pop();
+                    path.push(&((*(path.top()))->left_subtree));
+
+                    std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> reverse_swap_stack;
+                    while (!(swap_stack.empty())) {
+                        reverse_swap_stack.push(swap_stack.top());
+                        swap_stack.pop();
+                    }
+
+                    while (!(reverse_swap_stack.empty())) {
+                        path.push(reverse_swap_stack.top());
+                        reverse_swap_stack.pop();
+                    }
+                }
             }
 
-            bool target_ptr_color = (*target_ptr)->get_color();
             // deleting an element with no children
             if ((*target_ptr)->left_subtree == nullptr && (*target_ptr)->right_subtree == nullptr)
             {
+                this->debug_with_guard("rb_tree::removing_rb_tree::remove deleting an element with no children");
                 this->cleanup_node(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr));
                 if (target_ptr_color == BLACK) {
                     after_remove(path);
@@ -280,6 +320,7 @@ protected:
             // deleting an element with 1 child. There cannot be a red element to delete with one child
             else if ((*target_ptr)->left_subtree != nullptr)
             {
+                this->debug_with_guard("rb_tree::removing_rb_tree::remove deleting an element with 1 left child");
                 auto *target_left_subtree = (*target_ptr)->left_subtree;
                 this->cleanup_node(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr));
                 *target_ptr = reinterpret_cast<rb_node *>(target_left_subtree);
@@ -287,6 +328,7 @@ protected:
             }
             else
             {
+                this->debug_with_guard("rb_tree::removing_rb_tree::remove deleting an element with 1 right child");
                 auto *target_right_subtree = (*target_ptr)->right_subtree;
                 this->cleanup_node(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(target_ptr));
                 *target_ptr = reinterpret_cast<rb_node *>(target_right_subtree);
@@ -343,7 +385,9 @@ protected:
 
                 // case 2.1) children of brother are both black. Make brother red and parent black.
                 if (brother_left_child_color == BLACK && brother_right_child_color == BLACK) {
-                    (*brother_to_deleted)->change_color(RED);
+                    if ((*brother_to_deleted) != nullptr) {
+                        (*brother_to_deleted)->change_color(RED);
+                    }
                     (*parent)->change_color(BLACK);
                 }
                 else {
@@ -397,7 +441,9 @@ protected:
 
                 // case 2.1) children of brother are both black. Make brother red and parent black.
                 if (brother_left_child_color == BLACK && brother_right_child_color == BLACK) {
-                    (*brother_to_deleted)->change_color(RED);
+                    if ((*brother_to_deleted) != nullptr) {
+                        (*brother_to_deleted)->change_color(RED);
+                    }
                     (*parent)->change_color(BLACK);
                 }
                 else {
@@ -564,12 +610,14 @@ public:
     {
         this->trace_with_guard("rb_tree destructor was called");
 
+        /*
         delete this->_insertion;
         delete this->_finding;
         delete this->_removing;
 
         this->clearup(this->_root);
-    }
+        */
+     }
 
 private:
     void clearup(typename bs_tree<tkey, tvalue, tkey_comparer>::node *element) override

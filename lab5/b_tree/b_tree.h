@@ -14,19 +14,40 @@ template <
         typename tkey_comparer>
 class b_tree :
         public associative_container<tkey, tvalue>,
-        private memory_holder,
-        private logger_holder
+        protected memory_holder,
+        protected logger_holder
 {
-protected:
+public:
     // number of keys in nodes vary [t-1 ; 2t-1] excluding root where this number is (1 ; 2t-1]
-    struct node {
+    struct node
+            : private memory_holder
+        {
         bool _is_leaf;
         unsigned _number_of_keys;
         tkey * _keys;
         tvalue * _values; // ??
         struct node ** _sub_nodes;
+        // todo: node constructor, destructor
+
+        node()
+        {
+            _is_leaf = true;
+            _number_of_keys = 0;
+            size_t max = 2 * _tree_parameter;
+            _keys = reinterpret_cast<tkey *>(allocate_with_guard(sizeof(tkey) * (max - 1)));
+            _values = reinterpret_cast<tvalue *>(allocate_with_guard(sizeof(tvalue) * (max - 1)));
+            _sub_nodes = reinterpret_cast<node **>(allocate_with_guard(sizeof(node *) * (max)));
+        }
+
+        virtual ~node()
+        {
+            deallocate_with_guard(_keys);
+            deallocate_with_guard(_values);
+            deallocate_with_guard(_sub_nodes);
+        }
     };
 
+protected:
     class insertion_template_method;
     class finding_template_method;
     class removing_template_method;
@@ -50,7 +71,7 @@ protected:
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -77,6 +98,7 @@ protected:
         std::pair<std::stack<node **>, std::pair<node **, unsigned>> find_path(tkey const &key) const
         {
             // todo: should we break nodes here?
+            // можно скостылить и добавить bool -- to_split
             std::stack<node **> path;
 
             if (_target_tree->_root == nullptr)
@@ -440,24 +462,25 @@ public:
 
 private:
 
-    void clearup(
-            node *element)
+    void clearup(node *element)
     {
         if (element == nullptr)
         {
             return;
         }
 
-        clearup(element->left_subtree);
-        clearup(element->right_subtree);
+        if (!(element->_is_leaf)) {
+            unsigned i, count_of_subtrees = element->_number_of_keys + 1;
+            for (i = 0; i < count_of_subtrees; i++) {
+                clearup(element->_sub_nodes[i]);
+            }
+        }
 
         element->~node();
         deallocate_with_guard(element);
     }
 
-    // TODO: think about usability in derived classes
-    node *copy(
-            node *from)
+    node *copy(node *from)
     {
         if (from == nullptr)
         {
@@ -467,8 +490,14 @@ private:
         node *result = allocate_with_guard(sizeof(node));
         new (result) node(*from);
 
-        result->left_subtree = copy(from->left_subtree);
-        result->right_subtree = copy(from->right_subtree);
+        memcpy(result->_keys, from->_keys, sizeof(tkey) * from->_number_of_keys);
+
+        if (!(from->_is_leaf)) {
+            unsigned i, count_of_subtrees = from->_number_of_keys + 1;
+            for (i = 0; i < count_of_subtrees; i++) {
+                result->_sub_nodes[i] = copy(from->_sub_nodes[i]);
+            }
+        }
 
         return result;
     }

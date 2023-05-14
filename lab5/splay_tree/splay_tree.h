@@ -80,7 +80,7 @@ public:
                 splay_tree<tkey, tvalue, tkey_comparer> *target_tree)
         : bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics(target_tree)
                 {
-            target_tree->_root = nullptr;
+            //target_tree->_root = nullptr;
                 }
 
             virtual ~template_method_splay() = default;
@@ -189,7 +189,7 @@ private:
 
 public:
     // copy constructor
-    explicit splay_tree(bs_tree<tkey, tvalue, tkey_comparer> const &obj)
+    splay_tree(splay_tree<tkey, tvalue, tkey_comparer> const &obj)
             : splay_tree(obj._logger, obj._allocator)
     {
         this->trace_with_guard("splay_tree copy constructor was called");
@@ -197,7 +197,7 @@ public:
     }
 
     // move constructor
-    explicit splay_tree(bs_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
+    splay_tree(splay_tree<tkey, tvalue, tkey_comparer> &&obj) noexcept
     : splay_tree(obj._insertion,
                  obj._finding,
                  obj._removing,
@@ -277,12 +277,13 @@ public:
     ~splay_tree()
     {
         this->trace_with_guard("splay_tree destructor was called");
-
+/*
         delete this->_insertion;
         delete this->_finding;
         delete this->_removing;
 
         this->clearup(this->_root);
+  */
     }
 #pragma endregion
 };
