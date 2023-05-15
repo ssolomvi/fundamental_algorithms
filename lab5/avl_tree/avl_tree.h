@@ -73,7 +73,7 @@ protected:
                 left_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->left_subtree)->get_balance();
                 right_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->right_subtree)->get_balance();
 
-                if (balance > 1) {
+                if (balance > 1) { // == 2
                     path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(current_node));
                     // to_do: add path
                     // returned by rotations values are current top node
@@ -141,6 +141,7 @@ protected:
 
         void after_insert_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
         {
+            this->trace_with_guard("avl_tree::insertion_avl_tree::after_insert_inner method started");
             // 1) insert additional data to this node
             reinterpret_cast<avl_node *>((*target_ptr))->set_height(1);
 
@@ -160,8 +161,10 @@ protected:
             path.pop();
 
 //            3) do_balance
+            this->trace_with_guard("avl_tree::template_methods_avl::do_balance method started");
             reinterpret_cast<template_methods_avl *>(this)->do_balance(path, grandparent);
-//            template_methods_avl::do_balance();
+            this->trace_with_guard("avl_tree::template_methods_avl::do_balance method finished")
+                ->trace_with_guard("avl_tree::insertion_avl_tree::after_insert_inner method finished");
         }
 
     public:
@@ -180,6 +183,7 @@ protected:
     {
         void after_remove(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path) const override
         {
+            this->trace_with_guard("avl_tree::removing_avl_tree::after_remove method started");
             // path содержит все узлы до удалённого, верхний узел в стеке -- родитель удалённого
             // 1) прийти к родителю
             if (path.empty()) {
@@ -189,12 +193,11 @@ protected:
             (*parent)->update_height();
             path.pop();
 
-//            auto ** grandparent = reinterpret_cast<avl_node **>(path.top());
-//            path.pop();
-
             // 2) do_balance
+            this->trace_with_guard("avl_tree::template_methods_avl::do_balance method started");
             reinterpret_cast<template_methods_avl *>(const_cast<removing_avl_tree *>(this))->do_balance(path, parent);
-//            template_methods_avl::do_balance(path, grandparent);
+            this->trace_with_guard("avl_tree::template_methods_avl::do_balance method finished")
+                ->trace_with_guard("avl_tree::removing_avl_tree::after_remove method started");
         }
 
         void swap_additional_data(
@@ -342,12 +345,13 @@ public:
     ~avl_tree()
     {
         this->trace_with_guard("avl_tree destructor was called");
-
+/*
         delete this->_insertion;
         delete this->_finding;
         delete this->_removing;
 
         this->clearup(this->_root);
+  */
     }
 
 private:

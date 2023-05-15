@@ -33,12 +33,12 @@ public:
     };
 
 public:
-    class bst_exception final : public std::exception {
+    class insert_exception final : public std::exception {
     private:
         std::string _message;
 
     public:
-        explicit bst_exception(std::string const &message)
+        explicit insert_exception(std::string const &message)
                 : _message(message) {
 
         }
@@ -46,7 +46,51 @@ public:
         char const *what() const noexcept override {
             return _message.c_str();
         }
+    };
 
+    class find_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit find_exception(std::string const &message)
+                : _message(message) {
+
+        }
+
+        char const *what() const noexcept override {
+            return _message.c_str();
+        }
+    };
+
+    class remove_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit remove_exception(std::string const &message)
+                : _message(message) {
+
+        }
+
+        char const *what() const noexcept override {
+            return _message.c_str();
+        }
+    };
+
+    class iterator_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit iterator_exception(std::string const &message)
+                : _message(message) {
+
+        }
+
+        char const *what() const noexcept override {
+            return _message.c_str();
+        }
     };
 
 #pragma region iterators
@@ -79,7 +123,7 @@ public:
         prefix_iterator& operator++()
         {
             if (_current_node == nullptr) {
-                throw bst_exception("prefix_iterator iterator is out of range");
+                throw iterator_exception("prefix_iterator iterator is out of range");
             }
 
             if (_current_node->left_subtree != nullptr) {
@@ -198,7 +242,7 @@ public:
         {
             // левое--корень--правое
             if (_current_node == nullptr) {
-                throw bst_exception("infix_iterator iterator is out of range");
+                throw iterator_exception("infix_iterator iterator is out of range");
             }
 
             if (_current_node->right_subtree != nullptr) {
@@ -288,7 +332,7 @@ public:
         {
             // если можно идти налево, идём, если можно направо, идём
             if (_current_node == nullptr) {
-                throw bst_exception("postfix_iterator iterator is out of range");
+                throw iterator_exception("postfix_iterator iterator is out of range");
             }
 
             if (_path.empty() == true) {
@@ -514,8 +558,9 @@ protected:
 
             if (*target_ptr != nullptr)
             {
-                debug_with_guard("bs_tree::insertion_template_method::insert passed key is not unique");
-                throw bst_exception("bs_tree::insertion_template_method::insert passed key is not unique");
+                this->debug_with_guard("bs_tree::insertion_template_method::insert passed key is not unique")
+                    ->trace_with_guard("bs_tree::insertion_template_method::insert method finished");
+                throw insert_exception("bs_tree::insertion_template_method::insert passed key is not unique");
             }
 
             *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
@@ -584,8 +629,9 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree");
-                throw bst_exception("bs_tree::finding_template_method::find no value with passed key in tree");
+                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree")
+                    ->trace_with_guard("bs_tree::finding_template_method::find method finished");
+                throw find_exception("bs_tree::finding_template_method::find no value with passed key in tree");
             }
 
             after_find_inner(path, target_ptr);
@@ -634,8 +680,9 @@ protected:
 
             if (*target_ptr == nullptr)
             {
-                this->debug_with_guard("finding_template_method::remove:: no value with passed key in tree");
-                throw bst_exception("finding_template_method::remove:: no value with passed key in tree");
+                this->debug_with_guard("bs_tree::removing_template_method::remove no value with passed key in tree")
+                    ->trace_with_guard("bs_tree::removing_template_method::remove method finished");
+                throw remove_exception("bs_tree::removing_template_method::remove no value with passed key in tree");
             }
 
             // здесь могла быть move-семантика
@@ -644,31 +691,66 @@ protected:
             if ((*target_ptr)->left_subtree != nullptr &&
                 (*target_ptr)->right_subtree != nullptr)
             {
+                this->debug_with_guard("bs_tree::removing_template_method::remove deleting an element with 2 children");
                 auto **element_to_swap_with = &(*target_ptr)->left_subtree;
+                path.push(target_ptr);
 
-                while ((*element_to_swap_with)->right_subtree != nullptr)
-                {
+                bool element_to_swap_with_has_non_null_right_subtree = false;
+                std::stack<node **> swap_stack;
+
+                if ((*element_to_swap_with)->right_subtree != nullptr) {
+                    element_to_swap_with_has_non_null_right_subtree = true;
                     path.push(element_to_swap_with);
-                    element_to_swap_with = &(*element_to_swap_with)->right_subtree;
+                    element_to_swap_with = &((*element_to_swap_with)->right_subtree);
+
+                    bool local_element_to_swap_with_has_non_null_right_subtree = false;
+                    do
+                    {
+                        if ((*element_to_swap_with)->right_subtree != nullptr) {
+                            local_element_to_swap_with_has_non_null_right_subtree = true;
+                            swap_stack.push(element_to_swap_with);
+                            element_to_swap_with = &((*element_to_swap_with)->right_subtree);
+                        } else {
+                            local_element_to_swap_with_has_non_null_right_subtree = false;
+                        }
+                    } while (local_element_to_swap_with_has_non_null_right_subtree);
                 }
 
                 target_ptr = swap_nodes(element_to_swap_with, target_ptr);
-//                target_ptr = element_to_swap_with;
+
+                if (element_to_swap_with_has_non_null_right_subtree) {
+                    path.pop();
+                    path.push(&((*(path.top()))->left_subtree));
+
+                    std::stack<node **> reverse_swap_stack;
+                    while (!(swap_stack.empty())) {
+                        reverse_swap_stack.push(swap_stack.top());
+                        swap_stack.pop();
+                    }
+
+                    while (!(reverse_swap_stack.empty())) {
+                        path.push(reverse_swap_stack.top());
+                        reverse_swap_stack.pop();
+                    }
+                }
             }
 
             if ((*target_ptr)->left_subtree == nullptr &&
                 (*target_ptr)->right_subtree == nullptr)
             {
+                this->debug_with_guard("bs_tree::removing_template_method::remove deleting an element with no children");
                 cleanup_node(target_ptr);
             }
             else if ((*target_ptr)->left_subtree != nullptr)
             {
+                this->debug_with_guard("bs_tree::removing_template_method::remove deleting an element with 1 left child");
                 auto *target_left_subtree = (*target_ptr)->left_subtree;
                 cleanup_node(target_ptr);
                 *target_ptr = target_left_subtree;
             }
             else
             {
+                this->debug_with_guard("bs_tree::removing_template_method::remove deleting an element with 1 right child");
                 auto *target_right_subtree = (*target_ptr)->right_subtree;
                 cleanup_node(target_ptr);
                 *target_ptr = target_right_subtree;

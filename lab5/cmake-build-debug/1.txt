@@ -1,7 +1,0 @@
-<--- [ debug ]  --->
-[ 15/04/2023 20:30:42 ][ information ] Memory block with _size = 40 was allocated successfully
-[ 15/04/2023 20:30:42 ][ debug ] Allocated block address: 0x000002cc35fd37f0
-[ 15/04/2023 20:30:42 ][ information ] Memory block with address: 0x000002cc35fd37f0 was deallocated successfully
-[ 15/04/2023 20:30:42 ][ information ] Memory block with _size = 10 was allocated successfully
-[ 15/04/2023 20:30:42 ][ debug ] Allocated block address: 0x000002cc35fd37f0
-[ 15/04/2023 20:30:42 ][ information ] Memory block with address: 0x000002cc35fd37f0 was deallocated successfully
