@@ -146,7 +146,6 @@ protected:
     class template_method_basics:
             protected logger_holder
     {
-        // TODO: split node, make it virtual
         friend class b_tree<tkey, tvalue, tkey_comparer>;
 
     public:
@@ -175,6 +174,48 @@ protected:
 
         node *get_root_node() {
             return _target_tree->_root;
+        }
+
+        // returns an index of inserted element
+        virtual unsigned insert_key_in_nonfull_node(node * current_node, tkey const &key, tvalue &&value)
+        {
+            this->trace_with_guard("b_tree::template_method_basics::insert_key_in_nonfull_node method started");
+
+            if (current_node->_number_of_keys == 0) {
+                // insertion in root
+                current_node->_keys[0] = key;
+                current_node->_values[0] = std::move(value);
+                current_node->_number_of_keys = 1;
+                current_node->_sub_nodes[current_node->_number_of_keys] = nullptr;
+
+                this->trace_with_guard("b_tree::template_method_basics::insert_key_in_nonfull_node method started");
+                return 0;
+            }
+
+            unsigned closest_index = this->dichotomy_search(current_node, key);
+            auto comparison_result = tkey_comparer(key, current_node->_keys[closest_index]);
+
+            if (comparison_result == 0) {
+                throw insert_exception("b_tree::template_method_basics::insert_key_in_nonfull_node key is not unique");
+            }
+
+            unsigned number_of_keys_in_node = current_node->_number_of_keys;
+            unsigned position_of_key_to_insert = (comparison_result > 0 ? closest_index + 1 : closest_index);
+            unsigned shift = position_of_key_to_insert + 1;
+            unsigned count_of_keys_to_shift = number_of_keys_in_node - position_of_key_to_insert;
+            // element_to_insert is not the last element in key/value array
+            if (count_of_keys_to_shift) {
+                memmove((current_node->_keys + shift), (current_node->_keys + position_of_key_to_insert), sizeof(tkey) * count_of_keys_to_shift);
+                memmove((current_node->_values + shift), (current_node->_values + position_of_key_to_insert), sizeof(tvalue) * count_of_keys_to_shift);
+                memmove((current_node->_sub_nodes + position_of_key_to_insert + 2), (current_node->_sub_nodes + position_of_key_to_insert + 1), sizeof(node *) * count_of_keys_to_shift);
+                current_node->_sub_nodes[position_of_key_to_insert + 1] = nullptr;
+            }
+            current_node->_keys[position_of_key_to_insert] = key;
+            current_node->_values[position_of_key_to_insert] = std::move(value);
+            current_node->_number_of_keys++;
+
+            this->trace_with_guard("b_tree::template_method_basics::insert_key_in_nonfull_node method started");
+            return position_of_key_to_insert;
         }
 
         std::pair< std::stack<std::pair< node **, unsigned > >, std::pair< node **, unsigned > > find_path(tkey const &key) const
@@ -244,47 +285,6 @@ protected:
             private memory_holder
     {
     protected:
-        // returns an index of inserted element
-        virtual unsigned insert_key_in_nonfull_node(node * current_node, tkey const &key, tvalue &&value)
-        {
-            this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
-
-            if (current_node->_number_of_keys == 0) {
-                // insertion in root
-                current_node->_keys[0] = key;
-                current_node->_values[0] = std::move(value);
-                current_node->_number_of_keys = 1;
-                current_node->_sub_nodes[current_node->_number_of_keys] = nullptr;
-
-                this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
-                return 0;
-            }
-
-            unsigned closest_index = this->dichotomy_search(current_node, key);
-            auto comparison_result = tkey_comparer(key, current_node->_keys[closest_index]);
-
-            if (comparison_result == 0) {
-                throw insert_exception("b_tree::insertion_template_method::insert_key_in_nonfull_node key is not unique");
-            }
-
-            unsigned number_of_keys_in_node = current_node->_number_of_keys;
-            unsigned position_of_key_to_insert = (comparison_result > 0 ? closest_index + 1 : closest_index);
-            unsigned shift = position_of_key_to_insert + 1;
-            unsigned count_of_keys_to_shift = number_of_keys_in_node - position_of_key_to_insert;
-            // element_to_insert is not the last element in key/value array
-            if (count_of_keys_to_shift) {
-                memmove((current_node->_keys + shift), (current_node->_keys + position_of_key_to_insert), sizeof(tkey) * count_of_keys_to_shift);
-                memmove((current_node->_values + shift), (current_node->_values + position_of_key_to_insert), sizeof(tvalue) * count_of_keys_to_shift);
-                memmove((current_node->_sub_nodes + position_of_key_to_insert + 2), (current_node->_sub_nodes + position_of_key_to_insert + 1), sizeof(node *) * count_of_keys_to_shift);
-                current_node->_sub_nodes[position_of_key_to_insert + 1] = nullptr;
-            }
-            current_node->_keys[position_of_key_to_insert] = key;
-            current_node->_values[position_of_key_to_insert] = std::move(value);
-            current_node->_number_of_keys++;
-
-            this->trace_with_guard("b_tree::insertion_template_method::insert_key_in_nonfull_node method started");
-            return position_of_key_to_insert;
-        }
 
     public:
         // returns a node where key value may, possibly, be inserted
@@ -299,25 +299,36 @@ protected:
             if (path.empty()) {
                 // splitting root
                 path.push(std::pair<node **, unsigned >(current_node, 0));
+                node * new_root_node, ** root_node = current_node;
+                initialize_memory_with_node(new_root_node);
 
-                split_element_left_subtree = &((*current_node)->_sub_nodes[0]);
-                split_element_right_subtree = &((*current_node)->_sub_nodes[1]);
+                new_root_node->_is_leaf = false;
+                new_root_node->_number_of_keys = 1;
+                new_root_node->_keys[0] = (*current_node)->_keys[mid_index];
+                new_root_node->_values[0] = std::move((*current_node)->_values[mid_index]);
+
+                split_element_left_subtree = &(new_root_node->_sub_nodes[0]);
+                split_element_right_subtree = &(new_root_node->_sub_nodes[1]);
                 initialize_memory_with_node((*split_element_left_subtree));
+                initialize_memory_with_node((*split_element_right_subtree));
+
+                if (!((*root_node)->_is_leaf)) {
+                    (*split_element_left_subtree)->_is_leaf = false;
+                    (*split_element_right_subtree)->_is_leaf = false;
+                }
+
                 memmove((*split_element_left_subtree)->_keys, (*current_node)->_keys, sizeof(tkey) * mid_index);
                 memmove((*split_element_left_subtree)->_values, (*current_node)->_values, sizeof(tvalue) * mid_index);
                 memmove((*split_element_left_subtree)->_sub_nodes, (*current_node)->_sub_nodes, sizeof(node *) * (mid_index + 1));
                 (*split_element_left_subtree)->_number_of_keys = mid_index;
 
-                initialize_memory_with_node((*split_element_right_subtree));
                 memmove((*split_element_right_subtree)->_keys, ((*current_node)->_keys + mid_index + 1), sizeof(tkey) * mid_index);
                 memmove((*split_element_right_subtree)->_values, ((*current_node)->_values + mid_index + 1), sizeof(tvalue) * mid_index);
                 memmove((*split_element_right_subtree)->_sub_nodes, ((*current_node)->_sub_nodes + mid_index + 1), sizeof(node *) * (mid_index + 1));
                 (*split_element_right_subtree)->_number_of_keys = mid_index;
 
-                (*current_node)->_number_of_keys = 1;
-                (*current_node)->_keys[0] = (*current_node)->_keys[mid_index];
-                (*current_node)->_values[0] = std::move((*current_node)->_values[mid_index]);
-
+                clearup((*root_node));
+                (*root_node) = new_root_node;
             } else {
                 // splitting not root
                 // current node will be a left subtree to mid element
@@ -466,13 +477,173 @@ protected:
     {
     public:
 
+        // function does not deletes node. It simply moves arrays. Moves subnodes from [index_of_deleted + 1]
+        void delete_key_value_from_node(node * current_node, unsigned index_of_deleted, bool left_subtree_to_move)
+        {
+            unsigned count_of_elements_to_shift = current_node->_number_of_keys - index_of_deleted - 1, from = index_of_deleted + 1;
+            if (count_of_elements_to_shift != 0) {
+                // current_node is not the last element in the array
+                memmove(current_node->_keys[index_of_deleted], current_node->_keys[from], sizeof(tkey) * count_of_elements_to_shift);
+                memmove(current_node->_values[index_of_deleted], current_node->_values[from], sizeof(tvalue) * count_of_elements_to_shift);
+                if (left_subtree_to_move) {
+                    memmove(current_node->_sub_nodes[index_of_deleted], current_node->_sub_nodes[from], sizeof(node *) * count_of_elements_to_shift);
+                } else {
+                    memmove(current_node->_sub_nodes[index_of_deleted + 1], current_node->_sub_nodes[from + 1], sizeof(node *) * count_of_elements_to_shift);
+                }
+            }
+            current_node->_number_of_keys--;
+        }
+
+        virtual void remove_inner(std::stack<std::pair< node **, unsigned >> &path, node ** current_node, unsigned index_of_deleted)
+        {
+            // todo: do not need to move values of deleted node if it's swapping
+            unsigned min_count_of_keys_in_node = this->_target_tree->_tree_parameter - 1;
+            if ((*current_node)->_is_leaf) {
+                if (path.empty() || (*current_node)->_number_of_keys > min_count_of_keys_in_node) {
+                    delete_key_value_from_node((*current_node), index_of_deleted, false);
+
+                    if ((*current_node)->_number_of_keys == 0) {
+                        cleanup_node(current_node);
+                    }
+                    return;
+                }
+
+                std::pair< node **, unsigned > parent_index_pair = path.top();
+                unsigned parent_index = parent_index_pair.second, common_parent_index = 0;
+                node ** parent = parent_index_pair.first, ** brother_left = nullptr, **brother_right = nullptr;
+                unsigned brother_left_index = 0, brother_right_index = 0, div_element_index = 0;
+
+                // find brother nodes
+                if ((*parent)->_sub_nodes[parent_index] == (*current_node)) {
+                    // current node is left subtree of its parent
+                    brother_left_index = parent_index - 1; brother_right_index = parent_index + 1;
+                    // checkup
+                    if ((*parent)->_sub_nodes[0] != (*current_node)) {
+                        brother_left = &((*parent)->_sub_nodes[brother_left_index]);
+                    }
+                }
+                else {
+                    // current node is right subtree of its parent
+                    brother_left_index = parent_index; brother_right_index = parent_index + 2;
+                    brother_left = &((*parent)->_sub_nodes[brother_left_index]);
+                }
+
+                // checkup
+                if ((*parent)->_sub_nodes[(*parent)->_number_of_keys] != (*current_node)) {
+                    brother_right = &((*parent)->_sub_nodes[brother_right_index]);
+                }
+
+                node **brother_with_enough_keys = nullptr, **brother_to_merge_with = nullptr;
+                if (brother_left != nullptr) {
+                    brother_to_merge_with = brother_left;
+                    if ((*brother_left)->_number_of_keys > min_count_of_keys_in_node) {
+                        // the last key in brother_with_enough_keys will be the closest one in brother_with_enough_keys to common parent key
+                        brother_with_enough_keys = brother_left;
+                        div_element_index = (*brother_with_enough_keys)->_keys[(*brother_with_enough_keys)->_number_of_keys - 1];
+                    }
+                    common_parent_index = parent_index - 1;
+                }
+                if (brother_right != nullptr && brother_with_enough_keys == nullptr) {
+                    brother_to_merge_with = brother_right;
+                    if ((*brother_right)->_number_of_keys > min_count_of_keys_in_node) {
+                        // the last key in brother_with_enough_keys will be the closest one in brother_with_enough_keys to common parent key
+                        brother_with_enough_keys = brother_right;
+                        div_element_index = (*brother_with_enough_keys)->_keys[0];
+                    }
+                    common_parent_index = parent_index;
+                }
+
+                if (brother_with_enough_keys != nullptr) {
+                    // found brother_with_enough_keys node with count of keys > t-1
+                    // delete key-value from current node, move array
+                    delete_key_value_from_node((*current_node), index_of_deleted, false);
+                    // insert common parent in current node
+                    this->insert_key_in_nonfull_node((*current_node), (*parent)->_keys[common_parent_index], std::move((*parent)->_values[common_parent_index]));
+                    // insert in common parent node element, delete it from brother_with_enough_keys (brother_with_enough_keys is also list with count of elements > t-1, thus we can simply move arrays of keys and values to "delete" div key-value pair)
+                    (*parent)->_keys[common_parent_index] = (*brother_with_enough_keys)->_keys[div_element_index];
+                    (*parent)->_values[common_parent_index] = (*brother_with_enough_keys)->_values[div_element_index];
+                    delete_key_value_from_node((*brother_with_enough_keys), div_element_index, false);
+                }
+                else {
+                    // not found brother_with_enough_keys node with count of keys > t-1
+                    // find brother_with_not_enough_keys which is not nullptr and find common parent index (depends on where is current node to parent)
+                    // insert common parent to the end/start of brother
+                    unsigned * to_merge_with_count_of_keys = &((*brother_to_merge_with)->_number_of_keys);
+                    if (brother_to_merge_with == brother_left) {
+                        (*brother_to_merge_with)->_keys[(*to_merge_with_count_of_keys)] = (*parent)->_keys[common_parent_index];
+                        (*brother_to_merge_with)->_values[(*to_merge_with_count_of_keys)] = (*parent)->_values[common_parent_index];
+                        (*brother_to_merge_with)->_number_of_keys++;
+
+                        // merge current node with its brother_with_not_enough_keys (or perform smart merging without adding to brother a key to delete)
+                        unsigned count_of_elements_before_key_to_delete = index_of_deleted, count_of_elements_after_key_to_delete = (*current_node)->_number_of_keys - index_of_deleted - 1;
+                        if (index_of_deleted != 0) {
+                            memmove(((*brother_to_merge_with)->_keys + to_merge_with_count_of_keys), (*current_node)->_keys, sizeof(tkey) * count_of_elements_before_key_to_delete);
+                            memmove(((*brother_to_merge_with)->_values + to_merge_with_count_of_keys), (*current_node)->_values, sizeof(tvalue) * count_of_elements_before_key_to_delete);
+                            (*brother_to_merge_with)->_number_of_keys += count_of_elements_before_key_to_delete;
+                        }
+                        if (index_of_deleted != (*current_node)->_number_of_keys - 1) {
+                            memmove(((*brother_to_merge_with)->_keys + to_merge_with_count_of_keys), ((*current_node)->_keys + count_of_elements_before_key_to_delete + 1), sizeof(tkey) * count_of_elements_after_key_to_delete);
+                            memmove(((*brother_to_merge_with)->_values + to_merge_with_count_of_keys), ((*current_node)->_values + count_of_elements_before_key_to_delete + 1), sizeof(tkey) * count_of_elements_after_key_to_delete);
+                            (*brother_to_merge_with)->_number_of_keys += count_of_elements_after_key_to_delete;
+                        }
+                        // delete current node
+                        // todo: search for clearup in incorrect places
+                        cleanup_node((*current_node));
+                        // delete common parent from parent node
+                        delete_key_value_from_node((*parent), parent_index, false);
+                    } else {
+                        // move elements in right brother
+                        memmove(((*brother_to_merge_with)->_keys + (*current_node)->_number_of_keys), (*brother_to_merge_with)->_keys, sizeof(tkey) * (*to_merge_with_count_of_keys));
+                        memmove(((*brother_to_merge_with)->_values + (*current_node)->_number_of_keys), (*brother_to_merge_with)->_values, sizeof(tvalue) * (*to_merge_with_count_of_keys));
+
+                        (*brother_to_merge_with)->_keys[0] = (*parent)->_keys[common_parent_index];
+                        (*brother_to_merge_with)->_values[0] = (*parent)->_values[common_parent_index];
+                        (*brother_to_merge_with)->_number_of_keys++;
+
+                        // merge current node with its brother_with_not_enough_keys (or perform smart merging without adding to brother a key to delete)
+                        unsigned count_of_elements_before_key_to_delete = index_of_deleted, count_of_elements_after_key_to_delete = (*current_node)->_number_of_keys - index_of_deleted - 1;
+                        if (index_of_deleted != 0) {
+                            memmove(((*brother_to_merge_with)->_keys), (*current_node)->_keys, sizeof(tkey) * count_of_elements_before_key_to_delete);
+                            memmove(((*brother_to_merge_with)->_values), (*current_node)->_values, sizeof(tvalue) * count_of_elements_before_key_to_delete);
+                            (*brother_to_merge_with)->_number_of_keys += count_of_elements_before_key_to_delete;
+                        }
+                        if (index_of_deleted != (*current_node)->_number_of_keys - 1) {
+                            memmove(((*brother_to_merge_with)->_keys + count_of_elements_before_key_to_delete), ((*current_node)->_keys + count_of_elements_before_key_to_delete + 1), sizeof(tkey) * count_of_elements_after_key_to_delete);
+                            memmove(((*brother_to_merge_with)->_values + count_of_elements_before_key_to_delete), ((*current_node)->_values + count_of_elements_before_key_to_delete + 1), sizeof(tkey) * count_of_elements_after_key_to_delete);
+                            (*brother_to_merge_with)->_number_of_keys += count_of_elements_after_key_to_delete;
+                        }
+                        // delete current node
+                        cleanup_node((*current_node));
+                        // delete common parent from parent node
+                        delete_key_value_from_node((*parent), parent_index, true);
+                    }
+                }
+            }
+            else
+            // deleting an element not from leaf, but from inner node
+            {
+                // find sub nodes
+                // if at least one of sub nodes has a count of elements > t-1
+                    // find the closest key to d in sub node (the last in left subtree and the first in right one)
+                    // (swap) replace d and closest key
+                    // push current node and ex-position of node to delete to stack
+                    // inner_remove_node(path, sub node, ex-closest_key position)
+                // else
+                    // merge sub nodes
+                    // insert d in merged sub nodes
+                    // if count of keys in current node is 1,
+                        // merged must replace current node
+                    // inner_remove_node(path, sub node, ex-closest_key position)
+            }
+        }
+
         virtual tvalue remove(tkey const &key)
         {
             this->trace_with_guard("bs_tree::removing_template_method::remove method started");
 
             // returned by find path is std::pair<std::stack<node **>, std::pair<node **, unsigned>>
             auto path_and_target = this->find_path(key);
-            auto path = path_and_target.first;
+            std::stack<std::pair< node **, unsigned >> path = path_and_target.first;
             node **target_ptr = path_and_target.second.first;
             unsigned target_index = path_and_target.second.second;
 
@@ -483,10 +654,14 @@ protected:
                 throw remove_exception("b_tree::removing_template_method::remove passed key is not found");
             }
 
+            tvalue result = (*target_ptr)->_values[target_index];
+
+            remove_inner(path, target_ptr, target_index);
             // 2 case: deleting from leaf and not-leaf
             // + 2 sub_cases: deleting from non-full node and full node
 
             this->trace_with_guard("b_tree::removing_template_method::remove method finished");
+            return result;
         }
 
     protected:
