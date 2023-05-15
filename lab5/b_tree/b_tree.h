@@ -623,17 +623,62 @@ protected:
             // deleting an element not from leaf, but from inner node
             {
                 // find sub nodes
-                // if at least one of sub nodes has a count of elements > t-1
+                node **left_sub_node = (*current_node)->_sub_nodes[index_of_deleted], **right_sub_node = (*current_node)->_sub_nodes[index_of_deleted + 1];
+                // find if there is one that has > t-1 elements
+                node ** suitable_node = nullptr;
+                if ((*left_sub_node)->_number_of_keys > min_count_of_keys_in_node) {
+                    suitable_node = left_sub_node;
+                } else if ((*right_sub_node)->_number_of_keys > min_count_of_keys_in_node) {
+                    suitable_node = right_sub_node;
+                }
+
+                if (suitable_node != nullptr) {
+                    // if at least one of sub nodes has a count of elements > t-1
+
                     // find the closest key to d in sub node (the last in left subtree and the first in right one)
+                    unsigned index_closest_to_key_to_d = (suitable_node == left_sub_node
+                            ? ((*suitable_node)->_number_of_keys - 1)
+                            : 0);
+
                     // (swap) replace d and closest key
+                    tkey tmp_k = (*current_node)->_keys[index_of_deleted];
+//                    tvalue tmp_v = (*current_node)->_values[index_of_deleted]; // not necessary to move node to delete value
+                    (*current_node)->_keys[index_of_deleted] = (*suitable_node)->_keys[index_closest_to_key_to_d];
+                    (*current_node)->_values[index_of_deleted] = std::move((*suitable_node)->_values[index_closest_to_key_to_d]);
+
+                    (*suitable_node)->_keys[index_closest_to_key_to_d] = tmp_k;
+
                     // push current node and ex-position of node to delete to stack
+                    path.push(std::pair< node **, unsigned >(current_node, index_closest_to_key_to_d));
                     // inner_remove_node(path, sub node, ex-closest_key position)
-                // else
+                    remove_inner(path, suitable_node, index_closest_to_key_to_d);
+                } else {
                     // merge sub nodes
                     // insert d in merged sub nodes
-                    // if count of keys in current node is 1,
-                        // merged must replace current node
+                    unsigned index_of_deleted_element_in_left_subtree = (*left_sub_node)->_number_of_keys;
+                    (*left_sub_node)->_keys[(*left_sub_node)->_number_of_keys] = (*current_node)->_keys[index_of_deleted];
+                    (*left_sub_node)->_number_of_keys++;
+                    memmove(((*left_sub_node)->_keys + (*left_sub_node)->_number_of_keys), (*right_sub_node)->_keys, sizeof(tkey) * ((*right_sub_node)->_number_of_keys));
+                    memmove(((*left_sub_node)->_values + (*left_sub_node)->_number_of_keys), (*right_sub_node)->_values, sizeof(tvalue) * ((*right_sub_node)->_number_of_keys));
+                    memmove(((*left_sub_node)->_sub_nodes + (*left_sub_node)->_number_of_keys + 1), (*right_sub_node)->_sub_nodes, sizeof(tkey) * ((*right_sub_node)->_number_of_keys + 1));
+                    (*left_sub_node)->_number_of_keys += (*right_sub_node)->_number_of_keys + 1;
+
+                    // remove right subtree
+                    cleanup_node(*right_sub_node);
+
+                    // if count of keys in current node is 1, merged must replace current node
+                    if ((*current_node)->_number_of_keys == 1) {
+                        cleanup_node((*current_node));
+                        (*current_node) = (*left_sub_node);
+                    }
+                    else {
+                        // move elements
+                        delete_key_value_from_node((*current_node), index_of_deleted, false);
+                    }
+
                     // inner_remove_node(path, sub node, ex-closest_key position)
+                    remove_inner(path, left_sub_node, index_of_deleted_element_in_left_subtree);
+                }
             }
         }
 
@@ -657,8 +702,6 @@ protected:
             tvalue result = (*target_ptr)->_values[target_index];
 
             remove_inner(path, target_ptr, target_index);
-            // 2 case: deleting from leaf and not-leaf
-            // + 2 sub_cases: deleting from non-full node and full node
 
             this->trace_with_guard("b_tree::removing_template_method::remove method finished");
             return result;
