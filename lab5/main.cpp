@@ -408,7 +408,7 @@ int main()
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
 
-    my_tree_test(iterations, allocator, tree_logger, B_TREE);
+    my_tree_test(iterations, allocator, tree_logger, B_TREE, 2);
 
     delete allocator;
     delete allocator_logger;

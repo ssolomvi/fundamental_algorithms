@@ -41,8 +41,6 @@ public:
             _keys = reinterpret_cast<tkey *>(allocate_with_guard(sizeof(tkey) * (max - 1)));
             _values = reinterpret_cast<tvalue *>(allocate_with_guard(sizeof(tvalue) * (max - 1)));
             _sub_nodes = reinterpret_cast<node **>(allocate_with_guard(sizeof(node *) * (max)));
-
-//            (*_values) = nullptr;
         }
 
         virtual ~node()
@@ -318,7 +316,6 @@ protected:
                 current_node->_values[0] = value;
 //                current_node->_values[0] = std::move(value);
                 current_node->_number_of_keys = 1;
-                current_node->_sub_nodes[current_node->_number_of_keys] = nullptr;
 
                 this->trace_with_guard("b_tree::template_method_basics::insert_key_in_nonfull_node method finished");
                 return 0;
@@ -349,7 +346,7 @@ protected:
                 memmove((current_node->_keys + shift), (current_node->_keys + position_of_key_to_insert), sizeof(tkey) * count_of_keys_to_shift);
                 memmove((current_node->_values + shift), (current_node->_values + position_of_key_to_insert), sizeof(tvalue) * count_of_keys_to_shift);
                 memmove((current_node->_sub_nodes + position_of_key_to_insert + 2), (current_node->_sub_nodes + position_of_key_to_insert + 1), sizeof(node *) * count_of_keys_to_shift);
-                current_node->_sub_nodes[position_of_key_to_insert + 1] = nullptr;
+//                current_node->_sub_nodes[position_of_key_to_insert + 1] = nullptr;
             }
             current_node->_keys[position_of_key_to_insert] = key;
             current_node->_values[position_of_key_to_insert] = value;
@@ -383,13 +380,19 @@ protected:
                 while (low <= high) {
                     mid = (low + high) / 2;
                     auto comparison_result = comparer(key, (*iterator)->_keys[mid]);
-                    if (comparison_result == 0) {
-                        std::pair<node**, unsigned> pair (iterator, mid);
-                        return std::pair<std::stack<std::pair<node **, unsigned >>,
-                                std::pair<node**, unsigned>>(path, pair);
+
+                    if (mid != (*iterator)->_number_of_keys) {
+                        if (comparison_result == 0) {
+                            this->debug_with_guard("b_tree::template_methods::basics::find_path current node count: " +
+                                                   std::to_string((*iterator)->_number_of_keys) + " index: " +
+                                                   std::to_string(mid));
+                            std::pair<node**, unsigned> pair (iterator, mid);
+                            return std::pair<std::stack<std::pair<node **, unsigned >>,
+                                    std::pair<node**, unsigned>>(path, pair);
+                        }
                     }
 
-                    comparison_result < 0
+                    comparison_result <= 0
                             ? (high = mid - 1)
                             : (low = mid + 1);
                 }
@@ -398,7 +401,9 @@ protected:
                     mid--;
                 }
 //                path.push(std::pair< node **, unsigned >(iterator, mid));
-
+                this->debug_with_guard("b_tree::template_methods::basics::find_path current node count:" +
+                                       std::to_string((*iterator)->_number_of_keys) + " index: " +
+                                       std::to_string(mid));
                 if (!((*iterator)->_is_leaf)) {
                     path.push(std::pair< node **, unsigned >(iterator, mid));
 
@@ -569,7 +574,6 @@ protected:
                             : &((*current_node)->_sub_nodes[closest_index + 1]));
                 } else {
                     // insert an element
-//                    this->insert_key_in_nonfull_node((*current_node), key, std::move(value));
                     this->insert_key_in_nonfull_node((*current_node), key, value);
                     break;
                 }
@@ -797,10 +801,11 @@ protected:
         virtual void remove_inner(std::stack<std::pair< node **, unsigned >> &path, node ** current_node, unsigned index_of_deleted)
         {
             this->trace_with_guard("b_tree::removing_template_method::remove_inner method started")
-                ->debug_with_guard("deleting from node with key count " + std::to_string((*current_node)->_number_of_keys) + " index: " +
+                ->debug_with_guard("deleting from node with key count: " + std::to_string((*current_node)->_number_of_keys) + " index: " +
                                            std::to_string(index_of_deleted));
             unsigned min_count_of_keys_in_node = this->_target_tree->_tree_parameter - 1;
             if ((*current_node)->_is_leaf) {
+                this->debug_with_guard("b_tree::removing_template_method::remove_inner removing from a leaf");
                 if (path.empty() || (*current_node)->_number_of_keys > min_count_of_keys_in_node) {
                     // there are enough items for correct structure of b tree or this is root
                     delete_key_value_from_node((*current_node), index_of_deleted, false);
@@ -862,6 +867,7 @@ protected:
             else
             // deleting an element not from leaf, but from inner node
             {
+                this->debug_with_guard("b_tree::removing_template_method::remove_inner removing from an inner node");
                 // find sub nodes
                 node **left_sub_node = &((*current_node)->_sub_nodes[index_of_deleted]), **right_sub_node = &((*current_node)->_sub_nodes[index_of_deleted + 1]);
                 // find if there is one that has > t-1 elements
@@ -873,6 +879,9 @@ protected:
                 }
 
                 if (suitable_node != nullptr) {
+                    this->debug_with_guard("b_tree::removing_template_method::remove_inner there is a sub-node with count: " +
+                                                   std::to_string((*suitable_node)->_number_of_keys) + " > " +
+                                                   std::to_string(min_count_of_keys_in_node));
                     // if at least one of sub nodes has a count of elements > t-1
 
                     // find the closest key to d in sub node (the last in left subtree and the first in right one)
@@ -882,11 +891,8 @@ protected:
 
                     // (swap) replace d and closest key
                     tkey tmp_k = (*current_node)->_keys[index_of_deleted];
-//                    tvalue tmp_v = (*current_node)->_values[index_of_deleted]; // not necessary to move node to delete value
                     (*current_node)->_keys[index_of_deleted] = (*suitable_node)->_keys[index_closest_to_key_to_d];
                     (*current_node)->_values[index_of_deleted] = (*suitable_node)->_values[index_closest_to_key_to_d];
-//                    (*current_node)->_values[index_of_deleted] = std::move((*suitable_node)->_values[index_closest_to_key_to_d]);
-
 
                     (*suitable_node)->_keys[index_closest_to_key_to_d] = tmp_k;
 
@@ -896,6 +902,9 @@ protected:
                     remove_inner(path, suitable_node, index_closest_to_key_to_d);
                 } else {
                     // merge sub nodes
+                    this->debug_with_guard("b_tree::removing_template_method::remove_inner there are no sub trees with count > " +
+                                                   std::to_string(min_count_of_keys_in_node) + ". Need to merge sub-nodes");
+
                     // insert d in merged sub nodes
                     unsigned index_of_deleted_element_in_left_subtree = (*left_sub_node)->_number_of_keys;
                     (*left_sub_node)->_keys[(*left_sub_node)->_number_of_keys] = (*current_node)->_keys[index_of_deleted];
@@ -910,8 +919,12 @@ protected:
 
                     // if count of keys in current node is 1, merged must replace current node
                     if ((*current_node)->_number_of_keys == 1) {
-                        this->cleanup_node(current_node);
+                        // todo: a problem. we cleanup current node before assigning to it a left sub node, so info about left sub node is lost. we either should remove one *, either should (try) saving (*current node) somewhere. Second variant probably not works...
+                        this->debug_with_guard("b_tree::removing_template_method::remove_inner replace current node with left subtree node");
+//                        node * tmp = (*current_node);
                         (*current_node) = (*left_sub_node);
+                        this->cleanup_node(current_node);
+                        // path.pop() // ?
                     }
                     else {
                         // move elements
@@ -941,8 +954,9 @@ protected:
             node **target_ptr = path_and_target.second.first;
             unsigned target_index = path_and_target.second.second;
             tkey_comparer comparer;
+            auto comparison_result = comparer(key, (*target_ptr)->_keys[target_index]);
 
-            if (comparer(key, (*target_ptr)->_keys[target_index]) != 0)
+            if (comparison_result != 0)
             {
                 this->warning_with_guard("b_tree::removing_template_method::remove passed key is not found")
                     ->trace_with_guard("b_tree::removing_template_method::remove method finished");
@@ -951,6 +965,8 @@ protected:
 
             tvalue result = (*target_ptr)->_values[target_index];
 
+            this->debug_with_guard("before remove_inner:: current node count: " + std::to_string((*target_ptr)->_number_of_keys) + " index: " +
+                                           std::to_string(target_index));
             remove_inner(path, target_ptr, target_index);
 
             this->trace_with_guard("b_tree::removing_template_method::remove method finished");
