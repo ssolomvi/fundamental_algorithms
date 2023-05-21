@@ -10,6 +10,7 @@
 #include "splay_tree/splay_tree.h"
 #include "avl_tree/avl_tree.h"
 #include "rb_tree/rb_tree.h"
+#include "b_tree/b_tree.h"
 #include "allocator_from_global_heap/memory_from_global_heap.h"
 #include "allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h"
 #include "allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
@@ -33,21 +34,24 @@ typedef enum trees {
     B_PLUS
 } trees;
 
-void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type)
+void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type, unsigned tree_parameter = 3)
 {
-    associative_container<int, std::string> *tree = nullptr;
+    associative_container<int, char> *tree = nullptr;
     switch (tree_type) {
         case BST:
-            tree = new bs_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            tree = new bs_tree<int, char, int_comparer>(tree_logger, allocator);
             break;
         case AVL:
-            tree = new avl_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            tree = new avl_tree<int, char, int_comparer>(tree_logger, allocator);
             break;
         case SPLAY:
-            tree = new splay_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            tree = new splay_tree<int, char, int_comparer>(tree_logger, allocator);
             break;
         case RB:
-            tree = new rb_tree<int, std::string, int_comparer>(tree_logger, allocator);
+            tree = new rb_tree<int, char, int_comparer>(tree_logger, allocator);
+            break;
+        case B_TREE:
+            tree = new b_tree<int, char, int_comparer>(tree_parameter, tree_logger, allocator);
             break;
         default:
             return;
@@ -68,10 +72,14 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
             case 0:
                 try
                 {
-                    tree->insert(key, "");
+                    tree->insert(key, '\0');
                     std::cout << "successfully inserted key \"" << key << "\"" << std::endl;
                 }
-                catch (bs_tree<int, std::string, int_comparer>::insert_exception const &)
+                catch (bs_tree<int, char, int_comparer>::insert_exception const &)
+                {
+                    std::cout << "insertion error - duplicate key \"" << key << "\" detected" << std::endl;
+                }
+                catch (b_tree<int, char, int_comparer>::insert_exception const &)
                 {
                     std::cout << "insertion error - duplicate key \"" << key << "\" detected" << std::endl;
                 }
@@ -86,8 +94,11 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
                     tree->remove(key);
                     std::cout << "successfully removed key \"" << key << "\"" << std::endl;
                 }
-                catch (bs_tree<int, std::string, int_comparer>::remove_exception const &)
+                catch (bs_tree<int, char, int_comparer>::remove_exception const &)
                 {
+                    std::cout << "removing error - key \"" << key << "\" not found" << std::endl;
+                }
+                catch (b_tree<int, char, int_comparer>::remove_exception const &) {
                     std::cout << "removing error - key \"" << key << "\" not found" << std::endl;
                 }
                 break;
@@ -97,17 +108,40 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
         {
             std::cout << "Tree state after iteration #" << i << ":" << std::endl;
 
-            auto *bst = reinterpret_cast<bs_tree<int, std::string, int_comparer> *>(tree);
-            auto end_prefix = bst->end_prefix();
-            for (auto it = bst->begin_prefix(); it != end_prefix; ++it)
-            {
-                for (auto x = 0; x < std::get<0>(*it); x++)
+            if (tree_type == BST || tree_type == AVL || tree_type == SPLAY || tree_type == RB) {
+                auto *bst = reinterpret_cast<bs_tree<int, char, int_comparer> *>(tree);
+                auto end_prefix = bst->end_prefix();
+                for (auto it = bst->begin_prefix(); it != end_prefix; ++it)
                 {
-                    std::cout << "    ";
-                }
+                    for (auto x = 0; x < std::get<0>(*it); x++)
+                    {
+                        std::cout << "    ";
+                    }
 
-                std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+                    std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
+                }
             }
+            else {
+                auto *b_t = reinterpret_cast<b_tree<int, char, int_comparer> *>(tree);
+                auto end_iteration = b_t->end_iter();
+                unsigned count_of_keys_in_node, i = 0;
+                for (auto it = b_t->begin_iter(); it != end_iteration; ++it)
+                {
+                    for (auto x = 0; x < std::get<0>(*it); x++)
+                    {
+                        std::cout << "    ";
+                    }
+
+                    count_of_keys_in_node = std::get<3>(*it);
+                    for (i = 0; i < count_of_keys_in_node; i++) {
+                        std::cout << "key: " << std::get<1>(*it)[i] << "; ";
+//            std::cout << "key: " << std::get<1>(*it)[i] << ", value: \"" << std::get<2>(*it)[i] << "\" ";
+                    }
+                    std::cout << std::endl;
+                }
+            }
+
+
         }
     }
 
@@ -286,6 +320,75 @@ void my_rb_tree_test()
     delete allocator_logger;
 }
 
+void print_b_tree(b_tree<int, char, int_comparer>* tree)
+{
+    auto end_iteration = tree->end_iter();
+    unsigned count_of_keys_in_node, i = 0;
+    for (auto it = tree->begin_iter(); it != end_iteration; ++it)
+    {
+        for (auto x = 0; x < std::get<0>(*it); x++)
+        {
+            std::cout << "    ";
+        }
+
+        count_of_keys_in_node = std::get<3>(*it);
+        for (i = 0; i < count_of_keys_in_node; i++) {
+            std::cout << "key: " << std::get<1>(*it)[i] << "; ";
+//            std::cout << "key: " << std::get<1>(*it)[i] << ", value: \"" << std::get<2>(*it)[i] << "\" ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void b_tree_tests(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type)
+{
+
+}
+
+void my_b_tree_test()
+{
+    logger_builder *allocator_logger_builder = new logger_builder_impl();
+    logger *allocator_logger = allocator_logger_builder
+            ->with_stream("allocator_b_tests.txt", logger::severity::trace)
+            ->build();
+    delete allocator_logger_builder;
+
+    logger_builder *b_tree_logger_builder = new logger_builder_impl();
+    logger *b_tree_logger = b_tree_logger_builder
+            ->with_stream("b_t_tests.txt", logger::severity::trace)
+            ->build();
+    delete b_tree_logger_builder;
+
+    memory *allocator = new memory_from_global_heap(allocator_logger);
+    b_tree<int, char, int_comparer> * b_t = new b_tree<int, char, int_comparer>(2, b_tree_logger, allocator);
+
+    b_t->insert(4, 'a');
+    b_t->insert(2, 'b');
+    b_t->insert(3, 'c');
+    b_t->insert(1, 'd');
+    b_t->insert(5, 'e');
+    b_t->insert(7, 'f');
+    b_t->insert(6, 'g');
+
+    print_b_tree(b_t);
+
+    auto value = b_t->remove(2);
+    std::cout << value << std::endl;
+    print_b_tree(b_t);
+    value = b_t->remove(3);
+    std::cout << value << std::endl;
+    print_b_tree(b_t);
+    value = b_t->remove(1);
+    std::cout << value << std::endl;
+    print_b_tree(b_t);
+
+    delete b_t;
+    delete b_tree_logger;
+    delete allocator;
+    delete allocator_logger;
+}
+
+
 int main()
 {
 #pragma region tree test
@@ -305,12 +408,13 @@ int main()
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
 
-    my_tree_test(iterations, allocator, tree_logger, RB);
+    my_tree_test(iterations, allocator, tree_logger, B_TREE, 2);
 
     delete allocator;
     delete allocator_logger;
     delete tree_logger;
 #pragma endregion
 
+//    my_b_tree_test();
     return 0;
 }

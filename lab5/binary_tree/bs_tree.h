@@ -123,7 +123,7 @@ public:
         prefix_iterator& operator++()
         {
             if (_current_node == nullptr) {
-                throw iterator_exception("prefix_iterator iterator is out of range");
+                throw iterator_exception("iterator iterator is out of range");
             }
 
             if (_current_node->left_subtree != nullptr) {
