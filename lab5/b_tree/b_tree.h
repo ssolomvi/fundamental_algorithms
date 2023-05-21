@@ -869,6 +869,82 @@ protected:
             {
                 this->debug_with_guard("b_tree::removing_template_method::remove_inner removing from an inner node");
                 // find sub nodes
+                node *left_sub_node = (*current_node)->_sub_nodes[index_of_deleted], *right_sub_node = (*current_node)->_sub_nodes[index_of_deleted + 1];
+                // find if there is one that has > t-1 elements
+                node ** suitable_node = nullptr;
+                if (left_sub_node->_number_of_keys > min_count_of_keys_in_node) {
+                    suitable_node = &((*current_node)->_sub_nodes[index_of_deleted]);
+                } else if (right_sub_node->_number_of_keys > min_count_of_keys_in_node) {
+                    suitable_node = &((*current_node)->_sub_nodes[index_of_deleted + 1]);
+                }
+
+                if (suitable_node != nullptr) {
+                    this->debug_with_guard("b_tree::removing_template_method::remove_inner there is a sub-node with count: " +
+                                           std::to_string((*suitable_node)->_number_of_keys) + " > " +
+                                           std::to_string(min_count_of_keys_in_node));
+                    // if at least one of sub nodes has a count of elements > t-1
+
+                    // find the closest key to d in sub node (the last in left subtree and the first in right one)
+                    unsigned index_closest_to_key_to_d = ((*suitable_node) == left_sub_node
+                                                          ? ((*suitable_node)->_number_of_keys - 1)
+                                                          : 0);
+
+                    // (swap) replace d and closest key
+                    tkey tmp_k = (*current_node)->_keys[index_of_deleted];
+                    (*current_node)->_keys[index_of_deleted] = (*suitable_node)->_keys[index_closest_to_key_to_d];
+                    (*current_node)->_values[index_of_deleted] = (*suitable_node)->_values[index_closest_to_key_to_d];
+
+                    (*suitable_node)->_keys[index_closest_to_key_to_d] = tmp_k;
+
+                    // push current node and ex-position of node to delete to stack
+                    path.push(std::pair< node **, unsigned >(current_node, index_closest_to_key_to_d));
+                    // inner_remove_node(path, sub node, ex-closest_key position)
+                    remove_inner(path, suitable_node, index_closest_to_key_to_d);
+                } else {
+                    // merge sub nodes
+                    this->debug_with_guard("b_tree::removing_template_method::remove_inner there are no sub trees with count > " +
+                                           std::to_string(min_count_of_keys_in_node) + ". Need to merge sub-nodes");
+
+                    // as we delete from an inner node, there will always be a left and right sub-nodes. Here choose left to merge
+                    // insert d in left sub-node, in left_sub_node->_number_of_keys index
+                    unsigned index_of_deleted_element_in_left_subtree = left_sub_node->_number_of_keys;
+                    left_sub_node->_keys[index_of_deleted_element_in_left_subtree] = (*current_node)->_keys[index_of_deleted];
+                    left_sub_node->_number_of_keys++;
+
+                    memmove((left_sub_node->_keys + left_sub_node->_number_of_keys), right_sub_node->_keys, sizeof(tkey) * (right_sub_node->_number_of_keys));
+                    memmove((left_sub_node->_values + left_sub_node->_number_of_keys), right_sub_node->_values, sizeof(tvalue) * (right_sub_node->_number_of_keys));
+                    memmove((left_sub_node->_sub_nodes + left_sub_node->_number_of_keys + 1), right_sub_node->_sub_nodes, sizeof(tkey) * (right_sub_node->_number_of_keys + 1));
+                    left_sub_node->_number_of_keys += right_sub_node->_number_of_keys;
+
+                    // remove right subtree
+                    (right_sub_node)->~node();
+                    this->deallocate_with_guard(reinterpret_cast<void *>(right_sub_node));
+
+                    // if count of keys in current node is 1, merged must replace current node
+                    if ((*current_node)->_number_of_keys == 1) {
+                        // todo: a problem. we cleanup current node before assigning to it a left sub node, so info about left sub node is lost. we either should remove one *, either should (try) saving (*current node) somewhere. Second variant probably not works...
+                        this->debug_with_guard("b_tree::removing_template_method::remove_inner replace current node with left subtree node");
+//                        node * tmp = (*current_node);
+                        this->cleanup_node(current_node);
+                        (*current_node) = left_sub_node;
+                        // path.pop() // ?
+                    }
+                    else {
+                        // move elements
+                        delete_key_value_from_node((*current_node), index_of_deleted, false);
+                    }
+
+                    // inner_remove_node(path, sub node, ex-closest_key position)
+                    remove_inner(path, &left_sub_node, index_of_deleted_element_in_left_subtree);
+                }
+            }
+
+            /*
+            else
+            // deleting an element not from leaf, but from inner node
+            {
+                this->debug_with_guard("b_tree::removing_template_method::remove_inner removing from an inner node");
+                // find sub nodes
                 node **left_sub_node = &((*current_node)->_sub_nodes[index_of_deleted]), **right_sub_node = &((*current_node)->_sub_nodes[index_of_deleted + 1]);
                 // find if there is one that has > t-1 elements
                 node ** suitable_node = nullptr;
@@ -935,7 +1011,8 @@ protected:
                     remove_inner(path, left_sub_node, index_of_deleted_element_in_left_subtree);
                 }
             }
-            this->trace_with_guard("b_tree::removing_template_method::remove_inner method started");
+             */
+            this->trace_with_guard("b_tree::removing_template_method::remove_inner method finished");
         }
 
         virtual tvalue remove(tkey const &key)

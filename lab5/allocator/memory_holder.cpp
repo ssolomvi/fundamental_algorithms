@@ -14,7 +14,7 @@ void memory_holder::deallocate_with_guard(void *block_pointer) const {
     if (allocator == nullptr) {
         ::operator delete(block_pointer);
     } else {
-        allocator->deallocate(block_pointer);
+            allocator->deallocate(block_pointer);
     }
     /*
     allocator == nullptr ?
