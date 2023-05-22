@@ -7,8 +7,24 @@
 #include <cstring>
 #include <ctime>
 
-class data_base final
-        {
+#include "../allocator/memory_holder.h"
+#include "../allocator_from_global_heap/memory_from_global_heap.h"
+#include "../allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h"
+#include "../allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
+#include "../allocator_with_buddy_system/memory_with_buddy_system.h"
+
+#include "../logger/logger_holder.h"
+
+#include "../binary_tree/associative_container.h"
+#include "../binary_tree/bs_tree.h"
+#include "../avl_tree/avl_tree.h"
+#include "../splay_tree/splay_tree.h"
+#include "../rb_tree/rb_tree.h"
+
+class data_base final :
+        private memory_holder,
+        private logger_holder
+{
     // TODO: расставить const
     // todo: пронаследоваться от logger_holder, memory_holder
     // todo: подключить деревья
@@ -29,6 +45,22 @@ public:
         unsigned solved_task_count;
         bool copying;
     } value_struct;
+
+private:
+    /* дерево пулов
+     *     дерево схем
+     *          дерево коллекций
+     *               коллекция
+     * */
+    associative_container<std::string,
+        associative_container<std::string,
+            associative_container<std::string,
+                associative_container<key, value>
+                                 >
+                             >
+                         > * _database;
+    logger * _logger;
+    memory* _allocator;
 
 public:
     typedef enum trees_types {
@@ -144,6 +176,8 @@ public:
     value_struct const & find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      key_struct key);
+
+    // todo: finding in [min, max]
 #pragma endregion
 
 #pragma region Deletion from collection
@@ -158,7 +192,8 @@ public:
     // adding a scheme: collection string is empty
 public:
     void add_to_structure
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     trees_types_ tree_type, allocator_types_ allocator_type);
 #pragma endregion
 
 #pragma region Deletion from structure of data base
@@ -181,6 +216,18 @@ public:
     void save_to_file(std::string const & filename);
 
     void upload_from_file(std::string const & filename);
+#pragma endregion
+
+#pragma region logger_holder and memory_holder contract
+    [[nodiscard]] logger *get_logger() const noexcept override
+    {
+        return this->_logger;
+    }
+
+    [[nodiscard]] memory *get_memory() const noexcept override
+    {
+        return this->_allocator;
+    }
 #pragma endregion
 
 #pragma region rool 5
