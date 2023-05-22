@@ -8,6 +8,9 @@
 #include "../allocator/memory_base_class.h"
 #include "../allocator/memory_holder.h"
 
+// TODO: do find function, which will return a node.
+// TODO: do update function, which will get a node and replace its value with new one.
+
 template<typename tkey, typename tvalue, typename tkey_comparer>
 class bs_tree:
         public associative_container<tkey, tvalue>,
@@ -47,7 +50,7 @@ public:
             return _message.c_str();
         }
     };
-
+public:
     class find_exception final : public std::exception {
     private:
         std::string _message;

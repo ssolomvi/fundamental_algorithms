@@ -21,30 +21,20 @@
 #include "../splay_tree/splay_tree.h"
 #include "../rb_tree/rb_tree.h"
 
+#include "../db_value/db_value.h"
+
 class data_base final :
         private memory_holder,
         private logger_holder
 {
     // TODO: расставить const
-    // todo: пронаследоваться от logger_holder, memory_holder
-    // todo: подключить деревья
+    // todo: подключить деревья, аллокаторы
 public:
     typedef struct key {
         unsigned applicant_id;
         unsigned contest_id;
         tm * utc_time;
     } key_struct;
-
-    typedef struct value {
-        char * surname, *name, *patronymic;
-        char * birthday;
-        char * link_to_resume;
-        unsigned hr_id;
-        char * programming_language;
-        unsigned task_count;
-        unsigned solved_task_count;
-        bool copying;
-    } value_struct;
 
 private:
     /* дерево пулов
@@ -55,7 +45,7 @@ private:
     associative_container<std::string,
         associative_container<std::string,
             associative_container<std::string,
-                associative_container<key, value>
+                associative_container<key, db_value>
                                  >
                              >
                          > * _database;
@@ -163,17 +153,31 @@ public:
     };
 #pragma endregion
 
+#pragma region find structure
+    associative_container<std::string, associative_container<std::string, associative_container<key, db_value>>> *
+    find_data_pull
+    (std::string const & pull_name);
+
+    associative_container<std::string, associative_container<key, db_value>> *
+    find_data_scheme
+    (std::string const & pull_name, std::string const & scheme_name);
+
+    associative_container<key, db_value> *
+    find_data_collection
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+#pragma endregion
+
 #pragma region Insertion in collection
 public:
     void add_to_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key, value_struct value);
+     key_struct key, db_value value);
 
 #pragma endregion
 
 #pragma region Finding among collection
 public:
-    value_struct const & find_among_collection
+    db_value const & find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      key_struct key);
 
@@ -182,7 +186,7 @@ public:
 
 #pragma region Deletion from collection
 public:
-    value_struct delete_from_collection
+    db_value delete_from_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      key_struct key);
 #pragma endregion

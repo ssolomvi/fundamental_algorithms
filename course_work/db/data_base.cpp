@@ -56,3 +56,24 @@ void data_base::upload_from_file(const std::string &filename)
 {
 
 }
+
+associative_container<std::string, associative_container<std::string, associative_container<data_base::key, db_value>>> *
+data_base::find_data_pull
+(const std::string &pull_name)
+{
+    return nullptr;
+}
+
+associative_container<std::string, associative_container<data_base::key, db_value>> *
+data_base::find_data_scheme
+(const std::string &pull_name, const std::string &scheme_name)
+{
+    return nullptr;
+}
+
+associative_container<data_base::key, db_value> *
+data_base::find_data_collection
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name)
+{
+    return nullptr;
+}

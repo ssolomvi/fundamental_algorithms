@@ -29,7 +29,6 @@ typedef enum commands {
     _find_,
     _update_,
     _delete_,
-    _change_,
     _save_,
     _upload_,
     _help_,
@@ -54,7 +53,7 @@ std::tuple<std::string, std::string, std::string> parse_path(std::string & input
 
 std::tuple<std::string, std::string, std::string> get_path_from_user_input();
 
-void do_add_command(time_t now, std::string const & path_inner, data_base* db);
+void do_add_command(time_t now, data_base::trees_types_ tree_type, data_base::allocator_types_ allocator_type, std::string const & path_inner, data_base* db);
 
 void do_find_command(data_base * db);
 
@@ -63,8 +62,6 @@ void do_update_command(data_base * db);
 void delete_db(data_base * db);
 
 void do_delete_command(std::string const & path_inner, data_base * db);
-
-void do_change_command(data_base::trees_types_ tree_type, data_base::allocator_types_ allocator_type, std::string const & path_inner, data_base * db);
 
 void do_save_command(std::string const & path_inner, data_base * db);
 

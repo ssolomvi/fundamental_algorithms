@@ -24,7 +24,7 @@ void db_test()
 
         switch (command) {
             case commands_::_add_:
-                do_add_command(now, path_inner, &db);
+                do_add_command(now, tree_type, allocator_type, path_inner, &db);
                 break;
             case commands_::_find_:
                 do_find_command(&db);
@@ -34,9 +34,6 @@ void db_test()
                 break;
             case commands_::_delete_:
                 do_delete_command(path_inner, &db);
-                break;
-            case commands_::_change_:
-                do_change_command(tree_type, allocator_type, path_inner, &db);
                 break;
             case commands_::_save_:
                 do_save_command(path_inner, &db);

@@ -1,3 +1,5 @@
 # ninja log v5
-5	1247	7063651767720077	CMakeFiles/course_work.dir/main.cpp.obj	7ff656acce6971e7
-1248	1452	7063651769691043	course_work.exe	8152203f0aecc16b
+5	1197	7064544063265254	CMakeFiles/course_work.dir/main.cpp.obj	7ff656acce6971e7
+1695	1850	7064545282707734	course_work.exe	e556fac543f5a590
+12	1706	7064543561310609	CMakeFiles/course_work.dir/db/data_base.cpp.obj	214b8a1442a93f14
+5	1694	7064545281184223	CMakeFiles/course_work.dir/db_user_communication.cpp.obj	2503182c52cf5648
