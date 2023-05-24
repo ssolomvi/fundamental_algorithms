@@ -1,6 +1,42 @@
 #include "db/data_base.h"
 #include "db_user_communication.h"
 
+
+int main()
+{
+    time_t now = time(nullptr);
+
+    /*
+     // db value test
+    db_value_builder * dbValueBuilder = new db_value_builder();
+    try {
+        db_value* value = dbValueBuilder->build_from_stream(nullptr, true, now);
+        std::cout << (*value);
+        delete value;
+    }
+    catch (db_value::create_exception const &) {
+        std::cout << "Incorrect input while building a value";
+    }
+    catch (std::invalid_argument const &) {
+        std::cout << "Incorrect input while building a value";
+    }
+     */
+
+    try {
+        key tmp_key(nullptr, true);
+        std::cout << tmp_key;
+    }
+    catch (key::create_exception const &) {
+        std::cout << "Incorrect input for key";
+    }
+    catch (std::invalid_argument const &) {
+        std::cout << "Incorrect input for key";
+    }
+
+    return 0;
+}
+
+/*
 void db_test()
 {
     // создать бд с дефолтными деревьями (?)
@@ -63,12 +99,12 @@ void db_test()
     } else {
         // прочитать файл
     }
-*/
 
 //    return 0;
 }
-
+*/
+/*
 int main(int argc, char** argv)
 {
     db_test();
-}
+}*/

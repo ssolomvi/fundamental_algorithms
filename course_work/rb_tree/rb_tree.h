@@ -360,7 +360,7 @@ protected:
 
             // deleted node was a left child of parent
             if ((*parent)->left_subtree == nullptr) {
-                // case 1) if brother is red, do rotation(brother, parent), make parent red and brother black. redo links: brother has changed, so find new brother. Go to next case (brother is now black)
+                // case 1) if brother is red, do rotation(brother, parent), make parent red and brother black. redo links: brother has changed, so find_pair new brother. Go to next case (brother is now black)
                 if ((*brother_to_deleted)->is_red()) {
                     brother_to_deleted = reinterpret_cast<rb_node **>(this->rotate_left(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted)));
                     parent = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->left_subtree));
@@ -372,7 +372,7 @@ protected:
                 }
 
                 // case 2) if brother is black we have 3 sub-cases:
-                // for another cases we need to find brother's children and their colors
+                // for another cases we need to find_pair brother's children and their colors
                 if ((*brother_to_deleted) != nullptr) {
                     brother_left_child = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->left_subtree));
                     brother_right_child = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->right_subtree));
@@ -416,7 +416,7 @@ protected:
             }
             // cases are simply mirrored if deleted node was a right child
             else {
-                // case 1) if brother is red, do rotation(brother, parent), make parent red and brother black. redo links: brother has changed, so find new brother. Go to next case (brother is now black)
+                // case 1) if brother is red, do rotation(brother, parent), make parent red and brother black. redo links: brother has changed, so find_pair new brother. Go to next case (brother is now black)
                 if ((*brother_to_deleted)->is_red()) {
                     brother_to_deleted = reinterpret_cast<rb_node **>(this->rotate_right(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(brother_to_deleted)));
                     parent = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->right_subtree));
@@ -428,7 +428,7 @@ protected:
                 }
 
                 // case 2) if brother is black we have 3 sub-cases:
-                // for another cases we need to find brother's children and their colors
+                // for another cases we need to find_pair brother's children and their colors
                 if ((*brother_to_deleted) != nullptr) {
                     brother_left_child = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->left_subtree));
                     brother_right_child = reinterpret_cast<rb_node **>(&((*brother_to_deleted)->right_subtree));

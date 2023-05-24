@@ -1,18 +1,22 @@
-#ifndef COURSE_WORK_DB_VALUE_BUILDER_H
-#define COURSE_WORK_DB_VALUE_BUILDER_H
+#ifndef DB_VALUE_BUILDER_H
+#define DB_VALUE_BUILDER_H
 
 #include "db_value.h"
+#include <sstream>
 
 class db_value_builder {
     std::string _surname, _name, _patronymic;
     std::string _birthday;
     std::string _link_to_resume;
-    unsigned _hr_id;
+    int _hr_id;
     std::string _programming_language;
     unsigned _task_count;
     unsigned _solved_task_count;
     bool _copying;
 
+    time_t _now;
+
+public:
     db_value_builder * with_surname(std::string && surname);
     db_value_builder * with_name(std::string && name);
     db_value_builder * with_patronymic(std::string && patronymic);
@@ -24,8 +28,21 @@ class db_value_builder {
     db_value_builder * with_solved_task_count(unsigned solved_task_count);
     db_value_builder * with_copying(bool did_copy);
 
-    db_value * build() const;
+    db_value_builder * with_time(time_t now);
+
+    [[nodiscard]] db_value *build() const;
+
+private:
+    static void check_if_string_of_value_is_empty(std::string const& s)
+    {
+        if (s.empty()) {
+            throw db_value::create_exception("db_user_communication:: incorrect input while building a value");
+        }
+    }
+
+public:
+    db_value *build_from_stream(std::istringstream *input_stream, bool is_cin, time_t now);
+
 };
 
-
-#endif //COURSE_WORK_DB_VALUE_BUILDER_H
+#endif //DB_VALUE_BUILDER_H

@@ -1,15 +1,22 @@
-#ifndef COURSE_WORK_DB_VALUE_H
-#define COURSE_WORK_DB_VALUE_H
+#ifndef DB_VALUE_H
+#define DB_VALUE_H
 
-#include "../avl_tree/avl_tree.h"
+#include "string_holder.h"
 
 class db_value {
 public:
-    class string_comparer
-    {
+    class create_exception final : public std::exception {
+    private:
+        std::string _message;
+
     public:
-        int operator()(std::string const & x, std::string const & y) {
-            return x.compare(y);
+        explicit create_exception(std::string message)
+                : _message(std::move(message)) {
+
+        }
+
+        [[nodiscard]] char const *what() const noexcept override {
+            return _message.c_str();
         }
     };
 
@@ -23,41 +30,27 @@ private:
     unsigned _solved_task_count;
     bool _copying;
 
-    static avl_tree<std::string, unsigned, string_comparer>* string_holder;
+    tm * _timestamp;
+
+    friend class db_value_builder;
+
+public:
+    friend std::ostream &operator<<(std::ostream &out, const db_value &value);
 
 private:
-    std::string * get_ptr_from_string_holder(std::string const & s)
+    static std::string * get_ptr_from_string_holder(std::string const & s)
     {
-        // try to find a string in string holder.
-        // If it is exists, update value unsigned +1, get ptr to key
-        bs_tree<std::string, unsigned, string_comparer>::node* find_result = nullptr;
-        try {
-            find_result = string_holder->find(s);
-        } catch (bs_tree<std::string, unsigned, string_comparer>::find_exception const &) {
-            // not found, insert a new key with value 1
-            unsigned uses = 1;
-            string_holder->insert(s, std::move(uses));
-            find_result = string_holder->find(s);
-            return &(find_result->key);
-        }
-
-        find_result->value += 1;
-        return &(find_result->key);
+        return string_holder::get_instance()->get_string(s);
     }
 
-    void remove_string_from_string_holder(std::string const & s)
+    static void remove_string_from_string_holder(std::string const & s)
     {
-        bs_tree<std::string, unsigned, string_comparer>::node* find_result = string_holder->find(s);
-        if (find_result->value == 1) {
-            string_holder->remove(s);
-        } else {
-            find_result->value--;
-        }
+        string_holder::get_instance()->remove_string(s);
     }
 
     db_value(std::string const & surname, std::string const & name, std::string const & patronymic,
              std::string const & birthday, std::string const & link_to_resume, unsigned hr_id,
-             std::string const & prog_lang, unsigned task_count, unsigned solved_task_count, bool copying)
+             std::string const & prog_lang, unsigned task_count, unsigned solved_task_count, bool copying, time_t now)
             : _hr_id(hr_id), _task_count(task_count), _solved_task_count(solved_task_count), _copying(copying)
     {
         _surname = get_ptr_from_string_holder(surname);
@@ -66,10 +59,11 @@ private:
         _birthday = get_ptr_from_string_holder(birthday);
         _link_to_resume = get_ptr_from_string_holder(link_to_resume);
         _programming_language = get_ptr_from_string_holder(prog_lang);
+
+        _timestamp = gmtime(&now);
     }
 
-
-
+public:
     ~db_value()
     {
         remove_string_from_string_holder((*_surname));
@@ -81,6 +75,17 @@ private:
     }
 };
 
-avl_tree<std::string, unsigned, db_value::string_comparer>* db_value::string_holder = new avl_tree<std::string, unsigned, db_value::string_comparer>();
+inline std::ostream &operator<<(std::ostream &out, const db_value &value) {
+    out << (*(value._surname)) << " " << (*(value._name)) << " " << (*(value._patronymic)) << std::endl;
+    out << (*(value._birthday)) << std::endl;
+    out << (*(value._link_to_resume)) << std::endl;
+    out << value._hr_id << std::endl;
+    out << (*(value._programming_language)) << std::endl;
+    out << value._task_count << std::endl;
+    out << value._solved_task_count << std::endl;
+    out << value._copying << std::endl;
+    out << asctime(value._timestamp) << std::endl;
+    return out;
+}
 
-#endif //COURSE_WORK_DB_VALUE_H
+#endif //DB_VALUE_H

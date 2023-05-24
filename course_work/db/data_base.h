@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <tuple>
+#include <utility>
 #include <vector>
 #include <cstring>
 #include <ctime>
@@ -22,20 +23,18 @@
 #include "../rb_tree/rb_tree.h"
 
 #include "../db_value/db_value.h"
+#include "../db_key/key.h"
 
+template<
+        typename tkey,
+        typename tvalue,
+        typename tkey_comparer>
 class data_base final :
         private memory_holder,
         private logger_holder
 {
     // TODO: расставить const
     // todo: подключить деревья, аллокаторы
-public:
-    typedef struct key {
-        unsigned applicant_id;
-        unsigned contest_id;
-        tm * utc_time;
-    } key_struct;
-
 private:
     /* дерево пулов
      *     дерево схем
@@ -45,9 +44,9 @@ private:
     associative_container<std::string,
         associative_container<std::string,
             associative_container<std::string,
-                associative_container<key, db_value>
-                                 >
-                             >
+                associative_container<tkey, tvalue> *
+                                 > *
+                             > *
                          > * _database;
     logger * _logger;
     memory* _allocator;
@@ -82,12 +81,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_key_exception(std::string const &message)
-                : _message(message) {
+        explicit db_key_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -97,12 +96,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_value_exception(std::string const &message)
-                : _message(message) {
+        explicit db_value_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -112,12 +111,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_insert_exception(std::string const &message)
-                : _message(message) {
+        explicit db_insert_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -127,12 +126,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_find_exception(std::string const &message)
-                : _message(message) {
+        explicit db_find_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -142,55 +141,68 @@ public:
         std::string _message;
 
     public:
-        explicit db_remove_exception(std::string const &message)
-                : _message(message) {
+        explicit db_remove_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
 #pragma endregion
 
-#pragma region find structure
-    associative_container<std::string, associative_container<std::string, associative_container<key, db_value>>> *
+#pragma region Find structure
+    associative_container<std::string, associative_container<std::string, associative_container<tkey, tvalue> *> *> **
     find_data_pull
     (std::string const & pull_name);
 
-    associative_container<std::string, associative_container<key, db_value>> *
+    associative_container<std::string, associative_container<tkey, tvalue> *> **
     find_data_scheme
     (std::string const & pull_name, std::string const & scheme_name);
 
-    associative_container<key, db_value> *
+    associative_container<tkey, tvalue> **
     find_data_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
 #pragma endregion
 
+#pragma region Collection-related functions
 #pragma region Insertion in collection
 public:
     void add_to_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key, db_value value);
+     tkey key, tvalue &&value);
 
+#pragma endregion
+
+#pragma region Updating a collection value
+public:
+    // todo: redo
+    void update_in_collection
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     tvalue &&value);
 #pragma endregion
 
 #pragma region Finding among collection
 public:
     db_value const & find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key);
+     tkey key);
 
-    // todo: finding in [min, max]
+    std::vector<db_value> find_in_range
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     tkey min_key, tkey max_key);
 #pragma endregion
 
 #pragma region Deletion from collection
 public:
     db_value delete_from_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key);
+     tkey key);
+#pragma endregion
 #pragma endregion
 
+#pragma region Structure functions
 #pragma region Inserting in structure of data base
     // adding a collection: no string is empty
     // adding a scheme: collection string is empty
@@ -214,12 +226,19 @@ public:
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      trees_types_ tree_type, allocator_types_ allocator_type);
 #pragma endregion
+#pragma endregion
 
 #pragma region Save-upload to-from file
 public:
-    void save_to_file(std::string const & filename);
+    void save_to_file(std::string const & filename)
+    {
 
-    void upload_from_file(std::string const & filename);
+    };
+
+    void upload_from_file(std::string const & filename)
+    {
+
+    }
 #pragma endregion
 
 #pragma region logger_holder and memory_holder contract
@@ -238,6 +257,5 @@ public:
     // todo: make a constructor from file (pattern builder)
 #pragma endregion
 };
-
 
 #endif //DATA_BASE_H

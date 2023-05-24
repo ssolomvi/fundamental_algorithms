@@ -1,79 +1,79 @@
 #include "data_base.h"
-
-void
-data_base::add_to_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key, data_base::value_struct value)
-{
-
-}
-
-const data_base::value_struct &
-data_base::find_among_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key)
-{
-
-}
-
-data_base::value_struct
-data_base::delete_from_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key)
-{
-    return data_base::value_struct();
-}
-
-void
-data_base::add_to_structure
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::trees_types_ tree_type, data_base::allocator_types_ allocator_type)
-{
-
-}
-
-void
-data_base::delete_from_structure
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name)
-{
-
-}
-
-void
-data_base::change_the_structure
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::trees_types_ tree_type, data_base::allocator_types_ allocator_type)
-{
-
-}
-
-void data_base::save_to_file(const std::string &filename)
-{
-
-}
-
-void data_base::upload_from_file(const std::string &filename)
-{
-
-}
-
-associative_container<std::string, associative_container<std::string, associative_container<data_base::key, db_value>>> *
-data_base::find_data_pull
+/*
+template<typename key_comparator>
+associative_container<std::string,
+    associative_container<std::string,
+        associative_container<key, db_value> *
+        > *
+    > **
+data_base<key_comparator>::find_data_pull
 (const std::string &pull_name)
 {
     return nullptr;
 }
 
-associative_container<std::string, associative_container<data_base::key, db_value>> *
-data_base::find_data_scheme
+template<typename key_comparator>
+associative_container<std::string,
+    associative_container<typename data_base<key_comparator>::key, db_value> *
+            > **
+data_base<key_comparator>::find_data_scheme
 (const std::string &pull_name, const std::string &scheme_name)
 {
     return nullptr;
 }
 
-associative_container<data_base::key, db_value> *
-data_base::find_data_collection
+template<typename key_comparator>
+associative_container<typename data_base<key_comparator>::key, db_value> **
+data_base<key_comparator>::find_data_collection
 (const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name)
 {
     return nullptr;
 }
+
+template<typename key_comparator>
+void
+data_base<key_comparator>::add_to_collection
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ data_base::key_struct key, db_value &&value)
+{
+
+}
+
+template<typename key_comparator>
+void
+data_base<key_comparator>::update_in_collection
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ data_base::key_struct key, data_base::key_struct new_key, db_value &&value)
+{
+
+}
+
+template<typename key_comparator>
+db_value const &
+data_base<key_comparator>::find_among_collection
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ data_base::key_struct key)
+{
+//    return <#initializer#>;
+}
+
+template<typename key_comparator>
+std::vector<db_value>
+data_base<key_comparator>::find_in_range
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ data_base::key_struct min_key, data_base::key_struct max_key)
+{
+    return std::vector<db_value>();
+}
+
+template<typename key_comparator>
+db_value
+data_base<key_comparator>::delete_from_collection
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ data_base::key_struct key)
+{
+//    return db_value(__cxx11::basic_string(), __cxx11::basic_string(), __cxx11::basic_string(), __cxx11::basic_string(),
+//                    __cxx11::basic_string(), 0, __cxx11::basic_string(), 0, 0, false);
+}
+
+*/

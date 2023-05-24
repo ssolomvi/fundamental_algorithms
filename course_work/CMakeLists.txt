@@ -7,7 +7,7 @@ add_executable(course_work
         main.cpp
         db/data_base.cpp db/data_base.h
         db_user_communication.cpp db_user_communication.h
-        db_value/db_value.cpp db_value/db_value.h
+        db_value/db_value.h
         db_value/db_value_builder.cpp db_value/db_value_builder.h
         logger/logger.h logger/logger.cpp
         logger/logger_builder.h logger/logger_builder.cpp
@@ -21,4 +21,4 @@ add_executable(course_work
         binary_tree/bs_tree.h binary_tree/associative_container.h
         avl_tree/avl_tree.h
         splay_tree/splay_tree.h
-        rb_tree/rb_tree.h)
+        rb_tree/rb_tree.h db_value/string_holder.h db_key/key.h)
