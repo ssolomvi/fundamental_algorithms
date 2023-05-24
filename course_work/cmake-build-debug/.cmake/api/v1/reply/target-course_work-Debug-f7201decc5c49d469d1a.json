@@ -142,7 +142,9 @@
 				29,
 				30,
 				31,
-				32
+				32,
+				33,
+				34
 			]
 		}
 	],
@@ -324,6 +326,16 @@
 		{
 			"backtrace" : 1,
 			"path" : "db_key/key.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "chain_of_resp_and_command/handler.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "chain_of_resp_and_command/command.h",
 			"sourceGroupIndex" : 1
 		}
 	],

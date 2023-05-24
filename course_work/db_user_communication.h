@@ -47,12 +47,27 @@ data_base<key, db_value, key_comparer>::trees_types_ get_tree_type(std::string c
 
 data_base<key, db_value, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input);
 
+class parse_exception final : public std::exception {
+private:
+    std::string _message;
+
+public:
+    explicit parse_exception(std::string message)
+            : _message(std::move(message)) {
+
+    }
+
+    [[nodiscard]] char const *what() const noexcept override {
+        return _message.c_str();
+    }
+};
+
 // returns a command, a tree type / allocator type, path
 std::tuple<
         commands_,
         data_base<key, db_value, key_comparer>::trees_types_,
         data_base<key, db_value, key_comparer>::allocator_types_,
-        std::string const &>
+        std::string>
 parse_user_input(std::string const & user_input);
 
 std::tuple<std::string, std::string, std::string> parse_path(std::string & input_string);

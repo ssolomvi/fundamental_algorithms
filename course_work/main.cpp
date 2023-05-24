@@ -1,7 +1,6 @@
 #include "db/data_base.h"
 #include "db_user_communication.h"
 
-
 int main()
 {
     time_t now = time(nullptr);
@@ -21,7 +20,7 @@ int main()
         std::cout << "Incorrect input while building a value";
     }
      */
-
+/*
     try {
         key tmp_key(nullptr, true);
         std::cout << tmp_key;
@@ -32,7 +31,26 @@ int main()
     catch (std::invalid_argument const &) {
         std::cout << "Incorrect input for key";
     }
-
+*/
+    // todo: check commands non-related to data base
+    std::string input;
+    std::cout << "<<" ;
+    std::getline(std::cin, input);
+    std::tuple<
+            commands_,
+            data_base<key, db_value, key_comparer>::trees_types_,
+            data_base<key, db_value, key_comparer>::allocator_types_,
+            std::string> parsing_result;
+    try {
+        parsing_result = parse_user_input(input);
+        auto parse_path_result = parse_path(std::get<3>(parsing_result));
+        std::cout << std::get<0>(parse_path_result) << std::endl;
+        std::cout << std::get<1>(parse_path_result) << std::endl;
+        std::cout << std::get<2>(parse_path_result) << std::endl;
+    }
+    catch (parse_exception const & message) {
+        std::cout << message.what();
+    }
     return 0;
 }
 

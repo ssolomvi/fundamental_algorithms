@@ -81,11 +81,12 @@ data_base<key, db_value, key_comparer>::allocator_types_ get_allocator_type(std:
     return data_base<key, db_value, key_comparer>::allocator_types_ ::not_an_allocator;
 }
 
+// returns a command, a tree type/allocator type, path to collection
 std::tuple<
         commands_,
         data_base<key, db_value, key_comparer>::trees_types_,
         data_base<key, db_value, key_comparer>::allocator_types_,
-        std::string const &>
+        std::string>
 parse_user_input(std::string const & user_input)
 {
     commands_ command = commands_ ::_not_a_command_;
@@ -109,11 +110,7 @@ parse_user_input(std::string const & user_input)
     }
     if (command == commands_ ::_not_a_command_) {
         // incorrect user input
-        return std::tuple<commands_,
-               data_base<key, db_value, key_comparer>::trees_types_,
-               data_base<key, db_value, key_comparer>::allocator_types_,
-               std::string const &>
-               (command, tree_type, allocator_type, s);
+        throw parse_exception("Incorrect command entered");
     }
 
     // finding a tree type or allocator type if command is "add"
@@ -148,15 +145,22 @@ parse_user_input(std::string const & user_input)
     }
 
     // a path is what is left from s
+    return {command, tree_type, allocator_type, s};
+    /*
     return std::tuple<commands_,
            data_base<key, db_value, key_comparer>::trees_types_,
            data_base<key, db_value, key_comparer>::allocator_types_,
            std::string const &>
-           (command, tree_type, allocator_type, s);
+           (command, tree_type, allocator_type, s);*/
 }
 
 std::tuple<std::string, std::string, std::string> parse_path(std::string & input_string)
 {
+    input_string.erase(remove_if(input_string.begin(), input_string.end(), isspace), input_string.end());
+    if (input_string.empty()) {
+        throw parse_exception("parse_path:: incorrect path passed (is empty)");
+    }
+
     std::string pull_name, scheme_name, collection_name;
     std::string delimiter = "/";
     unsigned delimiter_length = delimiter.size();
@@ -177,7 +181,7 @@ std::tuple<std::string, std::string, std::string> parse_path(std::string & input
     } else {
         pull_name = input_string;
     }
-    return std::tuple<std::string, std::string, std::string>(pull_name, scheme_name, collection_name);
+    return {pull_name, scheme_name, collection_name};
 }
 
 // returns pull/scheme/collection
@@ -191,7 +195,10 @@ std::tuple<std::string, std::string, std::string> get_path_from_user_input(std::
          : std::cout << "Enter full path to filename: >>");
     }
 
-    std::getline((*input_stream), path_inner);
+    (is_cin
+    ? std::getline(std::cin, path_inner)
+    : std::getline((*input_stream), path_inner));
+
     return parse_path(path_inner);
 }
 

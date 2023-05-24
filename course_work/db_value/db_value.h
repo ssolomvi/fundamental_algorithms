@@ -2,6 +2,9 @@
 #define DB_VALUE_H
 
 #include "string_holder.h"
+//#include "../chain_of_resp_and_command/handler.h"
+
+class handler;
 
 class db_value {
 public:
@@ -24,7 +27,7 @@ private:
     std::string * _surname, * _name, * _patronymic;
     std::string * _birthday;
     std::string * _link_to_resume;
-    unsigned _hr_id;
+    int _hr_id;
     std::string * _programming_language;
     unsigned _task_count;
     unsigned _solved_task_count;
@@ -32,10 +35,23 @@ private:
 
     tm * _timestamp;
 
-    friend class db_value_builder;
+    handler* chain_of_resp;
 
+    friend class db_value_builder;
+    friend class update_command;
+    friend class add_command;
 public:
     friend std::ostream &operator<<(std::ostream &out, const db_value &value);
+
+    db_value * make_a_copy()
+    {
+        db_value * copy = new db_value((*(this->_surname)), (*(this->_name)), (*(this->_patronymic)),
+                                       (*(this->_birthday)), (*(this->_link_to_resume)), this->_hr_id,
+                                       (*(this->_programming_language)), this->_task_count, this->_solved_task_count,
+                                       this->_copying, 0);
+        copy->_timestamp = new tm((*(this->_timestamp)));
+        return copy;
+    }
 
 private:
     static std::string * get_ptr_from_string_holder(std::string const & s)
@@ -72,6 +88,8 @@ public:
         remove_string_from_string_holder((*_birthday));
         remove_string_from_string_holder((*_link_to_resume));
         remove_string_from_string_holder((*_programming_language));
+        // ???
+        delete _timestamp;
     }
 };
 
