@@ -5,13 +5,13 @@ int main()
 {
     time_t now = time(nullptr);
 
-    /*
+
      // db value test
-    db_value_builder * dbValueBuilder = new db_value_builder();
+    auto * dbValueBuilder = new db_value_builder();
+    db_value * value = nullptr;
     try {
-        db_value* value = dbValueBuilder->build_from_stream(nullptr, true, now);
+        value = dbValueBuilder->build_from_stream(nullptr, true);
         std::cout << (*value);
-        delete value;
     }
     catch (db_value::create_exception const &) {
         std::cout << "Incorrect input while building a value";
@@ -19,7 +19,10 @@ int main()
     catch (std::invalid_argument const &) {
         std::cout << "Incorrect input while building a value";
     }
-     */
+    delete dbValueBuilder;
+
+
+
 /*
     try {
         key tmp_key(nullptr, true);
@@ -33,6 +36,7 @@ int main()
     }
 */
     // todo: check commands non-related to data base
+    /*
     std::string input;
     std::cout << "<<" ;
     std::getline(std::cin, input);
@@ -51,6 +55,44 @@ int main()
     catch (parse_exception const & message) {
         std::cout << message.what();
     }
+     */
+
+
+
+/*
+ // эта хрень будет выполняться, когда нам нужно будет пройти по цепочке и собрать нужную версию
+ void ClientCode(Handler &handler) {
+  std::vector<std::string> food = {"Nut", "Banana", "Cup of coffee"};
+  for (const std::string &f : food) {
+    std::cout << "Client: Who wants a " << f << "?\n";
+    const std::string result = handler.Handle(f);
+    if (!result.empty()) {
+      std::cout << "  " << result;
+    } else {
+      std::cout << "  " << f << " was left untouched.\n";
+    }
+  }
+}
+ */
+
+/*
+ // эта хрень пойдёт в data_base
+ int main() {
+  MonkeyHandler *monkey = new MonkeyHandler;
+  SquirrelHandler *squirrel = new SquirrelHandler;
+  DogHandler *dog = new DogHandler;
+  monkey->SetNext(squirrel)->SetNext(dog);
+
+    std::cout << "Chain: Monkey > Squirrel > Dog\n\n";
+    ClientCode(*monkey);
+std::cout << "\n";
+std::cout << "Subchain: Squirrel > Dog\n\n";
+ClientCode(*squirrel);
+
+delete monkey;
+delete squirrel;
+delete dog;
+ */
     return 0;
 }
 

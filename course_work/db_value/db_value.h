@@ -33,7 +33,7 @@ private:
     unsigned _solved_task_count;
     bool _copying;
 
-    tm * _timestamp;
+    uint64_t _timestamp;
 
     handler * chain_of_resp;
 
@@ -41,6 +41,10 @@ private:
     friend class update_command;
     friend class add_command;
     friend class add_handler;
+
+public:
+    handler ** get_last_handler();
+
 public:
     friend std::ostream &operator<<(std::ostream &out, const db_value &value);
 
@@ -49,8 +53,8 @@ public:
         db_value * copy = new db_value((*(this->_surname)), (*(this->_name)), (*(this->_patronymic)),
                                        (*(this->_birthday)), (*(this->_link_to_resume)), this->_hr_id,
                                        (*(this->_programming_language)), this->_task_count, this->_solved_task_count,
-                                       this->_copying, 0);
-        copy->_timestamp = new tm((*(this->_timestamp)));
+                                       this->_copying);
+        copy->_timestamp = this->_timestamp;
         return copy;
     }
 
@@ -67,7 +71,7 @@ private:
 
     db_value(std::string const & surname, std::string const & name, std::string const & patronymic,
              std::string const & birthday, std::string const & link_to_resume, unsigned hr_id,
-             std::string const & prog_lang, unsigned task_count, unsigned solved_task_count, bool copying, time_t now)
+             std::string const & prog_lang, unsigned task_count, unsigned solved_task_count, bool copying)
             : _hr_id(hr_id), _task_count(task_count), _solved_task_count(solved_task_count), _copying(copying)
     {
         _surname = get_ptr_from_string_holder(surname);
@@ -77,21 +81,12 @@ private:
         _link_to_resume = get_ptr_from_string_holder(link_to_resume);
         _programming_language = get_ptr_from_string_holder(prog_lang);
 
-        _timestamp = gmtime(&now);
+        _timestamp = duration_cast<std::chrono::milliseconds>
+                (std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
 public:
-    ~db_value()
-    {
-        remove_string_from_string_holder((*_surname));
-        remove_string_from_string_holder((*_name));
-        remove_string_from_string_holder((*_patronymic));
-        remove_string_from_string_holder((*_birthday));
-        remove_string_from_string_holder((*_link_to_resume));
-        remove_string_from_string_holder((*_programming_language));
-        // ???
-        delete _timestamp;
-    }
+    ~db_value();
 };
 
 inline std::ostream &operator<<(std::ostream &out, const db_value &value) {
@@ -103,7 +98,7 @@ inline std::ostream &operator<<(std::ostream &out, const db_value &value) {
     out << value._task_count << std::endl;
     out << value._solved_task_count << std::endl;
     out << value._copying << std::endl;
-    out << asctime(value._timestamp) << std::endl;
+    out << value._timestamp << std::endl;
     return out;
 }
 

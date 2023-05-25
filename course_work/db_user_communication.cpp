@@ -207,10 +207,54 @@ void delete_db(data_base<key, db_value, key_comparer> * db)
     db->~data_base();
 }
 
+void add(db_value * value_to_add_to, db_value * new_value)
+{
+    handler * add_handle = new add_handler(new_value);
+    handler ** last_handler = value_to_add_to->get_last_handler();
+    if ((*last_handler) == nullptr) {
+        // there are no commands added
+        // todo: throw a message, add cannot be the first command in chain
+//        (*last_handler) = add_handle;
+    } else {
+        // todo: import an ability to check what handler is
+        if ((*last_handler)) {
+            // todo: check if previous is delete, otherwise throw a message
+            (*last_handler)->set_next(add_handle);
+        }
+    }
+}
+
+// dict will be got in some parse function
+void update(db_value * value_to_update_to, std::map<db_value_fields, unsigned char *> dict)
+{
+    handler * update_handle = new update_handler(std::move(dict));
+    handler ** last_handler = value_to_update_to->get_last_handler();
+    if ((*last_handler) == nullptr) {
+        (*last_handler) = update_handle;
+    } else {
+        // todo: check if previous IS NOT delete
+        if ((*last_handler)) {
+            ((*last_handler)->set_next(update_handle));
+        }
+    }
+}
+
+void remove(db_value * value_to_delete)
+{
+    handler * delete_handle = new remove_handler();
+    handler ** last_handler = value_to_delete->get_last_handler();
+    if ((*last_handler) == nullptr) {
+        (*last_handler) = delete_handle;
+    } else {
+        if ((*last_handler)) {
+            ((*last_handler)->set_next(delete_handle));
+        }
+    }
+}
+
 /*
 // todo: add command
-void do_add_command(time_t now,
-                    data_base<key, db_value, key_comparer>::trees_types_ tree_type,
+void do_add_command(data_base<key, db_value, key_comparer>::trees_types_ tree_type,
                     data_base<key, db_value, key_comparer>::allocator_types_ allocator_type,
                     std::string const & path_inner,
                     std::istringstream* input_stream, bool is_cin,
@@ -224,7 +268,7 @@ void do_add_command(time_t now,
 
         db_value_builder *dbValueBuilder = new db_value_builder();
 
-        db_value tmp_value = dbValueBuilder->build_from_stream(input_stream, is_cin, now);
+        db_value * tmp_value = dbValueBuilder->build_from_stream(input_stream, is_cin);
 
         delete dbValueBuilder;
 

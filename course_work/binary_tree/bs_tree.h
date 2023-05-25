@@ -1068,11 +1068,12 @@ public:
         _insertion->insert(key, std::move(value));
     }
 
+    /*
     void update_value(tkey const &key, tkey const &new_key, tvalue &&value) override
     {
         _insertion->update(key, new_key, std::move(value));
     }
-
+     */
     tvalue const &get(
             tkey const &key) override
     {

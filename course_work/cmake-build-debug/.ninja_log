@@ -14,4 +14,11 @@
 35	1951	7065693206070756	CMakeFiles/course_work.dir/allocator/memory_holder.cpp.obj	5c51bfec3a375818
 1691	3559	7065693222162881	CMakeFiles/course_work.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj	c88bb14fbc08da24
 1951	3797	7065693224554229	CMakeFiles/course_work.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj	d8d744603281a680
-2	442	7066564442533068	build.ninja	984ce2f4a3888075
+2	442	7066840411879283	build.ninja	984ce2f4a3888075
+14	1348	7066841293437333	CMakeFiles/course_work.dir/db/data_base.cpp.obj	214b8a1442a93f14
+28	1562	7066841295573346	CMakeFiles/course_work.dir/main.cpp.obj	7ff656acce6971e7
+20	1625	7066841296184289	CMakeFiles/course_work.dir/db_value/db_value_builder.cpp.obj	aa6f0a00376a7adc
+7	1764	7066841297566746	CMakeFiles/course_work.dir/db_user_communication.cpp.obj	2503182c52cf5648
+1349	2564	7066841305604804	CMakeFiles/course_work.dir/db_value/db_value.cpp.obj	648dd848f289f810
+5	1627	7066841550275504	CMakeFiles/course_work.dir/db_user_communication.cpp.obj	2503182c52cf5648
+1628	1979	7066841553734752	course_work.exe	57f387e804f3cadd

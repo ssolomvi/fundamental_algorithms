@@ -1,11 +1,11 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
-#include "../db_value/db_value.h"
+//#include "../db_value/db_value.h"
 #include "command.h"
 #include <chrono>
 
-class db_value;
+//class db_value;
 
 class handler {
 protected:
@@ -13,7 +13,7 @@ protected:
     command * _command;
     uint64_t timestamp;
 
-    public:
+public:
     [[nodiscard]] uint64_t get_timestamp() const
     {
         return this->timestamp;
@@ -25,13 +25,19 @@ protected:
         return handler;
     }
 
-    handler * find_last_handler()
+    // this handler (the first in chain) cannot be proved to be last in this function. Must do a check-up in invoker function
+    handler ** find_last_handler(handler * invoker_handler) const
     {
-        handler * last_handler = this;
-
-        while (last_handler->_next_handler != nullptr) {
-            last_handler = last_handler->_next_handler;
+        if (invoker_handler->_next_handler == nullptr) {
+            return nullptr;
         }
+
+        handler **last_handler = &(invoker_handler->_next_handler);
+
+        while ((*last_handler)->_next_handler != nullptr) {
+            last_handler = &((*last_handler)->_next_handler);
+        }
+
         return last_handler;
     }
 
@@ -76,6 +82,7 @@ public:
 class add_handler final : public handler
 {
     // принимает на вход АБСОЛЮТНО новое значение, никак не связанное с initial db_value
+public:
     explicit add_handler(db_value * new_value)
     {
         // собираем словарь для команды add
@@ -108,6 +115,7 @@ class add_handler final : public handler
 
 class update_handler final : public handler
 {
+public:
     explicit update_handler(std::map<db_value_fields, unsigned char *> command_input)
     {
         _command = new update_command(std::move(command_input));
@@ -116,46 +124,11 @@ class update_handler final : public handler
 
 class remove_handler final : public handler
 {
+public:
     remove_handler()
     {
         _command = new remove_command();
     }
 };
-
-
-/*
- // эта хрень будет выполняться, когда нам нужно будет пройти по цепочке и собрать нужную версию
- void ClientCode(Handler &handler) {
-  std::vector<std::string> food = {"Nut", "Banana", "Cup of coffee"};
-  for (const std::string &f : food) {
-    std::cout << "Client: Who wants a " << f << "?\n";
-    const std::string result = handler.Handle(f);
-    if (!result.empty()) {
-      std::cout << "  " << result;
-    } else {
-      std::cout << "  " << f << " was left untouched.\n";
-    }
-  }
-}
- */
-
-/*
- // эта хрень пойдёт в data_base
- int main() {
-  MonkeyHandler *monkey = new MonkeyHandler;
-  SquirrelHandler *squirrel = new SquirrelHandler;
-  DogHandler *dog = new DogHandler;
-  monkey->SetNext(squirrel)->SetNext(dog);
-
-    std::cout << "Chain: Monkey > Squirrel > Dog\n\n";
-    ClientCode(*monkey);
-std::cout << "\n";
-std::cout << "Subchain: Squirrel > Dog\n\n";
-ClientCode(*squirrel);
-
-delete monkey;
-delete squirrel;
-delete dog;
- */
 
 #endif //HANDLER_H

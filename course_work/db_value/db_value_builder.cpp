@@ -25,7 +25,7 @@ db_value_builder *db_value_builder::with_link_to_resume(std::string &&link) {
     return this;
 }
 
-db_value_builder *db_value_builder::with_hr_id(unsigned int hr_id)
+db_value_builder *db_value_builder::with_hr_id(int hr_id)
 {
     _hr_id = hr_id;
     return this;
@@ -51,11 +51,6 @@ db_value_builder *db_value_builder::with_copying(bool did_copy) {
     return this;
 }
 
-db_value_builder *db_value_builder::with_time(time_t now) {
-    _now = now;
-    return this;
-}
-
 // todo: check if it works
 db_value* db_value_builder::build() const {
     return new db_value(_surname, _name, _patronymic,
@@ -64,11 +59,10 @@ db_value* db_value_builder::build() const {
                     _hr_id,
                     _programming_language,
                     _task_count, _solved_task_count,
-                    _copying,
-                    _now);
+                    _copying);
 }
 
-db_value* db_value_builder::build_from_stream(std::istringstream *input_stream, bool is_cin, time_t now) {
+db_value* db_value_builder::build_from_stream(std::istringstream *input_stream, bool is_cin) {
     std::string token, delimiter = " ";
     size_t pos;
     unsigned delimiter_length = delimiter.length();
@@ -169,8 +163,5 @@ db_value* db_value_builder::build_from_stream(std::istringstream *input_stream, 
     } else {
         throw db_value::create_exception("Incorrect input while building a value {bool must be true/false || 1/0}");
     }
-
-    this->with_time(now);
-
     return (this->build());
 }

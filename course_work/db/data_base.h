@@ -172,7 +172,7 @@ public:
 public:
     void add_to_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     tkey key, tvalue &&value);
+     tkey key, tvalue* &&value);
 
 #pragma endregion
 

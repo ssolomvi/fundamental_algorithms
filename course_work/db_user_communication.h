@@ -74,8 +74,7 @@ std::tuple<std::string, std::string, std::string> parse_path(std::string & input
 
 std::tuple<std::string, std::string, std::string> get_path_from_user_input();
 
-void do_add_command(time_t now,
-                    data_base<key, db_value, key_comparer>::trees_types_ tree_type,
+void do_add_command(data_base<key, db_value, key_comparer>::trees_types_ tree_type,
                     data_base<key, db_value, key_comparer>::allocator_types_ allocator_type,
                     std::string const & path_inner,
                     data_base<key, db_value, key_comparer>* db);

@@ -21,4 +21,4 @@ add_executable(course_work
         binary_tree/bs_tree.h binary_tree/associative_container.h
         avl_tree/avl_tree.h
         splay_tree/splay_tree.h
-        rb_tree/rb_tree.h db_value/string_holder.h db_key/key.h chain_of_resp_and_command/handler.h chain_of_resp_and_command/command.h)
+        rb_tree/rb_tree.h db_value/string_holder.h db_key/key.h chain_of_resp_and_command/handler.h chain_of_resp_and_command/command.h db_value/db_value.cpp)
