@@ -35,11 +35,12 @@ private:
 
     tm * _timestamp;
 
-    handler* chain_of_resp;
+    handler * chain_of_resp;
 
     friend class db_value_builder;
     friend class update_command;
     friend class add_command;
+    friend class add_handler;
 public:
     friend std::ostream &operator<<(std::ostream &out, const db_value &value);
 
