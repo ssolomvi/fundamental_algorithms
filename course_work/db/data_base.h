@@ -21,31 +21,19 @@
 #include "../splay_tree/splay_tree.h"
 #include "../rb_tree/rb_tree.h"
 
+//#include "../db_value/db_value.h"
+#include "../chain_of_resp_and_command/handler.h"
+#include "../db_key/key.h"
+
+template<
+        typename tkey,
+        typename tkey_comparer>
 class data_base final :
         private memory_holder,
         private logger_holder
 {
     // TODO: расставить const
-    // todo: пронаследоваться от logger_holder, memory_holder
-    // todo: подключить деревья
-public:
-    typedef struct key {
-        unsigned applicant_id;
-        unsigned contest_id;
-        tm * utc_time;
-    } key_struct;
-
-    typedef struct value {
-        char * surname, *name, *patronymic;
-        char * birthday;
-        char * link_to_resume;
-        unsigned hr_id;
-        char * programming_language;
-        unsigned task_count;
-        unsigned solved_task_count;
-        bool copying;
-    } value_struct;
-
+    // todo: подключить деревья, аллокаторы
 private:
     /* дерево пулов
      *     дерево схем
@@ -55,12 +43,23 @@ private:
     associative_container<std::string,
         associative_container<std::string,
             associative_container<std::string,
-                associative_container<key, value>
-                                 >
-                             >
+                associative_container<tkey, db_value *> *
+                                 > *
+                             > *
                          > * _database;
     logger * _logger;
     memory* _allocator;
+    // todo: free allocators in ~data_base
+    static std::map<memory *, std::tuple<std::string, std::string, std::string>> _all_trees_allocators;
+
+private:
+    class string_comparer
+    {
+    public:
+        int operator()(std::string const & x, std::string const & y) {
+            return x.compare(y);
+        }
+    };
 
 public:
     typedef enum trees_types {
@@ -87,32 +86,32 @@ public:
 
 #pragma region exceptions
 public:
-    class db_key_exception final : public std::exception {
-    private:
-        std::string _message;
-
-    public:
-        explicit db_key_exception(std::string const &message)
-                : _message(message) {
-
-        }
-
-        char const *what() const noexcept override {
-            return _message.c_str();
-        }
-    };
+//    class db_key_exception final : public std::exception {
+//    private:
+//        std::string _message;
+//
+//    public:
+//        explicit db_key_exception(std::string message)
+//                : _message(std::move(message)) {
+//
+//        }
+//
+//        [[nodiscard]] char const *what() const noexcept override {
+//            return _message.c_str();
+//        }
+//    };
 
     class db_value_exception final : public std::exception {
     private:
         std::string _message;
 
     public:
-        explicit db_value_exception(std::string const &message)
-                : _message(message) {
+        explicit db_value_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -122,12 +121,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_insert_exception(std::string const &message)
-                : _message(message) {
+        explicit db_insert_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -137,12 +136,12 @@ public:
         std::string _message;
 
     public:
-        explicit db_find_exception(std::string const &message)
-                : _message(message) {
+        explicit db_find_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -152,48 +151,85 @@ public:
         std::string _message;
 
     public:
-        explicit db_remove_exception(std::string const &message)
-                : _message(message) {
+        explicit db_remove_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
 #pragma endregion
 
+#pragma region Find structure
+private:
+    associative_container<std::string, associative_container<std::string, associative_container<tkey, db_value *> *> *> *
+    find_data_pull
+    (std::string const & pull_name);
+
+    associative_container<std::string, associative_container<tkey, db_value *> *> *
+    find_data_scheme
+    (std::string const & pull_name, std::string const & scheme_name);
+
+    associative_container<tkey, db_value *> *
+    find_data_collection
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+#pragma endregion
+
+#pragma region Collection-related functions
 #pragma region Insertion in collection
 public:
     void add_to_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key, value_struct value);
+     tkey key, db_value * value);
 
+#pragma endregion
+
+#pragma region Updating a collection value
+public:
+    void update_in_collection
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     tkey key, std::map<db_value_fields, unsigned char *> upd_dict);
 #pragma endregion
 
 #pragma region Finding among collection
 public:
-    value_struct const & find_among_collection
+    db_value * const find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key);
+     tkey key);
 
-    // todo: finding in [min, max]
+    db_value * find_with_time
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+    tkey key, uint64_t time_parameter);
+
+     std::vector<db_value *> find_in_range
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     tkey min_key, tkey max_key);
 #pragma endregion
 
 #pragma region Deletion from collection
 public:
-    value_struct delete_from_collection
+    void delete_from_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key_struct key);
+     tkey key);
+#pragma endregion
 #pragma endregion
 
+#pragma region Structure functions
 #pragma region Inserting in structure of data base
     // adding a collection: no string is empty
     // adding a scheme: collection string is empty
+private:
+    memory *
+    get_new_allocator_for_inner_trees
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     allocator_types_ allocator_type, size_t allocator_pool_size);
+
 public:
     void add_to_structure
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     trees_types_ tree_type, allocator_types_ allocator_type);
+     trees_types_ tree_type, allocator_types_ allocator_type, size_t allocator_pool_size);
 #pragma endregion
 
 #pragma region Deletion from structure of data base
@@ -203,19 +239,19 @@ public:
     void delete_from_structure
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
 #pragma endregion
-
-#pragma region Changing the structure of data base
-public:
-    void change_the_structure
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     trees_types_ tree_type, allocator_types_ allocator_type);
 #pragma endregion
 
 #pragma region Save-upload to-from file
 public:
-    void save_to_file(std::string const & filename);
+    void save_to_file(std::string const & filename)
+    {
 
-    void upload_from_file(std::string const & filename);
+    };
+
+    void upload_from_file(std::string const & filename)
+    {
+
+    }
 #pragma endregion
 
 #pragma region logger_holder and memory_holder contract
@@ -234,6 +270,5 @@ public:
     // todo: make a constructor from file (pattern builder)
 #pragma endregion
 };
-
 
 #endif //DATA_BASE_H

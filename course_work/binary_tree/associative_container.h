@@ -11,7 +11,11 @@ public:
 
     virtual void insert(tkey const &key, tvalue &&value) = 0;
 
+//    virtual void update_value(tkey const &key, tkey const &new_key, tvalue &&value) = 0;
+
     virtual tvalue const &get(tkey const &key) = 0;
+
+//    virtual std::pair<tkey *, tvalue *> find_pair(tkey const &key) = 0;
 
     virtual tvalue remove(tkey const &key) = 0;
 };

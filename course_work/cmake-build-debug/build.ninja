@@ -67,6 +67,72 @@ build CMakeFiles/course_work.dir/db_user_communication.cpp.obj: CXX_COMPILER__co
   OBJECT_DIR = CMakeFiles\course_work.dir
   OBJECT_FILE_DIR = CMakeFiles\course_work.dir
 
+build CMakeFiles/course_work.dir/db_value/db_value_builder.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/db_value/db_value_builder.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\db_value\db_value_builder.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\db_value
+
+build CMakeFiles/course_work.dir/logger/logger.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/logger/logger.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\logger\logger.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\logger
+
+build CMakeFiles/course_work.dir/logger/logger_builder.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/logger/logger_builder.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\logger\logger_builder.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\logger
+
+build CMakeFiles/course_work.dir/logger/logger_holder.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/logger/logger_holder.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\logger\logger_holder.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\logger
+
+build CMakeFiles/course_work.dir/allocator/memory_base_class.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator/memory_base_class.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator\memory_base_class.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator
+
+build CMakeFiles/course_work.dir/allocator/memory_holder.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator/memory_holder.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator\memory_holder.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator
+
+build CMakeFiles/course_work.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator_from_global_heap/memory_from_global_heap.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator_from_global_heap\memory_from_global_heap.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator_from_global_heap
+
+build CMakeFiles/course_work.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator_with_sorted_list_deallocation\memory_with_sorted_list_deallocation.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator_with_sorted_list_deallocation
+
+build CMakeFiles/course_work.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator_with_boundary_tags_deallocation\memory_with_boundary_tags.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator_with_boundary_tags_deallocation
+
+build CMakeFiles/course_work.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/allocator_with_buddy_system/memory_with_buddy_system.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\allocator_with_buddy_system\memory_with_buddy_system.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\allocator_with_buddy_system
+
+build CMakeFiles/course_work.dir/db_value/db_value.cpp.obj: CXX_COMPILER__course_work_Debug C$:/fund-algths/course_work/db_value/db_value.cpp || cmake_object_order_depends_target_course_work
+  DEP_FILE = CMakeFiles\course_work.dir\db_value\db_value.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\course_work.dir
+  OBJECT_FILE_DIR = CMakeFiles\course_work.dir\db_value
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target course_work
@@ -75,7 +141,7 @@ build CMakeFiles/course_work.dir/db_user_communication.cpp.obj: CXX_COMPILER__co
 #############################################
 # Link the executable course_work.exe
 
-build course_work.exe: CXX_EXECUTABLE_LINKER__course_work_Debug CMakeFiles/course_work.dir/main.cpp.obj CMakeFiles/course_work.dir/db/data_base.cpp.obj CMakeFiles/course_work.dir/db_user_communication.cpp.obj
+build course_work.exe: CXX_EXECUTABLE_LINKER__course_work_Debug CMakeFiles/course_work.dir/main.cpp.obj CMakeFiles/course_work.dir/db/data_base.cpp.obj CMakeFiles/course_work.dir/db_user_communication.cpp.obj CMakeFiles/course_work.dir/db_value/db_value_builder.cpp.obj CMakeFiles/course_work.dir/logger/logger.cpp.obj CMakeFiles/course_work.dir/logger/logger_builder.cpp.obj CMakeFiles/course_work.dir/logger/logger_holder.cpp.obj CMakeFiles/course_work.dir/allocator/memory_base_class.cpp.obj CMakeFiles/course_work.dir/allocator/memory_holder.cpp.obj CMakeFiles/course_work.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj CMakeFiles/course_work.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/course_work.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj CMakeFiles/course_work.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj CMakeFiles/course_work.dir/db_value/db_value.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\course_work.dir

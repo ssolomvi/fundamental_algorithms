@@ -269,7 +269,7 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
             while (current_block != nullptr) {
                 next_to_current_block = get_next_available_block_address(current_block);
 
-                // find a position, where current block < target_to_dealloc < current_block.next ?= nullptr
+                // find_pair a position, where current block < target_to_dealloc < current_block.next ?= nullptr
                 if (next_to_current_block == nullptr || next_to_current_block > tmp) {
                     *reinterpret_cast<void **>(reinterpret_cast<size_t *>(tmp) + 1) = next_to_current_block;
 

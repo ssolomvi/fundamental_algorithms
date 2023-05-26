@@ -8,6 +8,9 @@
 #include "../allocator/memory_base_class.h"
 #include "../allocator/memory_holder.h"
 
+// TODO: do find_pair function, which will return a node.
+// TODO: do update function, which will get a node and replace its value with new one.
+
 template<typename tkey, typename tvalue, typename tkey_comparer>
 class bs_tree:
         public associative_container<tkey, tvalue>,
@@ -47,7 +50,7 @@ public:
             return _message.c_str();
         }
     };
-
+public:
     class find_exception final : public std::exception {
     private:
         std::string _message;
@@ -575,6 +578,37 @@ protected:
             this->trace_with_guard("bs_tree::insertion_template_method::insert method finished");
         }
 
+        // pass old key, new key, new value
+        void update(tkey const &key, tkey const & new_key, tvalue &&value)
+        {
+            this->trace_with_guard("bs_tree::insertion_template_method::update method started");
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            auto **target_ptr = path_and_target.second;
+
+            if (*target_ptr == nullptr)
+            {
+                this->debug_with_guard("bs_tree::insertion_template_method::update passed key is not in collection")
+                        ->trace_with_guard("bs_tree::insertion_template_method::update method finished");
+                throw insert_exception("bs_tree::insertion_template_method::update passed key is not in collection");
+            }
+
+            path_and_target = this->find_path(new_key);
+            path = path_and_target.first;
+            target_ptr = path_and_target.second;
+
+            *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
+            initialize_memory_with_node(*target_ptr);
+
+            (*target_ptr)->key = new_key;
+            (*target_ptr)->value = std::move(value);
+            (*target_ptr)->left_subtree = nullptr;
+            (*target_ptr)->right_subtree = nullptr;
+
+            after_insert_inner(path, target_ptr);
+            this->trace_with_guard("bs_tree::insertion_template_method::update method finished");
+        }
+
     protected:
 
         virtual size_t get_node_size() const
@@ -611,32 +645,53 @@ protected:
     {
 
     public:
-        explicit finding_template_method(
-                bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
+        explicit finding_template_method(bs_tree<tkey, tvalue, tkey_comparer> *target_tree)
                 : template_method_basics(target_tree)
         {
 
         }
 
     public:
-
-        tvalue const &find(tkey const &key)
+        /*
+        std::pair<tkey *, tvalue *> find_pair(tkey const & key)
         {
-            this->trace_with_guard("bs_tree::finding_template_method::find method started");
+            this->trace_with_guard("bs_tree::finding_template_method::find_pair method started");
+
             auto path_and_target = this->find_path(key);
             auto path = path_and_target.first;
             auto **target_ptr = path_and_target.second;
 
             if (*target_ptr == nullptr)
             {
-                this->debug_with_guard("bs_tree::finding_template_method::find no value with passed key in tree")
-                    ->trace_with_guard("bs_tree::finding_template_method::find method finished");
-                throw find_exception("bs_tree::finding_template_method::find no value with passed key in tree");
+                this->debug_with_guard("bs_tree::finding_template_method::find_pair no value with passed key in tree")
+                        ->trace_with_guard("bs_tree::finding_template_method::find_pair method finished");
+                throw find_exception("bs_tree::finding_template_method::find_pair no value with passed key in tree");
             }
 
             after_find_inner(path, target_ptr);
 
-            this->trace_with_guard("bs_tree::finding_template_method::find method finished");
+            this->trace_with_guard("bs_tree::finding_template_method::find_pair method finished");
+            return std::pair<tkey *, tvalue *>(&((*target_ptr)->key), &((*target_ptr)->value));
+        }
+         */
+
+        tvalue const &find(tkey const &key)
+        {
+            this->trace_with_guard("bs_tree::finding_template_method::find_pair method started");
+            auto path_and_target = this->find_path(key);
+            auto path = path_and_target.first;
+            auto **target_ptr = path_and_target.second;
+
+            if (*target_ptr == nullptr)
+            {
+                this->debug_with_guard("bs_tree::finding_template_method::find_pair no value with passed key in tree")
+                    ->trace_with_guard("bs_tree::finding_template_method::find_pair method finished");
+                throw find_exception("bs_tree::finding_template_method::find_pair no value with passed key in tree");
+            }
+
+            after_find_inner(path, target_ptr);
+
+            this->trace_with_guard("bs_tree::finding_template_method::find_pair method finished");
             return (*target_ptr)->value;
         }
 
@@ -837,6 +892,7 @@ protected:
 
     node *_root;
 protected:
+#pragma region rool 5
     // constructor
     bs_tree(
             logger *logger,
@@ -1001,6 +1057,7 @@ public:
     {
 
     }
+#pragma endregion
 
 public:
 
@@ -1011,11 +1068,24 @@ public:
         _insertion->insert(key, std::move(value));
     }
 
+    /*
+    void update_value(tkey const &key, tkey const &new_key, tvalue &&value) override
+    {
+        _insertion->update(key, new_key, std::move(value));
+    }
+     */
     tvalue const &get(
             tkey const &key) override
     {
         return _finding->find(key);
     }
+
+    /*
+    std::pair<tkey *, tvalue *> find_pair(tkey const &key) override
+    {
+        return _finding->find_pair(key);
+    }
+     */
 
     tvalue remove(
             tkey const &key) override
