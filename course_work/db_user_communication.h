@@ -58,9 +58,9 @@ typedef enum commands {
 
 commands_ get_command(std::string const & user_input);
 
-data_base<key, db_value, key_comparer>::trees_types_ get_tree_type(std::string const & user_input);
+data_base<key, key_comparer>::trees_types_ get_tree_type(std::string const & user_input);
 
-data_base<key, db_value, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input);
+data_base<key, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input);
 
 class parse_exception final : public std::exception {
 private:
@@ -80,8 +80,9 @@ public:
 // returns a command, a tree type / allocator type, path
 std::tuple<
         commands_,
-        data_base<key, db_value, key_comparer>::trees_types_,
-        data_base<key, db_value, key_comparer>::allocator_types_,
+        data_base<key, key_comparer>::trees_types_,
+        data_base<key, key_comparer>::allocator_types_,
+        size_t,
         std::string>
 parse_user_input(std::string const & user_input);
 
@@ -89,21 +90,21 @@ std::tuple<std::string, std::string, std::string> parse_path(std::string & input
 
 std::tuple<std::string, std::string, std::string> get_path_from_user_input();
 
-void do_add_command(data_base<key, db_value, key_comparer>::trees_types_ tree_type,
-                    data_base<key, db_value, key_comparer>::allocator_types_ allocator_type,
+void do_add_command(data_base<key, key_comparer>::trees_types_ tree_type,
+                    data_base<key, key_comparer>::allocator_types_ allocator_type,
                     std::string const & path_inner,
-                    data_base<key, db_value, key_comparer>* db);
+                    data_base<key, key_comparer>* db);
 
-db_value & do_find_command(data_base<key, db_value, key_comparer> * db);
+db_value & do_find_command(data_base<key, key_comparer> * db);
 
-void do_update_command(data_base<key, db_value, key_comparer> * db);
+void do_update_command(data_base<key, key_comparer> * db);
 
-void delete_db(data_base<key, db_value, key_comparer> * db);
+void delete_db(data_base<key, key_comparer> * db);
 
-void do_delete_command(std::string const & path_inner, data_base<key, db_value, key_comparer> * db);
+void do_delete_command(std::string const & path_inner, data_base<key, key_comparer> * db);
 
-void do_save_command(std::string const & path_inner, data_base<key, db_value, key_comparer> * db);
+void do_save_command(std::string const & path_inner, data_base<key, key_comparer> * db);
 
-void do_upload_command(std::string const & path_inner, data_base<key, db_value, key_comparer> * db);
+void do_upload_command(std::string const & path_inner, data_base<key, key_comparer> * db);
 
 #endif //DB_USER_COMMUNICATION_H

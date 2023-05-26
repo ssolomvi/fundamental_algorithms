@@ -8,19 +8,18 @@ void help()
     std::cout << "Full path to collection: <pull_name>/<scheme_name>/<collection_name>" << std::endl;
     std::cout << "\t- add" << std::endl;
     std::cout << "\t- find" << std::endl;
-    std::cout << "\t- find data set" << std::endl;
+    std::cout << "\t- find dataset" << std::endl;
+    std::cout << "\t- find <timestamp>" << std::endl;
     std::cout << "\t- update" << std::endl;
     std::cout << "\t- delete" << std::endl;
     std::cout << "Structural and customization commands list:" << std::endl;
     std::cout << "Supported trees: BST (binary tree), AVL, SPLAY, RB (red-black tree)" << std::endl;
     std::cout << "Supported allocators: global, sorted_list best||worst||first, descriptors best||worst||first, buddy_system" << std::endl;
-    std::cout << "\t- add <tree type> <allocator type> <pull_name>" << std::endl;
-    std::cout << "\t- add <tree type> <allocator type> <pull_name>/<scheme_name>" << std::endl;
-    std::cout << "\t- add <tree type> <allocator type> <pull_name>/<scheme_name>/<collection_name>" << std::endl;
-    std::cout << "\t- delete <pull_name>" << std::endl;
-    std::cout << "\t- delete <pull_name>/<scheme_name>" << std::endl;
-    std::cout << "\t- delete <pull_name>/<scheme_name>/<collection_name>" << std::endl;
-    std::cout << "DB commands_ list:" << std::endl;
+    std::cout << "\t- add <tree type> <allocator type> <size of allocator> <full path>" << std::endl;
+    std::cout << "\t\tone can note tree/allocator type only" << std::endl;
+    std::cout << "\t\tif one wants to note an allocator, it's needed to also node desired length in bytes (not for global one)" << std::endl;
+    std::cout << "\t- delete <full path>" << std::endl;
+    std::cout << "DB commands list:" << std::endl;
     std::cout << "\t- save <filename>" << std::endl;
     std::cout << "\t- upload <filename>" << std::endl;
     std::cout << "\t- help" << std::endl;
@@ -50,45 +49,98 @@ commands_ get_command(std::string const & user_input)
     return commands_::_not_a_command_;
 }
 
-data_base<key, db_value, key_comparer>::trees_types_ get_tree_type(std::string const & user_input)
+data_base<key, key_comparer>::trees_types_ get_tree_type(std::string const & user_input)
 {
     if (user_input == "BST" || user_input == "bst") {
-        return data_base<key, db_value, key_comparer>::trees_types_ ::BST;
+        return data_base<key, key_comparer>::trees_types_ ::BST;
     } else if (user_input == "AVL" || user_input == "avl") {
-        return data_base<key, db_value, key_comparer>::trees_types_ ::AVL;
+        return data_base<key, key_comparer>::trees_types_ ::AVL;
     } else if (user_input == "SPLAY" || user_input == "splay") {
-        return data_base<key, db_value, key_comparer>::trees_types_ ::SPLAY;
+        return data_base<key, key_comparer>::trees_types_ ::SPLAY;
     } else if (user_input == "RB" || user_input == "rb") {
-        return data_base<key, db_value, key_comparer>::trees_types_ ::RB;
+        return data_base<key, key_comparer>::trees_types_ ::RB;
     }
-    return data_base<key, db_value, key_comparer>::trees_types_ ::not_a_tree;
+    return data_base<key, key_comparer>::trees_types_ ::not_a_tree;
 }
 
-data_base<key, db_value, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input)
+data_base<key, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input)
 {
     if (user_input == "global") {
-        return data_base<key, db_value, key_comparer>::allocator_types_ ::global;
+        return data_base<key, key_comparer>::allocator_types_ ::global;
     } else if (user_input == "sorted_list") {
-        return data_base<key, db_value, key_comparer>::allocator_types_ ::for_inner_use_sorted_list;
+        return data_base<key, key_comparer>::allocator_types_ ::for_inner_use_sorted_list;
     } else if (user_input == "descriptors") {
-        return data_base<key, db_value, key_comparer>::allocator_types_ ::for_inner_use_descriptors;
+        return data_base<key, key_comparer>::allocator_types_ ::for_inner_use_descriptors;
     } else if (user_input == "buddy_system") {
-        return data_base<key, db_value, key_comparer>::allocator_types_ ::buddy_system;
+        return data_base<key, key_comparer>::allocator_types_ ::buddy_system;
     }
-    return data_base<key, db_value, key_comparer>::allocator_types_ ::not_an_allocator;
+    return data_base<key, key_comparer>::allocator_types_ ::not_an_allocator;
+}
+
+std::pair<data_base<key, key_comparer>::allocator_types_, size_t>
+define_allocator_type
+(data_base<key, key_comparer>::allocator_types_ allocator_type,
+ std::string & s, std::string & token, std::string & delimiter,
+ size_t pos, unsigned delimiter_length)
+{
+    if (allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list ||
+        allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_descriptors)
+    {
+        s.erase(0, pos + delimiter_length);
+        if ((pos = s.find(delimiter)) != std::string::npos) {
+            token = s.substr(0, pos);
+            if (token == "best") {
+                allocator_type = (allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_best
+                                  : data_base<key, key_comparer>::allocator_types_::descriptors_best);
+            } else if (token == "worst") {
+                allocator_type = (allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_worst
+                                  : data_base<key, key_comparer>::allocator_types_::descriptors_worst);
+            } else if (token == "first") {
+                allocator_type = (allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_first
+                                  : data_base<key, key_comparer>::allocator_types_::descriptors_first);
+            }
+        } else {
+            allocator_type = data_base<key, key_comparer>::allocator_types_ ::not_an_allocator;
+        }
+    }
+
+    size_t allocator_pool_size = 0;
+
+    if (allocator_type != data_base<key, key_comparer>::allocator_types_::global &&
+        allocator_type != data_base<key, key_comparer>::allocator_types_::not_an_allocator)
+    {
+        // need to read a size of allocator
+        s.erase(0, pos + delimiter_length);
+        if ((pos = s.find(delimiter)) != std::string::npos) {
+            token = s.substr(0, pos);
+            try {
+                allocator_pool_size = std::stoull(token);
+                s.erase(0, pos + delimiter_length);
+            }
+            catch (std::invalid_argument const &) {
+                // todo: throw a message
+            }
+        }
+    }
+
+    return {allocator_type, allocator_pool_size};
 }
 
 // returns a command, a tree type/allocator type, path to collection
 std::tuple<
         commands_,
-        data_base<key, db_value, key_comparer>::trees_types_,
-        data_base<key, db_value, key_comparer>::allocator_types_,
+        data_base<key, key_comparer>::trees_types_,
+        data_base<key, key_comparer>::allocator_types_,
+        size_t,
         std::string>
 parse_user_input(std::string const & user_input)
 {
     commands_ command = commands_ ::_not_a_command_;
-    data_base<key, db_value, key_comparer>::trees_types_ tree_type = data_base<key, db_value, key_comparer>::trees_types_ ::not_a_tree;
-    data_base<key, db_value, key_comparer>::allocator_types_ allocator_type = data_base<key, db_value, key_comparer>::allocator_types_ ::not_an_allocator;
+    data_base<key, key_comparer>::trees_types_ tree_type = data_base<key, key_comparer>::trees_types_ ::not_a_tree;
+    data_base<key, key_comparer>::allocator_types_ allocator_type = data_base<key, key_comparer>::allocator_types_ ::not_an_allocator;
 //    char* path = nullptr;
 
     std::string token, s = user_input;
@@ -110,45 +162,36 @@ parse_user_input(std::string const & user_input)
         throw parse_exception("Incorrect command entered");
     }
 
-    // finding a tree type or allocator type if command is "add"
+    size_t allocator_pool_size = 0;
+
     if (command == commands_::_add_ && (pos = s.find(delimiter)) != std::string::npos) {
         token = s.substr(0, pos);
         tree_type = get_tree_type(token);
         allocator_type = get_allocator_type(token);
 
-        if (allocator_type == data_base<key, db_value, key_comparer>::allocator_types_::for_inner_use_sorted_list ||
-            allocator_type == data_base<key, db_value, key_comparer>::allocator_types_::for_inner_use_descriptors) {
-            s.erase(0, pos + delimiter_length);
-            if ((pos = s.find(delimiter)) != std::string::npos) {
-                token = s.substr(0, pos);
-                if (token == "best") {
-                    allocator_type = (allocator_type == data_base<key, db_value, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                      ? data_base<key, db_value, key_comparer>::allocator_types_::sorted_list_best
-                                      : data_base<key, db_value, key_comparer>::allocator_types_::descriptors_best);
-                } else if (token == "worst") {
-                    allocator_type = (allocator_type == data_base<key, db_value, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                      ? data_base<key, db_value, key_comparer>::allocator_types_::sorted_list_worst
-                                      : data_base<key, db_value, key_comparer>::allocator_types_::descriptors_worst);
-                } else if (token == "first") {
-                    allocator_type = (allocator_type == data_base<key, db_value, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                      ? data_base<key, db_value, key_comparer>::allocator_types_::sorted_list_first
-                                      : data_base<key, db_value, key_comparer>::allocator_types_::descriptors_first);
-                }
-            } else {
-                allocator_type = data_base<key, db_value, key_comparer>::allocator_types_ ::not_an_allocator;
+        auto allocator_type_and_size = define_allocator_type(allocator_type, s, token, delimiter, pos,
+                                                             delimiter_length);
+        allocator_type = allocator_type_and_size.first;
+        allocator_pool_size = allocator_type_and_size.second;
+
+        if ((pos = s.find(delimiter)) != std::string::npos) {
+            token = s.substr(0, pos);
+            if (tree_type == data_base<key, key_comparer>::not_a_tree) {
+                tree_type = get_tree_type(token);
+            }
+
+            if (allocator_type == data_base<key, key_comparer>::not_an_allocator) {
+                allocator_type = get_allocator_type(token);
+                allocator_type_and_size = define_allocator_type(allocator_type, s, token, delimiter, pos,
+                                                                delimiter_length);
+                allocator_type = allocator_type_and_size.first;
+                allocator_pool_size = allocator_type_and_size.second;
             }
         }
-        s.erase(0, pos + delimiter_length);
     }
 
     // a path is what is left from s
-    return {command, tree_type, allocator_type, s};
-    /*
-    return std::tuple<commands_,
-           data_base<key, db_value, key_comparer>::trees_types_,
-           data_base<key, db_value, key_comparer>::allocator_types_,
-           std::string const &>
-           (command, tree_type, allocator_type, s);*/
+    return {command, tree_type, allocator_type, allocator_pool_size, s};
 }
 
 std::tuple<std::string, std::string, std::string> parse_path(std::string & input_string)
@@ -199,7 +242,7 @@ std::tuple<std::string, std::string, std::string> get_path_from_user_input(std::
     return parse_path(path_inner);
 }
 
-void delete_db(data_base<key, db_value, key_comparer> * db)
+void delete_db(data_base<key, key_comparer> * db)
 {
     db->~data_base();
 }
@@ -502,7 +545,7 @@ void do_delete_command(std::string const & path_inner, data_base * db)
 {
     // a key from a collection (return a value)
     if (path_inner.empty()) {
-        /*
+
         get_key_from_user_input();
 
         get_path_from_user_input();

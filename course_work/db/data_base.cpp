@@ -458,7 +458,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
 {
     if (pull_name.empty()) {
         throw data_base<tkey, tkey_comparer>::db_insert_exception(
-                "add_to_structure:: one should pass pull name for correct work of method");
+                "delete_from_structure:: one should pass pull name for correct work of method");
     }
 
     // deleting pull
@@ -490,15 +490,32 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
         }
         catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
             throw data_base<tkey, tkey_comparer>::db_remove_exception(
-                    "delete_from_structure:: no pool with name " + pull_name + "in data base");
+                    "delete_from_structure:: no scheme with name " + scheme_name + "in data base");
         }
     }
     // deleting collection
     else {
+        // find a scheme
+        associative_container<std::string,
+                associative_container<tkey, db_value *> *> * data_scheme = nullptr;
 
+        try {
+            data_scheme = find_data_scheme(pull_name, scheme_name);
+        }
+        catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                    "add_to_structure:: no such pull/scheme name in data_base");
+        }
+
+        try {
+            data_scheme->remove(collection_name);
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
+                throw data_base<tkey, tkey_comparer>::db_remove_exception(
+                        "delete_from_structure:: no collection with name " + collection_name + "in data base");
+        }
     }
 }
-
 
 #pragma endregion
 #pragma endregion

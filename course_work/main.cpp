@@ -3,6 +3,7 @@
 
 int main()
 {
+    help();
     time_t now = time(nullptr);
 
     std::ifstream file( "C:/fund-algths/course_work/test/update.txt" );
