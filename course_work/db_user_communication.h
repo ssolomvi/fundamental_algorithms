@@ -78,11 +78,8 @@ public:
 };
 
 // returns a command, a tree type / allocator type, path
-std::tuple<
+std::pair<
         commands_,
-        data_base<key, key_comparer>::trees_types_,
-        data_base<key, key_comparer>::allocator_types_,
-        size_t,
         std::string>
 parse_user_input(std::string const & user_input);
 
@@ -92,6 +89,7 @@ std::tuple<std::string, std::string, std::string> get_path_from_user_input();
 
 void do_add_command(data_base<key, key_comparer>::trees_types_ tree_type,
                     data_base<key, key_comparer>::allocator_types_ allocator_type,
+                    size_t allocator_size,
                     std::string const & path_inner,
                     data_base<key, key_comparer>* db);
 

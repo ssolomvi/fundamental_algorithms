@@ -163,6 +163,7 @@ public:
 #pragma endregion
 
 #pragma region Find structure
+private:
     associative_container<std::string, associative_container<std::string, associative_container<tkey, db_value *> *> *> *
     find_data_pull
     (std::string const & pull_name);
@@ -198,7 +199,11 @@ public:
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey key);
 
-    std::vector<db_value *> find_in_range
+    db_value * find_with_time
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+    tkey key, uint64_t time_parameter);
+
+     std::vector<db_value *> find_in_range
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey min_key, tkey max_key);
 #pragma endregion
@@ -216,7 +221,10 @@ public:
     // adding a collection: no string is empty
     // adding a scheme: collection string is empty
 private:
-    memory * get_new_allocator_for_inner_trees(allocator_types_ allocator_type, size_t allocator_pool_size);
+    memory *
+    get_new_allocator_for_inner_trees
+    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+     allocator_types_ allocator_type, size_t allocator_pool_size);
 
 public:
     void add_to_structure

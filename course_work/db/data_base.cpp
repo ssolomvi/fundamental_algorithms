@@ -227,6 +227,33 @@ data_base<tkey, tkey_comparer>::find_among_collection(const std::string &pull_na
 }
 
 template<typename tkey, typename tkey_comparer>
+db_value *
+data_base<tkey, tkey_comparer>::find_with_time
+(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
+ tkey key, uint64_t time_parameter)
+{
+    associative_container<tkey, db_value *> * collection = find_data_collection(pull_name, scheme_name, collection_name);
+
+    db_value * found_value = nullptr;
+    try {
+        found_value = collection->get(key);
+    }
+    catch (typename bs_tree<tkey, db_value *, tkey_comparer>::find_exception const &) {
+        throw data_base<tkey, tkey_comparer>::db_find_exception("find_with_time:: cannot find a value with passed key");
+    }
+
+    db_value * found_value_copy = found_value->make_a_copy();
+    handler * first_handler = found_value->get_first_handler();
+
+    if (first_handler == nullptr) {
+        return found_value_copy;
+    }
+
+    first_handler->handle(&found_value_copy, time_parameter);
+    return found_value_copy;
+}
+
+template<typename tkey, typename tkey_comparer>
 std::vector<db_value *>
 data_base<tkey, tkey_comparer>::find_in_range(const std::string &pull_name, const std::string &scheme_name,
                                               const std::string &collection_name, tkey min_key, tkey max_key)
@@ -276,7 +303,8 @@ data_base<tkey, tkey_comparer>::delete_from_collection(const std::string &pull_n
 template<typename tkey, typename tkey_comparer>
 memory *
 data_base<tkey, tkey_comparer>::get_new_allocator_for_inner_trees
-(data_base<tkey, tkey_comparer>::allocator_types_ allocator_type, size_t allocator_pool_size)
+(std::string const & pull_name, std::string const & scheme_name, std::string const &collection_name,
+data_base<tkey, tkey_comparer>::allocator_types_ allocator_type, size_t allocator_pool_size)
 {
     memory * new_allocator = nullptr;
     switch (allocator_type) {
@@ -307,6 +335,11 @@ data_base<tkey, tkey_comparer>::get_new_allocator_for_inner_trees
         default:
             break;
     }
+    if (new_allocator != nullptr) {
+        _all_trees_allocators[new_allocator] = std::tuple<std::string, std::string, std::string>
+                (pull_name, scheme_name, collection_name);
+    }
+
     return new_allocator;
 }
 
