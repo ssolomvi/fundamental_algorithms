@@ -62,7 +62,7 @@ db_value* db_value_builder::build() const {
                     _copying);
 }
 
-db_value* db_value_builder::build_from_stream(std::istringstream *input_stream, bool is_cin) {
+db_value* db_value_builder::build_from_stream(std::stringstream *input_stream, bool is_cin) {
     std::string token, delimiter = " ";
     size_t pos;
     unsigned delimiter_length = delimiter.length();

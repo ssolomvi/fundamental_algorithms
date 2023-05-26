@@ -29,6 +29,21 @@ void help();
 // <key, value>
 // + path to collection
 
+std::pair<key, std::map<db_value_fields, unsigned char *>> get_update_key_and_dictionary(std::stringstream* input_stream, bool is_cin);
+void update(db_value * value_to_update_to, std::map<db_value_fields, unsigned char *> dict);
+void add(db_value * value_to_add_to, db_value * new_value);
+void remove(db_value * value_to_delete);
+db_value * find_value_version_time(db_value * value, uint64_t time_parameter);
+
+typedef struct time_str
+{
+    short YY, MM, DD;
+    short hh, mm, ss;
+} struct_time;
+
+uint64_t parse_time_from_stream(std::stringstream * input_stream, bool is_cin);
+uint64_t convert_time_str_to_ms(time_str data);
+
 typedef enum commands {
     _add_,
     _find_,

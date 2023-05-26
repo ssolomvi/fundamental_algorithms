@@ -185,7 +185,7 @@ std::tuple<std::string, std::string, std::string> parse_path(std::string & input
 }
 
 // returns pull/scheme/collection
-std::tuple<std::string, std::string, std::string> get_path_from_user_input(std::istringstream* input_stream, bool is_cin, bool is_path)
+std::tuple<std::string, std::string, std::string> get_path_from_user_input(std::stringstream* input_stream, bool is_cin, bool is_path)
 {
     std::string path_inner;
 
@@ -213,15 +213,105 @@ void add(db_value * value_to_add_to, db_value * new_value)
     handler ** last_handler = value_to_add_to->get_last_handler();
     if ((*last_handler) == nullptr) {
         // there are no commands added
-        // todo: throw a message, add cannot be the first command in chain
+        throw handler::order_exception("Add handler cannot be the first one in chain of responsibility");
 //        (*last_handler) = add_handle;
     } else {
-        // todo: import an ability to check what handler is
-        if ((*last_handler)) {
-            // todo: check if previous is delete, otherwise throw a message
+        if ((*last_handler)->get_handler_type() == handler::handler_types::_remove_handler_) {
             (*last_handler)->set_next(add_handle);
+        } else {
+            throw handler::order_exception("Add handler can be only after remove_handler in chain of responsibility");
         }
     }
+}
+
+std::pair<key, std::map<db_value_fields, unsigned char *>> get_update_key_and_dictionary(std::stringstream* input_stream, bool is_cin)
+{
+    key to_return_key(input_stream, is_cin);
+    std::map<db_value_fields, unsigned char *> to_return_dict;
+
+    std::string token, field_name, delimiter = ":";
+    db_value_fields dbValueField;
+    unsigned delimiter_length = delimiter.length(), iterations = 15;
+    size_t pos;
+    if (is_cin) {
+        std::cout << "Print field_name: new_value" << std::endl
+                  << "Fields: surname, name, patronymic, birthday, link_to_resume, hr_id, p_language, tasks, solved, copying" << std::endl
+                  << "To stop print exit" << std::endl;
+    }
+
+    while (iterations) {
+        iterations--;
+
+        if (is_cin) {
+            std::getline(std::cin, token);
+        } else {
+            std::getline((*input_stream), token);
+        }
+
+        // delete all spaces, after this: surname:Surname
+        token.erase(remove_if(token.begin(), token.end(), isspace), token.end());
+
+        if (token == "exit") {
+            break;
+        }
+
+        if ((pos = token.find(delimiter)) != std::string::npos) {
+            field_name = token.substr(0, pos);
+//            command = get_command(token);
+            token.erase(0, pos + delimiter_length);
+        } else {
+            // todo: throw a message, incorrect input
+        }
+
+        if (field_name == "surname") {
+            dbValueField = db_value_fields ::_surname_;
+        } else if (field_name == "name") {
+            dbValueField = db_value_fields ::_name_;
+        } else if (field_name == "patronymic") {
+            dbValueField = db_value_fields ::_patronymic_;
+        } else if (field_name == "birthday") {
+            dbValueField = db_value_fields ::_birthday_;
+        } else if (field_name == "link_to_resume") {
+            dbValueField = db_value_fields ::_link_to_resume_;
+        } else if (field_name == "hr_id") {
+            dbValueField = db_value_fields ::_hr_id_;
+        } else if (field_name == "p_language") {
+            dbValueField = db_value_fields ::_programming_language_;
+        } else if (field_name == "tasks") {
+            dbValueField = db_value_fields ::_task_count_;
+        } else if (field_name == "solved") {
+            dbValueField = db_value_fields ::_solved_task_count_;
+        } else if (field_name == "copying") {
+            dbValueField = db_value_fields ::_copying_;
+        } else {
+            // todo: throw a message incorrect input
+        }
+
+        if (to_return_dict.contains(dbValueField)) {
+            delete to_return_dict[dbValueField];
+        }
+
+        if (dbValueField == db_value_fields::_surname_ || dbValueField == db_value_fields::_name_ || dbValueField == db_value_fields::_patronymic_ ||
+            dbValueField == db_value_fields::_birthday_ || dbValueField == db_value_fields::_link_to_resume_ || dbValueField == db_value_fields::_programming_language_) {
+            to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new std::string(token));
+        } else if (dbValueField == db_value_fields::_hr_id_) {
+            // try catch?
+            to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new int(std::stoi(token)));
+        } else if (dbValueField == db_value_fields::_task_count_ || dbValueField == db_value_fields::_solved_task_count_) {
+            // todo: try catch?
+            to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new unsigned(std::stoi(token)));
+        } else if (dbValueField == db_value_fields::_copying_) {
+            if (token == "true" || token == "1") {
+                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new bool(true));
+            } else if (token == "false" || token == "0") {
+                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new bool(false));
+            } else {
+                // throw a message, parse error
+            }
+        }
+    }
+    return {to_return_key, to_return_dict};
+    // check if map is not empty ?
 }
 
 // dict will be got in some parse function
@@ -232,9 +322,10 @@ void update(db_value * value_to_update_to, std::map<db_value_fields, unsigned ch
     if ((*last_handler) == nullptr) {
         (*last_handler) = update_handle;
     } else {
-        // todo: check if previous IS NOT delete
-        if ((*last_handler)) {
+        if ((*last_handler)->get_handler_type() != handler::handler_types::_remove_handler_) {
             ((*last_handler)->set_next(update_handle));
+        } else {
+            throw handler::order_exception("Update handler cannot be after remove_handler in chain of responsibility");
         }
     }
 }
@@ -250,6 +341,89 @@ void remove(db_value * value_to_delete)
             ((*last_handler)->set_next(delete_handle));
         }
     }
+}
+
+db_value * find_value_version_time(db_value * value, uint64_t time_parameter)
+{
+    db_value * value_copy = value->make_a_copy();
+
+    handler * first_handler = value->get_first_handler();
+
+    if (first_handler == nullptr) {
+        return value_copy;
+    }
+    // будут ли value_copy и result_handler указывать на одно и то же? по идее должны
+    db_value * result_handler = value->get_first_handler()->handle(value_copy, time_parameter);
+//    delete value_copy;
+    return value_copy;
+}
+
+short get_part_of_data_from_input_str(std::string & str, std::string & delimiter, unsigned delimiter_length)
+{
+    short to_return = 0;
+    size_t pos;
+    if ((pos = str.find(delimiter)) != std::string::npos) {
+        try {
+            to_return = std::stoi(str.substr(0, pos));
+        }
+        catch (std::invalid_argument const &) {
+            // todo: throw incorrect input
+        }
+        str.erase(0, pos + delimiter_length);
+    } else {
+        // todo: throw incorrect input
+    }
+    return to_return;
+}
+
+uint64_t parse_time_from_stream(std::stringstream * input_stream, bool is_cin)
+{
+    time_str to_return{};
+
+    std::string token;
+    if (is_cin) {
+        std::cout << "Print timestamp in format {DD/MM/YY hh/mm/ss} <<";
+        std::getline(std::cin, token);
+    } else {
+        std::getline((*input_stream), token);
+    }
+
+    std::string lexeme_delimiter = " ", part_delimiter = "/";
+    std::string day_month_year, hour_min_sec;
+    unsigned delimiter_length = 1;
+    size_t pos;
+
+    if ((pos = token.find(lexeme_delimiter)) != std::string::npos) {
+        day_month_year = token.substr(0, pos);
+        token.erase(0, pos + delimiter_length);
+    } else {
+        // todo: throw incorrect input
+    }
+
+    to_return.DD = get_part_of_data_from_input_str(day_month_year, part_delimiter, delimiter_length);
+    to_return.MM = get_part_of_data_from_input_str(day_month_year, part_delimiter, delimiter_length);
+    to_return.YY = get_part_of_data_from_input_str(day_month_year, part_delimiter, delimiter_length);
+
+    to_return.hh = get_part_of_data_from_input_str(token, part_delimiter, delimiter_length);
+    to_return.mm = get_part_of_data_from_input_str(token, part_delimiter, delimiter_length);
+    to_return.ss = get_part_of_data_from_input_str(token, part_delimiter, delimiter_length);
+
+    //todo: check if data is correct
+    return convert_time_str_to_ms(to_return);
+}
+
+uint64_t convert_time_str_to_ms(time_str data)
+{
+    std::tm tmp{};
+    tmp.tm_sec = data.ss;
+    tmp.tm_min = data.mm; // -1 ?
+    tmp.tm_hour = data.hh;
+    tmp.tm_year = data.YY - 1900;
+    tmp.tm_mon = data.MM;
+    tmp.tm_mday = data.DD;
+    uint64_t milli = std::mktime(&tmp);
+    milli = milli * 1000;
+    return milli;
 }
 
 /*

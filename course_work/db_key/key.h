@@ -28,7 +28,7 @@ public:
     };
 
 public:
-    key(std::istringstream* input_stream, bool is_cin)
+    key(std::stringstream* input_stream, bool is_cin)
     {
         std::string token, delimiter = ", ";
         std::string applicant_id, contest_id;

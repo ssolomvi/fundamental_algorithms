@@ -8,15 +8,43 @@
 //class db_value;
 
 class handler {
+public:
+    enum handler_types {
+        _add_handler_,
+        _update_handler_,
+        _remove_handler_
+    };
+
+    class order_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit order_exception(std::string message)
+                : _message(std::move(message)) {
+
+        }
+
+        [[nodiscard]] char const *what() const noexcept override {
+            return _message.c_str();
+        }
+    };
+
 protected:
     handler * _next_handler;
     command * _command;
     uint64_t timestamp;
+    handler_types _type_of_handler;
 
 public:
     [[nodiscard]] uint64_t get_timestamp() const
     {
         return this->timestamp;
+    }
+
+    [[nodiscard]] handler_types get_handler_type() const
+    {
+        return this->_type_of_handler;
     }
 
     handler *set_next(handler *handler)
@@ -44,13 +72,15 @@ public:
 public:
     db_value* handle(db_value * request, uint64_t time_parameter)
     {
+        if (this->timestamp <= time_parameter) {
+            request = _command->execute(request);
+        } else {
+            return request;
+        }
         // do command
-        request = _command->execute(request);
 
-        if (this->_next_handler) {
-            if ((this->_next_handler)->get_timestamp() <= time_parameter) {
-                return this->_next_handler->handle(request, time_parameter);
-            }
+        if (this->_next_handler != nullptr) {
+            return this->_next_handler->handle(request, time_parameter);
         }
 
         return request;
@@ -81,6 +111,7 @@ public:
 
 class add_handler final : public handler
 {
+
     // принимает на вход АБСОЛЮТНО новое значение, никак не связанное с initial db_value
 public:
     explicit add_handler(db_value * new_value)
@@ -110,6 +141,7 @@ public:
                 reinterpret_cast<unsigned char *>(new bool(new_value->_copying));
 
         _command = new add_command(command_input);
+        _type_of_handler = handler_types::_add_handler_;
     }
 };
 
@@ -119,6 +151,7 @@ public:
     explicit update_handler(std::map<db_value_fields, unsigned char *> command_input)
     {
         _command = new update_command(std::move(command_input));
+        _type_of_handler = handler_types::_update_handler_;
     }
 };
 
@@ -128,6 +161,7 @@ public:
     remove_handler()
     {
         _command = new remove_command();
+        _type_of_handler = handler_types::_remove_handler_;
     }
 };
 

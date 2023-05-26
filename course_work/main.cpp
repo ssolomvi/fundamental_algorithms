@@ -5,13 +5,25 @@ int main()
 {
     time_t now = time(nullptr);
 
+    std::ifstream file( "C:/fund-algths/course_work/test/update.txt" );
+    std::stringstream* buffer = new std::stringstream();
+    if ( file )
+    {
+        (*buffer) << file.rdbuf();
+
+        file.close();
+        // operations on the buffer...
+    } else {
+        std::cout << "could not open a file\n";
+        return 0;
+    }
 
      // db value test
     auto * dbValueBuilder = new db_value_builder();
     db_value * value = nullptr;
     try {
-        value = dbValueBuilder->build_from_stream(nullptr, true);
-        std::cout << (*value);
+        value = dbValueBuilder->build_from_stream(buffer, false);
+        std::cout << (*value) << std::endl;
     }
     catch (db_value::create_exception const &) {
         std::cout << "Incorrect input while building a value";
@@ -21,8 +33,44 @@ int main()
     }
     delete dbValueBuilder;
 
+    // remove command check
+    remove(value);
+
+    // add command check
+    auto * another_builder = new db_value_builder();
+    db_value * another_value = nullptr;
+    try {
+        another_value = another_builder->build_from_stream(buffer, false);
+        std::cout << (*another_value) << std::endl;
+    }
+    catch (db_value::create_exception const &) {
+        std::cout << "Incorrect input while building a value";
+    }
+    catch (std::invalid_argument const &) {
+        std::cout << "Incorrect input while building a value";
+    }
+    delete another_builder;
+
+    add(value, another_value);
+    delete another_value;
+
+    // update command check
+    auto key_and_dict = get_update_key_and_dictionary(buffer, false);
+    std::map<db_value_fields, unsigned char *> upd_dict = key_and_dict.second;
+
+    update(value, upd_dict);
 
 
+    db_value * version = find_value_version_time(value, (*(value->get_last_handler()))->get_timestamp() - 10);
+//    db_value * version = find_value_version_time(value, duration_cast<std::chrono::milliseconds>
+//            (std::chrono::system_clock::now().time_since_epoch()).count());
+
+    if (version != nullptr ) {
+        std::cout << (*version) << std::endl;
+    }
+
+    delete value;
+    delete version;
 /*
     try {
         key tmp_key(nullptr, true);

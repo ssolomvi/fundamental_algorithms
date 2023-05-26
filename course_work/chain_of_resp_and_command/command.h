@@ -6,19 +6,6 @@
 #include "../db_value/db_value.h"
 #include "../db_value/db_value_builder.h"
 
-typedef enum fields {
-    _surname_,
-    _name_,
-    _patronymic_,
-    _birthday_,
-    _link_to_resume_,
-    _hr_id_,
-    _programming_language_,
-    _task_count_,
-    _solved_task_count_,
-    _copying_
-} db_value_fields;
-
 class command {
 public:
     virtual ~command() = default;
@@ -30,6 +17,7 @@ class remove_command final : public command
 public:
     db_value * execute(db_value * initial_value_copy) override
     {
+        std::cout << "remove command" << std::endl;
         initial_value_copy->~db_value();
         initial_value_copy = nullptr;
         return initial_value_copy;
@@ -54,6 +42,8 @@ public:
 
     db_value * execute(db_value * initial_value_copy) override
     {
+        std::cout << "update command" << std::endl;
+
         for (const auto & iter : _update_dictionary) {
             switch (iter.first) {
                 case db_value_fields::_surname_:
@@ -120,6 +110,8 @@ public:
 
     db_value * execute(db_value * initial_value_copy) override
     {
+        std::cout << "add command" << std::endl;
+
         auto * dbValueBuilder = new db_value_builder();
 
         for (auto const & iter : _add_dictionary) {
@@ -163,8 +155,5 @@ public:
         return initial_value_copy;
     }
 };
-
-
-
 
 #endif //COURSE_WORK_COMMAND_H

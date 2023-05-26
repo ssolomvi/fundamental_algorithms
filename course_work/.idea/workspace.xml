@@ -16,19 +16,15 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_tree/bs_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/binary_tree/bs_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-6bf5f31551895cb0bfb5.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-05-24T18-34-04-0351.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-course_work-Debug-f7201decc5c49d469d1a.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db_key/key.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_key/key.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_user_communication.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db_value/db_value.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_value/db_value.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_value/db_value_builder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value_builder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_value/db_value_builder.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value_builder.h" afterDir="false" />
@@ -60,21 +56,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "structure.view.defaults.are.configured": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
@@ -93,7 +89,8 @@
       <updated>1684652112904</updated>
       <workItem from="1684652115286" duration="19523000" />
       <workItem from="1684747083663" duration="13839000" />
-      <workItem from="1684857769243" duration="50202000" />
+      <workItem from="1684857769243" duration="50295000" />
+      <workItem from="1685059851627" duration="9998000" />
     </task>
     <servers />
   </component>
@@ -116,15 +113,30 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/main.cpp</url>
-          <line>13</line>
-          <option name="timeStamp" value="3" />
+          <line>97</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/main.cpp</url>
-          <line>49</line>
-          <option name="timeStamp" value="7" />
+          <line>64</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/chain_of_resp_and_command/handler.h</url>
+          <line>74</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main.cpp</url>
+          <line>63</line>
+          <option name="timeStamp" value="18" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="result_handler" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

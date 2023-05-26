@@ -2,7 +2,19 @@
 #define DB_VALUE_H
 
 #include "string_holder.h"
-//#include "../chain_of_resp_and_command/handler.h"
+
+typedef enum fields {
+    _surname_,
+    _name_,
+    _patronymic_,
+    _birthday_,
+    _link_to_resume_,
+    _hr_id_,
+    _programming_language_,
+    _task_count_,
+    _solved_task_count_,
+    _copying_
+} db_value_fields;
 
 class handler;
 
@@ -35,7 +47,7 @@ private:
 
     uint64_t _timestamp;
 
-    handler * chain_of_resp;
+    handler * _chain_of_resp;
 
     friend class db_value_builder;
     friend class update_command;
@@ -43,6 +55,7 @@ private:
     friend class add_handler;
 
 public:
+    handler * get_first_handler();
     handler ** get_last_handler();
 
 public:
@@ -83,6 +96,7 @@ private:
 
         _timestamp = duration_cast<std::chrono::milliseconds>
                 (std::chrono::system_clock::now().time_since_epoch()).count();
+        _chain_of_resp = nullptr;
     }
 
 public:
