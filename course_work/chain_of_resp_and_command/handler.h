@@ -70,12 +70,12 @@ public:
     }
 
 public:
-    db_value* handle(db_value * request, uint64_t time_parameter)
+    db_value* handle(db_value ** request, uint64_t time_parameter)
     {
         if (this->timestamp <= time_parameter) {
             request = _command->execute(request);
         } else {
-            return request;
+            return (*request);
         }
         // do command
 
@@ -83,7 +83,7 @@ public:
             return this->_next_handler->handle(request, time_parameter);
         }
 
-        return request;
+        return (*request);
     }
 
 public:

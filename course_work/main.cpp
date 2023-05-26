@@ -61,9 +61,9 @@ int main()
     update(value, upd_dict);
 
 
-    db_value * version = find_value_version_time(value, (*(value->get_last_handler()))->get_timestamp() - 10);
-//    db_value * version = find_value_version_time(value, duration_cast<std::chrono::milliseconds>
-//            (std::chrono::system_clock::now().time_since_epoch()).count());
+//    db_value * version = find_value_version_time(value, (*(value->get_last_handler()))->get_timestamp() - 10);
+    db_value * version = find_value_version_time(value, duration_cast<std::chrono::milliseconds>
+            (std::chrono::system_clock::now().time_since_epoch()).count());
 
     if (version != nullptr ) {
         std::cout << (*version) << std::endl;

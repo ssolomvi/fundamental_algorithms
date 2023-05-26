@@ -21,13 +21,10 @@
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_key/key.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_key/key.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/db_value.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/db_value.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/db_value_builder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value_builder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/db_value_builder.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value_builder.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -90,7 +87,7 @@
       <workItem from="1684652115286" duration="19523000" />
       <workItem from="1684747083663" duration="13839000" />
       <workItem from="1684857769243" duration="50295000" />
-      <workItem from="1685059851627" duration="9998000" />
+      <workItem from="1685059851627" duration="14830000" />
     </task>
     <servers />
   </component>
@@ -130,6 +127,11 @@
           <url>file://$PROJECT_DIR$/main.cpp</url>
           <line>63</line>
           <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db_user_communication.cpp</url>
+          <line>355</line>
+          <option name="timeStamp" value="19" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

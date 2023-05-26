@@ -71,7 +71,12 @@ class key_comparer
 {
 public:
     int operator()(key x, key y) {
-        return (x._applicant_id - y._applicant_id + x._contest_id - y._contest_id);
+        int applicant_id_comparison = x._applicant_id - y._applicant_id;
+        if (applicant_id_comparison == 0) {
+            return x._contest_id - y._contest_id;
+        } else {
+            return applicant_id_comparison;
+        }
     }
 };
 

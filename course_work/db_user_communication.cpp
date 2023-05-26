@@ -353,7 +353,7 @@ db_value * find_value_version_time(db_value * value, uint64_t time_parameter)
         return value_copy;
     }
     // будут ли value_copy и result_handler указывать на одно и то же? по идее должны
-    db_value * result_handler = value->get_first_handler()->handle(value_copy, time_parameter);
+    value->get_first_handler()->handle(&value_copy, time_parameter);
 //    delete value_copy;
     return value_copy;
 }

@@ -9,17 +9,17 @@
 class command {
 public:
     virtual ~command() = default;
-    virtual db_value * execute(db_value *) = 0;
+    virtual db_value ** execute(db_value **) = 0;
 };
 
 class remove_command final : public command
 {
 public:
-    db_value * execute(db_value * initial_value_copy) override
+    db_value ** execute(db_value ** initial_value_copy) override
     {
         std::cout << "remove command" << std::endl;
-        initial_value_copy->~db_value();
-        initial_value_copy = nullptr;
+        (*initial_value_copy)->~db_value();
+        (*initial_value_copy) = nullptr;
         return initial_value_copy;
     }
 };
@@ -40,47 +40,47 @@ public:
         }
     }
 
-    db_value * execute(db_value * initial_value_copy) override
+    db_value ** execute(db_value ** initial_value_copy) override
     {
         std::cout << "update command" << std::endl;
 
         for (const auto & iter : _update_dictionary) {
             switch (iter.first) {
                 case db_value_fields::_surname_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_surname)));
-                    initial_value_copy->_surname = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_surname)));
+                    (*initial_value_copy)->_surname = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_name_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_name)));
-                    initial_value_copy->_name = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_name)));
+                    (*initial_value_copy)->_name = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_patronymic_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_patronymic)));
-                    initial_value_copy->_patronymic = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_patronymic)));
+                    (*initial_value_copy)->_patronymic = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_birthday_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_birthday)));
-                    initial_value_copy->_birthday = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_birthday)));
+                    (*initial_value_copy)->_birthday = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_link_to_resume_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_link_to_resume)));
-                    initial_value_copy->_link_to_resume = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_link_to_resume)));
+                    (*initial_value_copy)->_link_to_resume = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_hr_id_:
-                    initial_value_copy->_hr_id = (*(reinterpret_cast<int *>(iter.second)));
+                    (*initial_value_copy)->_hr_id = (*(reinterpret_cast<int *>(iter.second)));
                     break;
                 case db_value_fields::_programming_language_:
-                    string_holder::get_instance()->remove_string((*(initial_value_copy->_programming_language)));
-                    initial_value_copy->_programming_language = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
+                    string_holder::get_instance()->remove_string((*((*initial_value_copy)->_programming_language)));
+                    (*initial_value_copy)->_programming_language = string_holder::get_instance()->get_string((*(reinterpret_cast<std::string *>(iter.second))));
                     break;
                 case db_value_fields::_task_count_:
-                    initial_value_copy->_task_count = (*(reinterpret_cast<unsigned *>(iter.second)));
+                    (*initial_value_copy)->_task_count = (*(reinterpret_cast<unsigned *>(iter.second)));
                     break;
                 case db_value_fields::_solved_task_count_:
-                    initial_value_copy->_solved_task_count = (*(reinterpret_cast<unsigned *>(iter.second)));
+                    (*initial_value_copy)->_solved_task_count = (*(reinterpret_cast<unsigned *>(iter.second)));
                     break;
                 case db_value_fields::_copying_:
-                    initial_value_copy->_copying = (*(reinterpret_cast<bool *>(iter.second)));
+                    (*initial_value_copy)->_copying = (*(reinterpret_cast<bool *>(iter.second)));
                     break;
             }
         }
@@ -108,7 +108,7 @@ public:
         }
     }
 
-    db_value * execute(db_value * initial_value_copy) override
+    db_value ** execute(db_value ** initial_value_copy) override
     {
         std::cout << "add command" << std::endl;
 
@@ -149,7 +149,7 @@ public:
             }
         }
 
-        initial_value_copy = dbValueBuilder->build();
+        (*initial_value_copy) = dbValueBuilder->build();
         delete dbValueBuilder;
 
         return initial_value_copy;

@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <tuple>
-#include <utility>
 #include <vector>
 #include <cstring>
 #include <ctime>
@@ -28,7 +27,6 @@
 
 template<
         typename tkey,
-        typename tvalue,
         typename tkey_comparer>
 class data_base final :
         private memory_holder,
@@ -45,7 +43,7 @@ private:
     associative_container<std::string,
         associative_container<std::string,
             associative_container<std::string,
-                associative_container<tkey, tvalue> *
+                associative_container<tkey, db_value *> *
                                  > *
                              > *
                          > * _database;
@@ -77,20 +75,20 @@ public:
 
 #pragma region exceptions
 public:
-    class db_key_exception final : public std::exception {
-    private:
-        std::string _message;
-
-    public:
-        explicit db_key_exception(std::string message)
-                : _message(std::move(message)) {
-
-        }
-
-        [[nodiscard]] char const *what() const noexcept override {
-            return _message.c_str();
-        }
-    };
+//    class db_key_exception final : public std::exception {
+//    private:
+//        std::string _message;
+//
+//    public:
+//        explicit db_key_exception(std::string message)
+//                : _message(std::move(message)) {
+//
+//        }
+//
+//        [[nodiscard]] char const *what() const noexcept override {
+//            return _message.c_str();
+//        }
+//    };
 
     class db_value_exception final : public std::exception {
     private:
@@ -154,15 +152,15 @@ public:
 #pragma endregion
 
 #pragma region Find structure
-    associative_container<std::string, associative_container<std::string, associative_container<tkey, tvalue> *> *> **
+    associative_container<std::string, associative_container<std::string, associative_container<tkey, db_value *> *> *> *
     find_data_pull
     (std::string const & pull_name);
 
-    associative_container<std::string, associative_container<tkey, tvalue> *> **
+    associative_container<std::string, associative_container<tkey, db_value *> *> *
     find_data_scheme
     (std::string const & pull_name, std::string const & scheme_name);
 
-    associative_container<tkey, tvalue> **
+    associative_container<tkey, db_value *> *
     find_data_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
 #pragma endregion
@@ -172,32 +170,31 @@ public:
 public:
     void add_to_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     tkey key, tvalue* &&value);
+     tkey key, db_value * value);
 
 #pragma endregion
 
 #pragma region Updating a collection value
 public:
-    // todo: redo
     void update_in_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     tvalue &&value);
+     tkey key, std::map<db_value_fields, unsigned char *> upd_dict);
 #pragma endregion
 
 #pragma region Finding among collection
 public:
-    db_value const & find_among_collection
+    db_value * const find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey key);
 
-    std::vector<db_value> find_in_range
+    std::vector<db_value *> find_in_range
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey min_key, tkey max_key);
 #pragma endregion
 
 #pragma region Deletion from collection
 public:
-    db_value delete_from_collection
+    void delete_from_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey key);
 #pragma endregion
@@ -219,13 +216,6 @@ public:
 public:
     void delete_from_structure
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
-#pragma endregion
-
-#pragma region Changing the structure of data base
-public:
-    void change_the_structure
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     trees_types_ tree_type, allocator_types_ allocator_type);
 #pragma endregion
 #pragma endregion
 
