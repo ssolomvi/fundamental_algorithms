@@ -1,6 +1,6 @@
 #include "db/data_base.h"
 #include "db_user_communication.h"
-
+// todo: redo add and parse commands
 void help()
 {
     std::cout << "----- Course work help -----" << std::endl;
@@ -14,12 +14,9 @@ void help()
     std::cout << "Structural and customization commands list:" << std::endl;
     std::cout << "Supported trees: BST (binary tree), AVL, SPLAY, RB (red-black tree)" << std::endl;
     std::cout << "Supported allocators: global, sorted_list best||worst||first, descriptors best||worst||first, buddy_system" << std::endl;
-    std::cout << "\t- add <tree type> <pull_name>" << std::endl;
-    std::cout << "\t- add <tree type> <pull_name>/<scheme_name>" << std::endl;
-    std::cout << "\t- add <tree type> <pull_name>/<scheme_name>/<collection_name>" << std::endl;
-    std::cout << "\t- add <allocator type> <pull_name>" << std::endl;
-    std::cout << "\t- add <allocator type> <pull_name>/<scheme_name>" << std::endl;
-    std::cout << "\t- add <allocator type> <pull_name>/<scheme_name>/<collection_name>" << std::endl;
+    std::cout << "\t- add <tree type> <allocator type> <pull_name>" << std::endl;
+    std::cout << "\t- add <tree type> <allocator type> <pull_name>/<scheme_name>" << std::endl;
+    std::cout << "\t- add <tree type> <allocator type> <pull_name>/<scheme_name>/<collection_name>" << std::endl;
     std::cout << "\t- delete <pull_name>" << std::endl;
     std::cout << "\t- delete <pull_name>/<scheme_name>" << std::endl;
     std::cout << "\t- delete <pull_name>/<scheme_name>/<collection_name>" << std::endl;

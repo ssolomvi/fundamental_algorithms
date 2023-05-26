@@ -272,14 +272,183 @@ data_base<tkey, tkey_comparer>::delete_from_collection(const std::string &pull_n
 
 #pragma region Structure functions
 #pragma region Inserting in structure of data base
+
+template<typename tkey, typename tkey_comparer>
+memory *
+data_base<tkey, tkey_comparer>::get_new_allocator_for_inner_trees
+(data_base<tkey, tkey_comparer>::allocator_types_ allocator_type, size_t allocator_pool_size)
+{
+    memory * new_allocator = nullptr;
+    switch (allocator_type) {
+        case data_base::allocator_types_ ::global:
+            new_allocator = new memory_from_global_heap(this->get_logger());
+            break;
+        case data_base::allocator_types_ ::sorted_list_best:
+            new_allocator = new memory_with_sorted_list_deallocation(allocator_pool_size, memory::Allocation_strategy::best_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::sorted_list_worst:
+            new_allocator = new memory_with_sorted_list_deallocation(allocator_pool_size, memory::Allocation_strategy::worst_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::sorted_list_first:
+            new_allocator = new memory_with_sorted_list_deallocation(allocator_pool_size, memory::Allocation_strategy::first_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::descriptors_best:
+            new_allocator = new memory_with_boundary_tags(allocator_pool_size, memory::Allocation_strategy::best_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::descriptors_worst:
+            new_allocator = new memory_with_boundary_tags(allocator_pool_size, memory::Allocation_strategy::worst_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::descriptors_first:
+            new_allocator = new memory_with_boundary_tags(allocator_pool_size, memory::Allocation_strategy::first_fit, this->get_logger(), nullptr);
+            break;
+        case data_base::allocator_types_ ::buddy_system:
+            new_allocator = new memory_with_buddy_system(log2(allocator_pool_size), this->get_logger(), nullptr);
+            break;
+        default:
+            break;
+    }
+    return new_allocator;
+}
+
 template<typename tkey, typename tkey_comparer>
 void
 data_base<tkey, tkey_comparer>::add_to_structure(const std::string &pull_name, const std::string &scheme_name,
                                                  const std::string &collection_name,
-                                                 data_base::trees_types_ tree_type,
-                                                 data_base::allocator_types_ allocator_type)
+                                                 data_base<tkey, tkey_comparer>::trees_types_ tree_type,
+                                                 data_base<tkey, tkey_comparer>::allocator_types_ allocator_type,
+                                                 size_t allocator_pool_size)
 {
-    
+    if (pull_name.empty()) {
+        throw data_base<tkey, tkey_comparer>::db_insert_exception("add_to_structure:: one should pass pull name for correct work of method");
+    }
+
+    memory * new_allocator = get_new_allocator_for_inner_trees(allocator_type, allocator_pool_size);
+
+    // insert data pool in _database
+    if (scheme_name.empty()) {
+        associative_container<std::string,
+                associative_container<std::string,
+                    associative_container<tkey, db_value *> *> *> *data_pull = nullptr;
+
+        switch (tree_type) {
+            case data_base::trees_types_::BST:
+                data_pull = new bs_tree<std::string,
+                    associative_container<std::string,
+                        associative_container<tkey, db_value *> *> *, string_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::AVL:
+                data_pull = new avl_tree<std::string,
+                        associative_container<std::string,
+                                associative_container<tkey, db_value *> *> *, string_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::RB:
+                data_pull = new rb_tree<std::string,
+                        associative_container<std::string,
+                                associative_container<tkey, db_value *> *> *, string_comparer>(this->get_logger(), new_allocator);
+                break;
+            default:
+                data_pull = new splay_tree<std::string,
+                        associative_container<std::string,
+                                associative_container<tkey, db_value *> *> *, string_comparer>(this->get_logger(), new_allocator);
+                break;
+        }
+
+        try {
+            _database->insert(pull_name, std::move(data_pull));
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::insert_exception const &) {
+            delete data_pull; // ?? todo: check
+            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                    "add_to_structure:: insert failed due to non-unique pull name to insert");
+        }
+    }
+    // insert data scheme
+    else if (collection_name.empty()) {
+        // find a pool
+        associative_container<std::string,
+                associative_container<std::string,
+                        associative_container<tkey, db_value *> *> *> *data_pull = nullptr;
+        try {
+            data_pull = find_data_pull(pull_name);
+        }
+        catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_insert_exception("add_to_structure:: no such pull name in data_base");
+        }
+
+        associative_container<std::string,
+            associative_container<tkey, db_value *> *> * data_scheme = nullptr;
+
+        switch (tree_type) {
+            case data_base::trees_types_::BST:
+                data_scheme = new bs_tree<std::string,
+                                associative_container<tkey, db_value *> *,
+                                        string_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::AVL:
+                data_scheme = new avl_tree<std::string,
+                        associative_container<tkey, db_value *> *,
+                            string_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::RB:
+                data_scheme = new rb_tree<std::string,
+                        associative_container<tkey, db_value *> *,
+                            string_comparer>(this->get_logger(), new_allocator);
+                break;
+            default:
+                data_scheme = new splay_tree<std::string,
+                        associative_container<tkey, db_value *> *,
+                            string_comparer>(this->get_logger(), new_allocator);
+                break;
+        }
+
+        try {
+            data_pull->insert(scheme_name, std::move(data_scheme));
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::insert_exception const &) {
+            delete data_scheme; // ?? todo: check
+            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                    "add_to_structure:: insert failed due to non-unique scheme name to insert");
+        }
+    }
+    // insert collection
+    else {
+        // find a scheme
+        associative_container<std::string,
+                associative_container<tkey, db_value *> *> * data_scheme = nullptr;
+
+        try {
+            data_scheme = find_data_scheme(pull_name, scheme_name);
+        }
+        catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_insert_exception("add_to_structure:: no such pull/scheme name in data_base");
+        }
+
+        associative_container<tkey, db_value *> * data_collection = nullptr;
+
+        switch (tree_type) {
+            case data_base::trees_types_::BST:
+                data_collection = new bs_tree<tkey, db_value *, tkey_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::AVL:
+                data_collection = new avl_tree<tkey, db_value *, tkey_comparer>(this->get_logger(), new_allocator);
+                break;
+            case data_base::trees_types_::RB:
+                data_collection = new rb_tree<tkey, db_value *, tkey_comparer>(this->get_logger(), new_allocator);
+                break;
+            default:
+                data_collection = new splay_tree<tkey, db_value *, tkey_comparer>(this->get_logger(), new_allocator);
+                break;
+        }
+
+        try {
+            data_scheme->insert(collection_name, std::move(data_collection));
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::insert_exception const &) {
+            delete data_collection; // ?? todo: check
+            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                    "add_to_structure:: insert failed due to non-unique collection name to insert");
+        }
+    }
 }
 
 template<typename tkey, typename tkey_comparer>
@@ -287,7 +456,47 @@ void
 data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_name, const std::string &scheme_name,
                                                       const std::string &collection_name)
 {
+    if (pull_name.empty()) {
+        throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                "add_to_structure:: one should pass pull name for correct work of method");
+    }
 
+    // deleting pull
+    // make sure to delete all its schemes and in schemes all collections and in collection all values
+    if (scheme_name.empty()) {
+        try {
+            _database->remove(pull_name);
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_remove_exception(
+                    "delete_from_structure:: no pool with name " + pull_name + "in data base");
+        }
+    }
+    // deleting scheme
+    else if (collection_name.empty()) {
+        associative_container<std::string,
+                associative_container<std::string,
+                        associative_container<tkey, db_value *> *> *> *data_pull = nullptr;
+        try {
+            data_pull = find_data_pull(pull_name);
+        }
+        catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+                    "delete_from_structure:: no such pull name in data_base");
+        }
+
+        try {
+            data_pull->remove(scheme_name);
+        }
+        catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
+            throw data_base<tkey, tkey_comparer>::db_remove_exception(
+                    "delete_from_structure:: no pool with name " + pull_name + "in data base");
+        }
+    }
+    // deleting collection
+    else {
+
+    }
 }
 
 

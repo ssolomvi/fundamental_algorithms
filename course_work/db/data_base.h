@@ -49,6 +49,17 @@ private:
                          > * _database;
     logger * _logger;
     memory* _allocator;
+    // todo: free allocators in ~data_base
+    static std::map<memory *, std::tuple<std::string, std::string, std::string>> _all_trees_allocators;
+
+private:
+    class string_comparer
+    {
+    public:
+        int operator()(std::string const & x, std::string const & y) {
+            return x.compare(y);
+        }
+    };
 
 public:
     typedef enum trees_types {
@@ -204,10 +215,13 @@ public:
 #pragma region Inserting in structure of data base
     // adding a collection: no string is empty
     // adding a scheme: collection string is empty
+private:
+    memory * get_new_allocator_for_inner_trees(allocator_types_ allocator_type, size_t allocator_pool_size);
+
 public:
     void add_to_structure
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     trees_types_ tree_type, allocator_types_ allocator_type);
+     trees_types_ tree_type, allocator_types_ allocator_type, size_t allocator_pool_size);
 #pragma endregion
 
 #pragma region Deletion from structure of data base

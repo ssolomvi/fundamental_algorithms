@@ -16,16 +16,9 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_key/key.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_key/key.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,11 +58,6 @@
   }
 }</component>
   <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -87,7 +75,8 @@
       <workItem from="1684652115286" duration="19523000" />
       <workItem from="1684747083663" duration="13839000" />
       <workItem from="1684857769243" duration="50295000" />
-      <workItem from="1685059851627" duration="14830000" />
+      <workItem from="1685059851627" duration="14854000" />
+      <workItem from="1685087458812" duration="4249000" />
     </task>
     <servers />
   </component>
@@ -130,7 +119,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/db_user_communication.cpp</url>
-          <line>355</line>
+          <line>352</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
       </breakpoints>
