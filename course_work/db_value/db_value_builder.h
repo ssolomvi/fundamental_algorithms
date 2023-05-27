@@ -37,7 +37,7 @@ private:
     }
 
 public:
-    db_value *build_from_stream(std::stringstream *input_stream, bool is_cin);
+    db_value *build_from_stream(std::ifstream *input_stream, bool is_cin);
 
 };
 

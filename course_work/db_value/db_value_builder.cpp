@@ -62,7 +62,7 @@ db_value* db_value_builder::build() const {
                     _copying);
 }
 
-db_value* db_value_builder::build_from_stream(std::stringstream *input_stream, bool is_cin) {
+db_value* db_value_builder::build_from_stream(std::ifstream *input_stream, bool is_cin) {
     std::string token, delimiter = " ";
     size_t pos;
     unsigned delimiter_length = delimiter.length();
@@ -79,18 +79,18 @@ db_value* db_value_builder::build_from_stream(std::stringstream *input_stream, b
         this->with_surname(std::move(token.substr(0, pos)));
         token.erase(0, pos + delimiter_length);
     } else {
-        throw db_value::create_exception("Incorrect input while building a value");
+        throw db_value::create_exception("db_value_builder::build_from_stream:: incorrect input while building a value");
     }
 
     if ((pos = token.find(delimiter)) != std::string::npos) {
         this->with_name(std::move(token.substr(0, pos)));
         token.erase(0, pos + delimiter_length);
     } else {
-        throw db_value::create_exception("Incorrect input while building a value");
+        throw db_value::create_exception("db_value_builder::build_from_stream:: incorrect input while building a value");
     }
 
     if (token.empty()) {
-        throw db_value::create_exception("Incorrect input while building a value");
+        throw db_value::create_exception("db_value_builder::build_from_stream:: incorrect input while building a value");
     }
     this->with_patronymic(std::move(token));
 
@@ -161,7 +161,7 @@ db_value* db_value_builder::build_from_stream(std::stringstream *input_stream, b
     } else if (token == "false" || token == "0") {
         this->with_copying(false);
     } else {
-        throw db_value::create_exception("Incorrect input while building a value {bool must be true/false || 1/0}");
+        throw db_value::create_exception("db_value_builder::build_from_stream:: incorrect input while building a value {bool must be true/false || 1/0}");
     }
     return (this->build());
 }

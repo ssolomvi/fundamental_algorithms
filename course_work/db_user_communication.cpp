@@ -1,7 +1,6 @@
 #include "db/data_base.h"
 #include "db_user_communication.h"
 
-// todo: redo add and parse commands
 void help() {
     std::cout << "----- Course work help -----" << std::endl;
     std::cout << "Collection commands list:" << std::endl;
@@ -31,6 +30,7 @@ void help() {
     std::cout << "\t- exit" << std::endl;
 }
 
+#pragma region Parsing
 commands_ get_command(std::string const &user_input) {
     if (user_input == "add") {
         return commands_::_add_;
@@ -51,6 +51,78 @@ commands_ get_command(std::string const &user_input) {
     }
     return commands_::_not_a_command_;
 }
+
+// returns a command, non-command info
+std::pair<commands_, std::string>
+parse_user_input(std::string const &user_input) {
+    commands_ command = commands_::_not_a_command_;
+    std::string token, s = user_input;
+    size_t pos;
+
+    // finding a command
+    if ((pos = s.find(' ')) != std::string::npos) {
+        command = get_command(s.substr(0, pos));
+        s.erase(0, pos + 1);
+    } else {
+        s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
+        command = get_command(user_input);
+    }
+
+    // a path is what is left from s
+    return {command, s};
+}
+
+std::tuple<std::string, std::string, std::string>
+parse_path(std::string &input_string) {
+    input_string.erase(remove_if(input_string.begin(), input_string.end(), isspace), input_string.end());
+    if (input_string.empty()) {
+        throw parse_exception("parse_path:: incorrect path passed (is empty)");
+    }
+
+    std::string pull_name, scheme_name, collection_name;
+    std::string delimiter = "/";
+    unsigned delimiter_length = delimiter.size();
+    size_t pos;
+
+    if ((pos = input_string.find(delimiter)) != std::string::npos) {
+        pull_name = input_string.substr(0, pos);
+        input_string.erase(0, pos + delimiter_length);
+
+        if ((pos = input_string.find(delimiter)) != std::string::npos) {
+            scheme_name = input_string.substr(0, pos);
+            input_string.erase(0, pos + delimiter_length);
+
+            collection_name = input_string;
+        } else {
+            scheme_name = input_string;
+        }
+    } else {
+        pull_name = input_string;
+    }
+    return {pull_name, scheme_name, collection_name};
+}
+
+// returns pull/scheme/collection
+std::tuple<std::string, std::string, std::string>
+get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path) {
+    std::string path_inner;
+
+    if (is_cin) {
+        (is_path
+         ? std::cout << "Enter full path to collection: >>"
+         : std::cout << "Enter full path to filename: >>");
+    }
+
+    (is_cin
+     ? std::getline(std::cin, path_inner)
+     : std::getline((*input_stream), path_inner));
+
+    return parse_path(path_inner);
+}
+
+#pragma endregion
+
+#pragma region Add command
 
 data_base<key, key_comparer>::trees_types_ get_tree_type(std::string const &user_input) {
     if (user_input == "BST" || user_input == "bst") {
@@ -122,7 +194,7 @@ define_allocator_type
                 s.erase(0, pos + delimiter_length);
             }
             catch (std::invalid_argument const &) {
-                // todo: throw a message
+                throw parse_exception("define_allocator_type:: passed size of allocator must be of type size_t");
             }
         }
     }
@@ -130,133 +202,6 @@ define_allocator_type
     return {allocator_type, allocator_pool_size};
 }
 
-// returns a command, a tree type/allocator type, path to collection
-std::pair<
-        commands_,
-        std::string>
-parse_user_input(std::string const &user_input) {
-    commands_ command = commands_::_not_a_command_;
-    std::string token, s = user_input;
-    size_t pos;
-
-    // finding a command
-    if ((pos = s.find(' ')) != std::string::npos) {
-        command = get_command(s.substr(0, pos));
-        s.erase(0, pos + 1);
-    } else {
-        s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
-        command = get_command(user_input);
-    }
-
-    if (command == commands_::_not_a_command_) {
-        throw parse_exception("parse_user_input:: incorrect command entered");
-    }
-
-    // a path is what is left from s
-    return {command, s};
-}
-
-std::tuple<std::string, std::string, std::string>
-parse_path(std::string &input_string) {
-    input_string.erase(remove_if(input_string.begin(), input_string.end(), isspace), input_string.end());
-    if (input_string.empty()) {
-        throw parse_exception("parse_path:: incorrect path passed (is empty)");
-    }
-
-    std::string pull_name, scheme_name, collection_name;
-    std::string delimiter = "/";
-    unsigned delimiter_length = delimiter.size();
-    size_t pos;
-
-    if ((pos = input_string.find(delimiter)) != std::string::npos) {
-        pull_name = input_string.substr(0, pos);
-        input_string.erase(0, pos + delimiter_length);
-
-        if ((pos = input_string.find(delimiter)) != std::string::npos) {
-            scheme_name = input_string.substr(0, pos);
-            input_string.erase(0, pos + delimiter_length);
-
-            collection_name = input_string;
-        } else {
-            scheme_name = input_string;
-        }
-    } else {
-        pull_name = input_string;
-    }
-    return {pull_name, scheme_name, collection_name};
-}
-
-// returns pull/scheme/collection
-std::tuple<std::string, std::string, std::string>
-get_path_from_user_input(std::stringstream *input_stream, bool is_cin, bool is_path) {
-    std::string path_inner;
-
-    if (is_cin) {
-        (is_path
-         ? std::cout << "Enter full path to collection: >>"
-         : std::cout << "Enter full path to filename: >>");
-    }
-
-    (is_cin
-     ? std::getline(std::cin, path_inner)
-     : std::getline((*input_stream), path_inner));
-
-    return parse_path(path_inner);
-}
-
-void delete_db(data_base<key, key_comparer> *db) {
-    db->~data_base();
-}
-
-/*
-void add(db_value *value_to_add_to, db_value *new_value) {
-    handler *add_handle = new add_handler(new_value);
-    handler **last_handler = value_to_add_to->get_last_handler();
-    if ((*last_handler) == nullptr) {
-        // there are no commands added
-        throw handler::order_exception("Add handler cannot be the first one in chain of responsibility");
-//        (*last_handler) = add_handle;
-    } else {
-        if ((*last_handler)->get_handler_type() == handler::handler_types::_remove_handler_) {
-            (*last_handler)->set_next(add_handle);
-        } else {
-            throw handler::order_exception("Add handler can be only after remove_handler in chain of responsibility");
-        }
-    }
-}*/
-
-// dict will be got in some parse function
-/*
-void update(db_value *value_to_update_to, std::map<db_value_fields, unsigned char *> dict) {
-    handler *update_handle = new update_handler(std::move(dict));
-    handler **last_handler = value_to_update_to->get_last_handler();
-    if ((*last_handler) == nullptr) {
-        (*last_handler) = update_handle;
-    } else {
-        if ((*last_handler)->get_handler_type() != handler::handler_types::_remove_handler_) {
-            ((*last_handler)->set_next(update_handle));
-        } else {
-            throw handler::order_exception("Update handler cannot be after remove_handler in chain of responsibility");
-        }
-    }
-}
- */
-
-/*
-void remove(db_value *value_to_delete) {
-    handler *delete_handle = new remove_handler();
-    handler **last_handler = value_to_delete->get_last_handler();
-    if ((*last_handler) == nullptr) {
-        (*last_handler) = delete_handle;
-    } else {
-        if ((*last_handler)) {
-            ((*last_handler)->set_next(delete_handle));
-        }
-    }
-}
- */
-
-#pragma region Add command
 std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t>
 parse_for_add_command(std::string &input_str_leftover) {
     data_base<key, key_comparer>::trees_types_ tree_type = data_base<key, key_comparer>::trees_types_::not_a_tree;
@@ -298,7 +243,8 @@ parse_for_add_command(std::string &input_str_leftover) {
 
 void
 do_add_command
-(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::stringstream * input_stream, bool is_cin) {
+        (data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream,
+         bool is_cin) {
     std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t> parse_result
             = parse_for_add_command(input_str_leftover);
 
@@ -318,19 +264,21 @@ do_add_command
 
         auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
 
-        db->add_to_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
-                tmp_key, tmp_value);
+        db->add_to_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                              std::get<2>(path_parse_result),
+                              tmp_key, tmp_value);
     } else {
         // adding to structure
         db->add_to_structure(std::get<0>(struct_parse_path_result),
-                std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
-                tree_type, allocator_type, allocator_pool_size);
+                             std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
+                             tree_type, allocator_type, allocator_pool_size);
     }
 }
 
 #pragma endregion
 
 #pragma region Find command
+
 short get_part_of_data_from_input_str(std::string &str, std::string &delimiter, unsigned delimiter_length) {
     short to_return = 0;
     size_t pos;
@@ -343,7 +291,8 @@ short get_part_of_data_from_input_str(std::string &str, std::string &delimiter, 
         }
         str.erase(0, pos + delimiter_length);
     } else {
-        throw parse_exception("get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
+        throw parse_exception(
+                "get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
     }
     return to_return;
 }
@@ -361,15 +310,8 @@ uint64_t convert_time_str_to_ms(time_str data) {
     return milli;
 }
 
-uint64_t parse_time_from_input_str(std::string & input_stream) {
+uint64_t parse_time_from_input_str(std::string &input_stream) {
     time_str to_return{};
-    /*
-    if (is_cin) {
-        std::cout << "Print timestamp in format {DD/MM/YY hh/mm/ss} <<";
-        std::getline(std::cin, token);
-    } else {
-        std::getline((*input_stream), token);
-    }*/
 
     std::string lexeme_delimiter = " ", part_delimiter = "/";
     std::string day_month_year, hour_min_sec;
@@ -397,10 +339,10 @@ uint64_t parse_time_from_input_str(std::string & input_stream) {
 
 std::tuple<db_value *, std::vector<db_value *>, db_value *>
 do_find_command
-(data_base<key, key_comparer> * db, std::string &input_str_leftover, std::stringstream * input_stream, bool is_cin)
-{
+        (data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream,
+         bool is_cin) {
     std::vector<db_value *> to_return_vector;
-    db_value * found_with_time = nullptr, * simply_found = nullptr;
+    db_value *found_with_time = nullptr, *simply_found = nullptr;
 
     std::string token, delimiter = " ";
     unsigned delimiter_length = delimiter.length();
@@ -414,8 +356,9 @@ do_find_command
 
         auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
 
-        found_with_time = db->find_with_time(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
-                tmp_key, time_stamp);
+        found_with_time = db->find_with_time(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                             std::get<2>(path_parse_result),
+                                             tmp_key, time_stamp);
     } else if (input_str_leftover == "dataset") {
         // find in range
         key min(input_stream, is_cin);
@@ -423,13 +366,16 @@ do_find_command
 
         auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
 
-        to_return_vector = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
-                min, max);
+        to_return_vector = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                             std::get<2>(path_parse_result),
+                                             min, max);
     } else {
         key tmp_key(input_stream, is_cin);
-        std::tuple<std::string, std::string, std::string> path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
+        std::tuple<std::string, std::string, std::string> path_parse_result = get_path_from_user_input(input_stream,
+                                                                                                       is_cin, true);
 
-        simply_found = db->find_among_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
+        simply_found = db->find_among_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                                 std::get<2>(path_parse_result),
                                                  tmp_key);
     }
 
@@ -439,9 +385,9 @@ do_find_command
 #pragma endregion
 
 #pragma region Update command
+
 std::pair<key, std::map<db_value_fields, unsigned char *>>
-get_update_key_and_dictionary(std::stringstream *input_stream, bool is_cin)
-{
+get_update_key_and_dictionary(std::ifstream *input_stream, bool is_cin) {
     key to_return_key(input_stream, is_cin);
     std::map<db_value_fields, unsigned char *> to_return_dict;
 
@@ -476,7 +422,8 @@ get_update_key_and_dictionary(std::stringstream *input_stream, bool is_cin)
             field_name = token.substr(0, pos);
             token.erase(0, pos + delimiter_length);
         } else {
-            throw parse_exception("get_update_key_and_dictionary:: incorrect input. Must be <field_name>:<new_field_value>");
+            throw parse_exception(
+                    "get_update_key_and_dictionary:: incorrect input. Must be <field_name>:<new_field_value>");
         }
 
         if (field_name == "surname") {
@@ -534,28 +481,34 @@ get_update_key_and_dictionary(std::stringstream *input_stream, bool is_cin)
             } else if (token == "false" || token == "0") {
                 to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new bool(false));
             } else {
-                throw parse_exception("get_update_key_and_dictionary:: incorrect copying value. It must be true/false or 1/0");
+                throw parse_exception(
+                        "get_update_key_and_dictionary:: incorrect copying value. It must be true/false or 1/0");
             }
         }
     }
     return {to_return_key, to_return_dict};
 }
 
-void do_update_command(data_base<key, key_comparer> * db, std::stringstream *input_stream, bool is_cin)
-{
-    std::pair<key, std::map<db_value_fields, unsigned char *>> key_and_dict = get_update_key_and_dictionary(input_stream, is_cin);
+void do_update_command(data_base<key, key_comparer> *db, std::ifstream *input_stream, bool is_cin) {
+    std::pair<key, std::map<db_value_fields, unsigned char *>> key_and_dict = get_update_key_and_dictionary(
+            input_stream, is_cin);
 
     auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
-    db->update_in_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
+    db->update_in_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                             std::get<2>(path_parse_result),
                              key_and_dict.first, key_and_dict.second);
 }
 
 #pragma endregion
 
 #pragma region Delete command
-// todo: do_delete_command
-void do_delete_command(data_base<key, key_comparer> * db, std::string & path_inner, std::stringstream *input_stream, bool is_cin)
-{
+
+void delete_db(data_base<key, key_comparer> *db) {
+    db->~data_base();
+}
+
+void do_delete_command(data_base<key, key_comparer> *db, std::string &path_inner, std::ifstream *input_stream,
+                       bool is_cin) {
     path_inner.erase(remove_if(path_inner.begin(), path_inner.end(), isspace), path_inner.end());
 
     // a key from a collection (return a value)
@@ -563,23 +516,26 @@ void do_delete_command(data_base<key, key_comparer> * db, std::string & path_inn
         key tmp_key(input_stream, is_cin);
         auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
 
-        db->delete_from_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result),
+        db->delete_from_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                   std::get<2>(path_parse_result),
                                    tmp_key);
     }
-    // delete the whole database
+        // delete the whole database
     else if (path_inner == "DB") {
         delete_db(db);
         std::cout << "Database was deleted successfully!" << std::endl;
     }
-    // delete pull/scheme/collection
+        // delete pull/scheme/collection
     else {
         auto path_parse_result = parse_path(const_cast<std::string &>(path_inner));
 
-        db->delete_from_structure(std::get<0>(path_parse_result), std::get<1>(path_parse_result), std::get<2>(path_parse_result));
+        db->delete_from_structure(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                  std::get<2>(path_parse_result));
 
         std::cout << "Removed " << path_inner << " successfully!" << std::endl;
     }
 }
+
 #pragma endregion
 /*
 // todo: do_save_command

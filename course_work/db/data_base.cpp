@@ -158,7 +158,7 @@ data_base<tkey, tkey_comparer>::add_to_collection(const std::string &pull_name,
         handler **last_handler = found_value->get_last_handler();
         if ((*last_handler) == nullptr) {
             // there are no commands added
-            throw handler::order_exception("Add handler cannot be the first one in chain of responsibility");
+            throw handler::order_exception("add_to_collection:: add handler cannot be the first one in chain of responsibility");
         } else {
             // add command may be only after remove command
             if ((*last_handler)->get_handler_type() == handler::handler_types::_remove_handler_) {
@@ -260,7 +260,36 @@ data_base<tkey, tkey_comparer>::find_in_range(const std::string &pull_name, cons
 {
     associative_container<tkey, db_value *> *data_collection
             = find_data_collection(pull_name, scheme_name, collection_name);
-//    return std::vector<db_value *>();
+
+    tkey_comparer comparer;
+    if (comparer(min_key, max_key) > 0) {
+        tkey tmp = min_key;
+        min_key = max_key;
+        max_key = tmp;
+    }
+
+    std::vector<db_value *> to_return_vector;
+
+    // todo: done only for bst-like trees. B and B+ trees require another iterators
+    auto * bst = reinterpret_cast<bs_tree<tkey, db_value *, tkey_comparer> *>(data_collection);
+    auto end_iteration = bst->end_infix();
+    bool in_range = false;
+    for (auto it = bst->begin_infix(); it != end_iteration; ++it) {
+        if (in_range) {
+            if (comparer(max_key, std::get) >= 0) {
+                to_return_vector.push_back(std::get<2>(*it));
+            }
+        }
+
+        if (!in_range) {
+            if (comparer(min_key, std::get<1>(*it)) <= 0) {
+                in_range = true;
+                to_return_vector.push_back(std::get<2>(*it));
+            }
+        }
+    }
+
+    return to_return_vector;
 }
 
 #pragma endregion
@@ -490,7 +519,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
                                                       const std::string &collection_name)
 {
     if (pull_name.empty()) {
-        throw data_base<tkey, tkey_comparer>::db_insert_exception(
+        throw data_base<tkey, tkey_comparer>::db_remove_exception(
                 "delete_from_structure:: one should pass pull name for correct work of method");
     }
 
@@ -514,7 +543,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
             data_pull = find_data_pull(pull_name);
         }
         catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
-            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+            throw data_base<tkey, tkey_comparer>::db_remove_exception(
                     "delete_from_structure:: no such pull name in data_base");
         }
 
@@ -536,7 +565,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
             data_scheme = find_data_scheme(pull_name, scheme_name);
         }
         catch (data_base<tkey, tkey_comparer>::db_find_exception const &) {
-            throw data_base<tkey, tkey_comparer>::db_insert_exception(
+            throw data_base<tkey, tkey_comparer>::db_remove_exception(
                     "add_to_structure:: no such pull/scheme name in data_base");
         }
 

@@ -86,36 +86,6 @@ public:
 
 #pragma region exceptions
 public:
-//    class db_key_exception final : public std::exception {
-//    private:
-//        std::string _message;
-//
-//    public:
-//        explicit db_key_exception(std::string message)
-//                : _message(std::move(message)) {
-//
-//        }
-//
-//        [[nodiscard]] char const *what() const noexcept override {
-//            return _message.c_str();
-//        }
-//    };
-
-    class db_value_exception final : public std::exception {
-    private:
-        std::string _message;
-
-    public:
-        explicit db_value_exception(std::string message)
-                : _message(std::move(message)) {
-
-        }
-
-        [[nodiscard]] char const *what() const noexcept override {
-            return _message.c_str();
-        }
-    };
-
     class db_insert_exception final : public std::exception {
     private:
         std::string _message;

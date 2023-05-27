@@ -29,21 +29,7 @@ void help();
 // <key, value>
 // + path to collection
 
-std::pair<key, std::map<db_value_fields, unsigned char *>> get_update_key_and_dictionary(std::stringstream* input_stream, bool is_cin);
-void update(db_value * value_to_update_to, std::map<db_value_fields, unsigned char *> dict);
-void add(db_value * value_to_add_to, db_value * new_value);
-void remove(db_value * value_to_delete);
-db_value * find_value_version_time(db_value * value, uint64_t time_parameter);
-
-typedef struct time_str
-{
-    short YY, MM, DD;
-    short hh, mm, ss;
-} struct_time;
-
-uint64_t parse_time_from_stream(std::stringstream * input_stream, bool is_cin);
-uint64_t convert_time_str_to_ms(time_str data);
-
+#pragma region Parsing
 typedef enum commands {
     _add_,
     _find_,
@@ -55,12 +41,6 @@ typedef enum commands {
     _exit_,
     _not_a_command_
 } commands_;
-
-commands_ get_command(std::string const & user_input);
-
-data_base<key, key_comparer>::trees_types_ get_tree_type(std::string const & user_input);
-
-data_base<key, key_comparer>::allocator_types_ get_allocator_type(std::string const & user_input);
 
 class parse_exception final : public std::exception {
 private:
@@ -77,32 +57,53 @@ public:
     }
 };
 
-// returns a command, a tree type / allocator type, path
-std::pair<
-        commands_,
-        std::string>
-parse_user_input(std::string const & user_input);
+commands_
+get_command(std::string const &user_input);
 
-std::tuple<std::string, std::string, std::string> parse_path(std::string & input_string);
+std::pair<commands_, std::string>
+parse_user_input(std::string const &user_input);
 
-std::tuple<std::string, std::string, std::string> get_path_from_user_input();
+std::tuple<std::string, std::string, std::string>
+parse_path(std::string &input_string);
 
-void do_add_command(data_base<key, key_comparer>::trees_types_ tree_type,
-                    data_base<key, key_comparer>::allocator_types_ allocator_type,
-                    size_t allocator_size,
-                    std::string const & path_inner,
-                    data_base<key, key_comparer>* db);
+std::tuple<std::string, std::string, std::string>
+get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path);
 
-db_value & do_find_command(data_base<key, key_comparer> * db);
+#pragma endregion
 
-void do_update_command(data_base<key, key_comparer> * db);
+#pragma region Add command
 
-void delete_db(data_base<key, key_comparer> * db);
+void
+do_add_command(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
 
-void do_delete_command(std::string const & path_inner, data_base<key, key_comparer> * db);
+#pragma endregion
 
-void do_save_command(std::string const & path_inner, data_base<key, key_comparer> * db);
+#pragma region Find command
 
-void do_upload_command(std::string const & path_inner, data_base<key, key_comparer> * db);
+typedef struct time_str
+{
+    short YY, MM, DD;
+    short hh, mm, ss;
+} struct_time;
+
+std::tuple<db_value *, std::vector<db_value *>, db_value *>
+do_find_command
+(data_base<key, key_comparer> * db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
+
+#pragma endregion
+
+#pragma region Update command
+
+void do_update_command(data_base<key, key_comparer> * db, std::ifstream *input_stream, bool is_cin);
+
+#pragma endregion
+
+#pragma region Delete command
+
+void delete_db(data_base<key, key_comparer> *db);
+
+void do_delete_command(data_base<key, key_comparer> * db, std::string & path_inner, std::ifstream *input_stream, bool is_cin);
+
+#pragma endregion
 
 #endif //DB_USER_COMMUNICATION_H

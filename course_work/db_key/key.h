@@ -28,7 +28,7 @@ public:
     };
 
 public:
-    key(std::stringstream* input_stream, bool is_cin)
+    key(std::ifstream* input_stream, bool is_cin)
     {
         std::string token, delimiter = ", ";
         std::string applicant_id, contest_id;
@@ -46,11 +46,11 @@ public:
             applicant_id = token.substr(0, pos);
             token.erase(0, pos + delimiter_length);
         } else {
-            throw key::create_exception("Incorrect input for key");
+            throw key::create_exception("key constructor: incorrect input for key");
         }
 
         if (token.empty()) {
-            throw key::create_exception("Incorrect input for key");
+            throw key::create_exception("key constructor: incorrect input for key");
         }
 
         contest_id = token;
