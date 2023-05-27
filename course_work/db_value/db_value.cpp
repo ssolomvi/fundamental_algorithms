@@ -5,16 +5,21 @@ handler * db_value::get_first_handler()
     return this->_chain_of_resp;
 }
 
-handler ** db_value::get_last_handler()
+handler * db_value::get_last_handler()
+{
+    return _last_handler;
+}
+
+void db_value::add_new_handler(handler * handler_)
 {
     if (_chain_of_resp == nullptr) {
-        return &_chain_of_resp;
+        _chain_of_resp = handler_;
     }
-    handler ** returned_by_handler_inner = _chain_of_resp->find_last_handler(_chain_of_resp);
 
-    return (returned_by_handler_inner == nullptr
-    ? &_chain_of_resp
-    : returned_by_handler_inner);
+    if (_last_handler != nullptr) {
+        _last_handler->set_next(handler_);
+    }
+    _last_handler = handler_;
 }
 
 db_value::~db_value()

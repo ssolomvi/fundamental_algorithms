@@ -1,82 +1,4 @@
 #include "data_base.h"
-/*
-template<typename key_comparator>
-associative_container<std::string,
-    associative_container<std::string,
-        associative_container<key, db_value> *
-        > *
-    > **
-data_base<key_comparator>::find_data_pull
-(const std::string &pull_name)
-{
-    return nullptr;
-}
-
-template<typename key_comparator>
-associative_container<std::string,
-    associative_container<typename data_base<key_comparator>::key, db_value> *
-            > **
-data_base<key_comparator>::find_data_scheme
-(const std::string &pull_name, const std::string &scheme_name)
-{
-    return nullptr;
-}
-
-template<typename key_comparator>
-associative_container<typename data_base<key_comparator>::key, db_value> **
-data_base<key_comparator>::find_data_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name)
-{
-    return nullptr;
-}
-
-template<typename key_comparator>
-void
-data_base<key_comparator>::add_to_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key, db_value &&value)
-{
-
-}
-
-template<typename key_comparator>
-void
-data_base<key_comparator>::update_in_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key, data_base::key_struct new_key, db_value &&value)
-{
-
-}
-
-template<typename key_comparator>
-db_value const &
-data_base<key_comparator>::find_among_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key)
-{
-//    return <#initializer#>;
-}
-
-template<typename key_comparator>
-std::vector<db_value>
-data_base<key_comparator>::find_in_range
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct min_key, data_base::key_struct max_key)
-{
-    return std::vector<db_value>();
-}
-
-template<typename key_comparator>
-db_value
-data_base<key_comparator>::delete_from_collection
-(const std::string &pull_name, const std::string &scheme_name, const std::string &collection_name,
- data_base::key_struct key)
-{
-//    return db_value(__cxx11::basic_string(), __cxx11::basic_string(), __cxx11::basic_string(), __cxx11::basic_string(),
-//                    __cxx11::basic_string(), 0, __cxx11::basic_string(), 0, 0, false);
-}
-
-*/
 
 #pragma region Find structure
 
@@ -155,14 +77,14 @@ data_base<tkey, tkey_comparer>::add_to_collection(const std::string &pull_name,
     try {
         found_value = data_collection->get(key);
         handler *add_handle = new add_handler(value);
-        handler **last_handler = found_value->get_last_handler();
-        if ((*last_handler) == nullptr) {
+        handler *last_handler = found_value->get_last_handler();
+        if (last_handler == nullptr) {
             // there are no commands added
             throw handler::order_exception("add_to_collection:: add handler cannot be the first one in chain of responsibility");
         } else {
             // add command may be only after remove command
-            if ((*last_handler)->get_handler_type() == handler::handler_types::_remove_handler_) {
-                (*last_handler)->set_next(add_handle);
+            if (last_handler->get_handler_type() == handler::handler_types::_remove_handler_) {
+                found_value->add_new_handler(add_handle);
             } else {
                 throw handler::order_exception("Add handler can be only after remove_handler in chain of responsibility");
             }
@@ -189,12 +111,12 @@ data_base<tkey, tkey_comparer>::update_in_collection(const std::string &pull_nam
     try {
         found_value = data_collection->get(key);
         handler * update_handle = new update_handler(std::move(upd_dict));
-        handler ** last_handler = found_value->get_last_handler();
-        if ((*last_handler) == nullptr) {
-            (*last_handler) = update_handle;
+        handler * last_handler = found_value->get_last_handler();
+        if (last_handler == nullptr) {
+            found_value->add_new_handler(update_handle);
         } else {
-            if ((*last_handler)->get_handler_type() != handler::handler_types::_remove_handler_) {
-                ((*last_handler)->set_next(update_handle));
+            if (last_handler->get_handler_type() != handler::handler_types::_remove_handler_) {
+                found_value->add_new_handler(update_handle);
             } else {
                 throw handler::order_exception("update_in_collection:: update handler cannot be after remove_handler in chain of responsibility");
             }
@@ -209,7 +131,7 @@ data_base<tkey, tkey_comparer>::update_in_collection(const std::string &pull_nam
 
 #pragma region Finding among collection
 template<typename tkey, typename tkey_comparer>
-db_value * const
+db_value *
 data_base<tkey, tkey_comparer>::find_among_collection(const std::string &pull_name, const std::string &scheme_name,
                                                       const std::string &collection_name, tkey key)
 {
@@ -274,6 +196,7 @@ data_base<tkey, tkey_comparer>::find_in_range(const std::string &pull_name, cons
     auto * bst = reinterpret_cast<bs_tree<tkey, db_value *, tkey_comparer> *>(data_collection);
     auto end_iteration = bst->end_infix();
     bool in_range = false;
+
     for (auto it = bst->begin_infix(); it != end_iteration; ++it) {
         if (in_range) {
             if (comparer(max_key, std::get) >= 0) {
@@ -305,14 +228,15 @@ data_base<tkey, tkey_comparer>::delete_from_collection(const std::string &pull_n
 
     db_value * found_value;
     try {
-        found_value = data_collection->get(key);
         handler * delete_handle = new remove_handler();
-        handler ** last_handler = found_value->get_last_handler();
-        if ((*last_handler) == nullptr) {
-            (*last_handler) = delete_handle;
+        handler * last_handler = found_value->get_last_handler();
+        if (last_handler == nullptr) {
+            found_value->add_new_handler(delete_handle);
         } else {
-            if ((*last_handler)) {
-                ((*last_handler)->set_next(delete_handle));
+            if (last_handler->get_handler_type() != handler::handler_types::_remove_handler_) {
+                found_value->add_new_handler(delete_handle);
+            } else {
+                throw handler::order_exception("update_in_collection:: delete handler cannot be after delete handler in chain of responsibility");
             }
         }
     }

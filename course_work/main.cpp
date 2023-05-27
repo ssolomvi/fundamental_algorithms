@@ -24,19 +24,139 @@ void db_test(data_base<key, key_comparer> * db, std::ifstream *input_stream, boo
             case commands_::_add_:
                 try {
                     do_add_command(db, leftover, input_stream, is_cin);
+                    if (is_cin) {
+                        std::cout << "Added successfully!" << std::endl;
+                    }
                 }
-                catch (declaration) {
-
+                catch (parse_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
+                }
+                catch (db_value::create_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
+                }
+                catch (key::create_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
+                }
+                catch (handler::order_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_insert_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_find_exception const & except) {
+                    if (is_cin) {
+                        std::cout << except.what() << std::endl;
+                    }
                 }
                 break;
             case commands_::_find_:
-                do_find_command(db, leftover, input_stream, is_cin);
+                try {
+                    std::tuple<db_value *, std::vector<db_value *>, db_value *> found
+                        = do_find_command(db, leftover, input_stream, is_cin);
+
+                    db_value * found_with_time = std::get<0>(found);
+                    std::vector<db_value *> db_value_vector_in_range = std::get<1>(found);
+                    db_value * simpy_found = std::get<2>(found);
+
+                    if (found_with_time != nullptr) {
+                        if (is_cin) {
+                            std::cout << (*found_with_time) << std::endl;
+                        }
+                    }
+                    else if (!(db_value_vector_in_range.empty())) {
+                        if (is_cin) {
+                            unsigned i, size_of_vector = db_value_vector_in_range.size();
+                            for (i = 0; i < size_of_vector; i++) {
+                                std::cout << "----- " << i << " value " << "-----" << std::endl;
+                                std::cout << (*(db_value_vector_in_range[i])) << std::endl;
+                            }
+                        }
+                    }
+                    else {
+                        if (is_cin) {
+                            std::cout << (*simpy_found) << std::endl;
+                        }
+                    }
+                }
+                catch (parse_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (key::create_exception const & exception)
+                {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_find_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
                 break;
             case commands_::_update_:
-                do_update_command(db, input_stream, is_cin);
+                try {
+                    do_update_command(db, input_stream, is_cin);
+                    if (is_cin) {
+                        std::cout << "Updated successfully!" << std::endl;
+                    }
+                }
+                catch (key::create_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (parse_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (handler::order_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_find_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
                 break;
             case commands_::_delete_:
-                do_delete_command(db, leftover, input_stream, is_cin);
+                try {
+                    do_delete_command(db, leftover, input_stream, is_cin);
+                }
+                catch (parse_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_find_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (handler::order_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
+                catch (data_base<key, key_comparer>::db_remove_exception const & exception) {
+                    if (is_cin) {
+                        std::cout << exception.what() << std::endl;
+                    }
+                }
                 break;
 //            case commands_::_save_:
 //                do_save_command(path_inner, &db);
@@ -85,18 +205,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
-/*
-    if (argc != 2) {
-        // команды будут поступать не из файла, а с консоли,
-        std::cout << "You choose:\n>>";
-    } else {
-        // прочитать файл
-    }
-
-//    return 0;
-}
-int main(int argc, char** argv)
-{
-    db_test();
-}*/

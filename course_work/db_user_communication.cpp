@@ -243,8 +243,8 @@ parse_for_add_command(std::string &input_str_leftover) {
 
 void
 do_add_command
-        (data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream,
-         bool is_cin) {
+(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
+{
     std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t> parse_result
             = parse_for_add_command(input_str_leftover);
 
@@ -267,11 +267,15 @@ do_add_command
         db->add_to_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                               std::get<2>(path_parse_result),
                               tmp_key, tmp_value);
+        if (is_cin) {
+            std::cout << "Added a value to collection " << std::get<2>(path_parse_result) << " successfully!" << std::endl;
+        }
     } else {
         // adding to structure
         db->add_to_structure(std::get<0>(struct_parse_path_result),
                              std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
                              tree_type, allocator_type, allocator_pool_size);
+        std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
     }
 }
 
@@ -339,16 +343,16 @@ uint64_t parse_time_from_input_str(std::string &input_stream) {
 
 std::tuple<db_value *, std::vector<db_value *>, db_value *>
 do_find_command
-        (data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream,
-         bool is_cin) {
+(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
+{
     std::vector<db_value *> to_return_vector;
     db_value *found_with_time = nullptr, *simply_found = nullptr;
 
     std::string token, delimiter = " ";
-    unsigned delimiter_length = delimiter.length();
-    size_t pos;
+//    unsigned delimiter_length = delimiter.length();
+//    size_t pos;
 
-    if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
+    if (input_str_leftover.find(delimiter) != std::string::npos) {
         // with time
         uint64_t time_stamp = parse_time_from_input_str(input_str_leftover);
 
@@ -361,6 +365,9 @@ do_find_command
                                              tmp_key, time_stamp);
     } else if (input_str_leftover == "dataset") {
         // find in range
+        if (is_cin) {
+            std::cout << "Enter min and max keys" << std::endl;
+        }
         key min(input_stream, is_cin);
         key max(input_stream, is_cin);
 
@@ -497,6 +504,9 @@ void do_update_command(data_base<key, key_comparer> *db, std::ifstream *input_st
     db->update_in_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                              std::get<2>(path_parse_result),
                              key_and_dict.first, key_and_dict.second);
+    if (is_cin) {
+        std::cout << "Updated a value in collection " << std::get<2>(path_parse_result) << " successfully!" << std::endl;
+    }
 }
 
 #pragma endregion
@@ -519,11 +529,16 @@ void do_delete_command(data_base<key, key_comparer> *db, std::string &path_inner
         db->delete_from_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                    std::get<2>(path_parse_result),
                                    tmp_key);
+        if (is_cin) {
+            std::cout << "Deleted value from collection " << std::get<2>(path_parse_result) << " successfully!" << std::endl;
+        }
     }
         // delete the whole database
     else if (path_inner == "DB") {
         delete_db(db);
-        std::cout << "Database was deleted successfully!" << std::endl;
+        if (is_cin) {
+            std::cout << "Database was deleted successfully!" << std::endl;
+        }
     }
         // delete pull/scheme/collection
     else {

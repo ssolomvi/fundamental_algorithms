@@ -165,7 +165,7 @@ public:
 
 #pragma region Finding among collection
 public:
-    db_value * const find_among_collection
+    db_value * find_among_collection
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
      tkey key);
 

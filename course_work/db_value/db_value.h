@@ -48,6 +48,7 @@ private:
     uint64_t _timestamp;
 
     handler * _chain_of_resp;
+    handler * _last_handler;
 
     friend class db_value_builder;
     friend class update_command;
@@ -56,7 +57,8 @@ private:
 
 public:
     handler * get_first_handler();
-    handler ** get_last_handler();
+    handler * get_last_handler();
+    void add_new_handler(handler * handler_);
 
 public:
     friend std::ostream &operator<<(std::ostream &out, const db_value &value);
@@ -68,6 +70,8 @@ public:
                                        (*(this->_programming_language)), this->_task_count, this->_solved_task_count,
                                        this->_copying);
         copy->_timestamp = this->_timestamp;
+        copy->_chain_of_resp = nullptr;
+        copy->_last_handler = nullptr;
         return copy;
     }
 
@@ -97,6 +101,7 @@ private:
         _timestamp = duration_cast<std::chrono::milliseconds>
                 (std::chrono::system_clock::now().time_since_epoch()).count();
         _chain_of_resp = nullptr;
+        _last_handler = nullptr;
     }
 
 public:
