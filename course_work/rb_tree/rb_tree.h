@@ -67,11 +67,11 @@ protected:
 #pragma region template methods rb tree
     /*
     class template_methods_rb :
-            public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
+            public bs_tree<key, tvalue, tkey_comparer>::template_method_basics
     {
     public:
-        explicit template_methods_rb(rb_tree<tkey, tvalue, tkey_comparer> *target_tree)
-            : bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics(target_tree)
+        explicit template_methods_rb(rb_tree<key, tvalue, tkey_comparer> *target_tree)
+            : bs_tree<key, tvalue, tkey_comparer>::template_method_basics(target_tree)
         {
 
         }
@@ -167,7 +167,7 @@ protected:
                         path.pop();
                         parent = reinterpret_cast<rb_node **>(this->rotate_right(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent)));
                         grandparent = reinterpret_cast<rb_node **>(&((*parent)->right_subtree));
-//                        path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent));
+//                        path.push(reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::node **>(parent));
 
                         (*parent)->change_color(BLACK);
                         (*grandparent)->change_color(RED);
@@ -188,7 +188,7 @@ protected:
                         path.pop();
                         parent = reinterpret_cast<rb_node **>(this->rotate_left(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent)));
                         grandparent = reinterpret_cast<rb_node **>(&((*parent)->left_subtree));
-//                        path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent));
+//                        path.push(reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::node **>(parent));
 
                         (*parent)->change_color(BLACK);
                         (*grandparent)->change_color(RED);

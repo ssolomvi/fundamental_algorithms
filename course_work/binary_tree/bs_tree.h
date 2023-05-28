@@ -654,7 +654,7 @@ protected:
 
     public:
         /*
-        std::pair<tkey *, tvalue *> find_pair(tkey const & key)
+        std::pair<key *, tvalue *> find_pair(key const & key)
         {
             this->trace_with_guard("bs_tree::finding_template_method::find_pair method started");
 
@@ -672,7 +672,7 @@ protected:
             after_find_inner(path, target_ptr);
 
             this->trace_with_guard("bs_tree::finding_template_method::find_pair method finished");
-            return std::pair<tkey *, tvalue *>(&((*target_ptr)->key), &((*target_ptr)->value));
+            return std::pair<key *, tvalue *>(&((*target_ptr)->key), &((*target_ptr)->value));
         }
          */
 
@@ -1070,7 +1070,7 @@ public:
     }
 
     /*
-    void update_value(tkey const &key, tkey const &new_key, tvalue &&value) override
+    void update_value(key const &key, key const &new_key, tvalue &&value) override
     {
         _insertion->update(key, new_key, std::move(value));
     }
@@ -1082,7 +1082,7 @@ public:
     }
 
     /*
-    std::pair<tkey *, tvalue *> find_pair(tkey const &key) override
+    std::pair<key *, tvalue *> find_pair(key const &key) override
     {
         return _finding->find_pair(key);
     }

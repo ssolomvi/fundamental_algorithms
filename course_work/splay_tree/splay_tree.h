@@ -71,7 +71,7 @@ public:
                     }
                 }
 
-                tree_root = /*reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics *>(const_cast<template_method_splay *>(this))->*/reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->_root;
+                tree_root = /*reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::template_method_basics *>(const_cast<template_method_splay *>(this))->*/reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->_root;
             }
         }
 

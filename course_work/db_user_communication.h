@@ -74,7 +74,7 @@ get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path)
 #pragma region Add command
 
 void
-do_add_command(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
+do_add_command(data_base *db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
 
 #pragma endregion
 
@@ -88,21 +88,21 @@ typedef struct time_str
 
 std::tuple<db_value *, std::vector<db_value *>, db_value *>
 do_find_command
-(data_base<key, key_comparer> * db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
+(data_base * db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
 
 #pragma endregion
 
 #pragma region Update command
 
-void do_update_command(data_base<key, key_comparer> * db, std::ifstream *input_stream, bool is_cin);
+void do_update_command(data_base * db, std::ifstream *input_stream, bool is_cin);
 
 #pragma endregion
 
 #pragma region Delete command
 
-void delete_db(data_base<key, key_comparer> *db);
+void delete_db(data_base *db);
 
-void do_delete_command(data_base<key, key_comparer> * db, std::string & path_inner, std::ifstream *input_stream, bool is_cin);
+void do_delete_command(data_base * db, std::string & path_inner, std::ifstream *input_stream, bool is_cin);
 
 #pragma endregion
 

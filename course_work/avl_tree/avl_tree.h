@@ -54,7 +54,7 @@ protected:
     {
         /*
          // does not work
-        void rotate_fix_additional_data(typename bs_tree<tkey, tvalue, tkey_comparer>::node * target_ptr) const override
+        void rotate_fix_additional_data(typename bs_tree<key, tvalue, tkey_comparer>::node * target_ptr) const override
         {
             auto * tmp = reinterpret_cast<avl_node *>(target_ptr);
             tmp->set_height(reinterpret_cast<avl_node *>(tmp->left_subtree)->get_max_height_of_two_nodes(reinterpret_cast<avl_node *>(tmp->right_subtree)) + 1);

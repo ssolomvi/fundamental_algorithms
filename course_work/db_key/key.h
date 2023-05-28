@@ -30,6 +30,7 @@ public:
     };
 
 public:
+    // todo: rule 5
     key(std::ifstream* input_stream, bool is_cin)
     {
         std::string token, delimiter = ", ";
