@@ -33,25 +33,7 @@ class data_base final :
         private logger_holder
 {
     // TODO: расставить const
-    // todo: подключить деревья, аллокаторы
-private:
-    /* дерево пулов
-     *     дерево схем
-     *          дерево коллекций
-     *               коллекция
-     * */
-    associative_container<std::string,
-        associative_container<std::string,
-            associative_container<std::string,
-                associative_container<tkey, db_value *> *
-                                 > *
-                             > *
-                         > * _database;
-    logger * _logger;
-    memory* _allocator;
-    // todo: free allocators in ~data_base
-    static std::map<memory *, std::tuple<std::string, std::string, std::string>> _all_trees_allocators;
-
+    // todo: подключить аллокаторы
 private:
     class string_comparer
     {
@@ -60,6 +42,23 @@ private:
             return x.compare(y);
         }
     };
+
+private:
+    /* дерево пулов
+     *     дерево схем
+     *          дерево коллекций
+     *               коллекция
+     * */
+    splay_tree<std::string,
+        associative_container<std::string,
+            associative_container<std::string,
+                associative_container<tkey, db_value *> *
+                                 > *
+                             > *, string_comparer
+                         > * _database;
+    logger * _logger;
+    memory* _allocator;
+    std::map<std::string, memory *> _all_trees_allocators;
 
 public:
     typedef enum trees_types {
@@ -205,6 +204,10 @@ public:
 #pragma region Deletion from structure of data base
     // deleting a collection: no string is empty
     // deleting a scheme: collection string is empty
+private:
+    void delete_from_structure_inner
+    (void * to_delete, std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+
 public:
     void delete_from_structure
     (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
@@ -213,6 +216,8 @@ public:
 
 #pragma region Save-upload to-from file
 public:
+    /*
+    // todo: make a constructor from file (pattern builder)
     void save_to_file(std::string const & filename)
     {
 
@@ -221,7 +226,7 @@ public:
     void upload_from_file(std::string const & filename)
     {
 
-    }
+    }*/
 #pragma endregion
 
 #pragma region logger_holder and memory_holder contract
@@ -237,7 +242,40 @@ public:
 #pragma endregion
 
 #pragma region rool 5
-    // todo: make a constructor from file (pattern builder)
+public:
+    explicit data_base(logger * this_db_logger = nullptr, memory * this_db_allocator = nullptr)
+    : _logger(this_db_logger), _allocator(this_db_allocator)
+    {
+        _database = new splay_tree<std::string,
+                                    associative_container<std::string,
+                                        associative_container<std::string,
+                                            associative_container<tkey, db_value *> *> *> *
+                                                                     , string_comparer>(this_db_logger, this_db_allocator);
+    }
+
+    ~data_base() override
+    {
+        // todo: done only for bst-like trees
+        auto iter_end = _database->end_infix();
+        for (auto iter = _database->begin_infix(); iter != iter_end; ++iter) {
+            this->delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), std::get<1>(*iter), "", "");
+        }
+
+        delete _database;
+    }
+
+    // copy constructor
+    data_base(data_base<tkey, tkey_comparer> const &obj) = delete;
+
+    // move constructor
+    data_base(data_base<tkey, tkey_comparer> &&obj) noexcept = delete;
+
+    // copy assignment (оператор присваивания)
+    data_base &operator=(data_base<tkey, tkey_comparer> const &obj) = delete;
+
+    // move assignment (оператор присваивания перемещением)
+    data_base &operator=(data_base<tkey, tkey_comparer> &&obj) noexcept = delete;
+
 #pragma endregion
 };
 

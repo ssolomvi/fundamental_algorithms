@@ -1,4 +1,3 @@
-#include "db/data_base.h"
 #include "db_user_communication.h"
 
 void db_test(data_base<key, key_comparer> * db, std::ifstream *input_stream, bool is_cin) {
@@ -168,16 +167,24 @@ void db_test(data_base<key, key_comparer> * db, std::ifstream *input_stream, boo
                 help();
                 break;
             case commands_::_exit_:
-                delete_db(db);
-                std::cout << "Exited successfully!" << std::endl;
+                if (is_cin) {
+                    delete_db(db);
+                    std::cout << "Exited successfully!" << std::endl;
+                }
                 not_exited = false;
                 break;
             default:
-                std::cout << "Wrong command passed, try again!" << std::endl;
+                if (is_cin) {
+                    std::cout << "Wrong command passed, try again!" << std::endl;
+                }
                 break;
         }
     }
 }
+
+// todo: обмазать всё логами
+// todo: допилить конструктор, деструктор
+// todo: сделать все todo
 
 int main(int argc, char **argv)
 {
@@ -192,7 +199,13 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    data_base<key, key_comparer> db;
+    logger_builder * loggerBuilder = new logger_builder_impl();
+    logger * logg = loggerBuilder->with_stream("trace.txt", logger::severity::trace)
+                                 ->with_stream("warning.txt", logger::severity::warning)
+                                 ->build();
+    delete loggerBuilder;
+
+    data_base<key, key_comparer> db(logg);
 
     db_test(&db, file, false);
 

@@ -1,4 +1,4 @@
-#include "db/data_base.h"
+//#include "db/data_base.h"
 #include "db_user_communication.h"
 
 void help() {
@@ -245,15 +245,6 @@ void
 do_add_command
 (data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
-    std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t> parse_result
-            = parse_for_add_command(input_str_leftover);
-
-    data_base<key, key_comparer>::trees_types_ tree_type = std::get<0>(parse_result);
-    data_base<key, key_comparer>::allocator_types_ allocator_type = std::get<1>(parse_result);
-    size_t allocator_pool_size = std::get<2>(parse_result);
-
-    std::tuple<std::string, std::string, std::string> struct_parse_path_result = parse_path(input_str_leftover);
-
     if (input_stream != nullptr || is_cin) {
         // adding a value
         key tmp_key(input_stream, is_cin);
@@ -272,6 +263,16 @@ do_add_command
         }
     } else {
         // adding to structure
+        std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t> parse_result
+                = parse_for_add_command(input_str_leftover);
+
+        data_base<key, key_comparer>::trees_types_ tree_type = std::get<0>(parse_result);
+        data_base<key, key_comparer>::allocator_types_ allocator_type = std::get<1>(parse_result);
+        size_t allocator_pool_size = std::get<2>(parse_result);
+
+        std::tuple<std::string, std::string, std::string> struct_parse_path_result = parse_path(input_str_leftover);
+
+
         db->add_to_structure(std::get<0>(struct_parse_path_result),
                              std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
                              tree_type, allocator_type, allocator_pool_size);

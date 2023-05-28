@@ -5,6 +5,10 @@
 template<typename tkey, typename tkey_comparer>
 associative_container<std::string, associative_container<std::string, associative_container<tkey, db_value *> *> *> *
 data_base<tkey, tkey_comparer>::find_data_pull(const std::string &pull_name) {
+    if (pull_name.empty()) {
+        throw data_base<tkey, tkey_comparer>::db_find_exception("find_data_pull:: pull name must not be an empty string");
+    }
+
     associative_container<std::string,
             associative_container<std::string,
                     associative_container<tkey, db_value *> *> *> *data_pull = nullptr;
@@ -22,6 +26,10 @@ data_base<tkey, tkey_comparer>::find_data_pull(const std::string &pull_name) {
 template<typename tkey, typename tkey_comparer>
 associative_container<std::string, associative_container<tkey, db_value *> *> *
 data_base<tkey, tkey_comparer>::find_data_scheme(const std::string &pull_name, const std::string &scheme_name) {
+    if (scheme_name.empty()) {
+        throw data_base<tkey, tkey_comparer>::db_find_exception("find_data_scheme:: scheme name must not be an empty string");
+    }
+
     associative_container<std::string,
             associative_container<std::string,
                     associative_container<tkey, db_value *> *> *> *data_pull = find_data_pull(pull_name);
@@ -44,6 +52,10 @@ associative_container<tkey, db_value *> *
 data_base<tkey, tkey_comparer>::find_data_collection(const std::string &pull_name,
                                                      const std::string &scheme_name,
                                                      const std::string &collection_name) {
+    if (collection_name.empty()) {
+        throw data_base<tkey, tkey_comparer>::db_find_exception("find_data_collection:: collection name must not be an empty string");
+    }
+
     associative_container<std::string,
             associative_container<tkey, db_value *> *> *data_scheme = find_data_scheme(pull_name, scheme_name);
 
@@ -289,8 +301,7 @@ data_base<tkey, tkey_comparer>::allocator_types_ allocator_type, size_t allocato
             break;
     }
     if (new_allocator != nullptr) {
-        _all_trees_allocators[new_allocator] = std::tuple<std::string, std::string, std::string>
-                (pull_name, scheme_name, collection_name);
+        _all_trees_allocators[pull_name + "/" + scheme_name + "/" + collection_name] = new_allocator;
     }
 
     return new_allocator;
@@ -439,6 +450,63 @@ data_base<tkey, tkey_comparer>::add_to_structure(const std::string &pull_name, c
 
 template<typename tkey, typename tkey_comparer>
 void
+data_base<tkey, tkey_comparer>::delete_from_structure_inner
+(void * to_delete, std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name)
+{
+    // todo: done for bst-like only
+    if (scheme_name.empty()) {
+        auto * pull_to_d =  reinterpret_cast<bs_tree<std::string,
+                                                associative_container<std::string,
+                                                    associative_container<tkey, db_value *> *> *, string_comparer> *>(to_delete);
+
+        auto iter_end = pull_to_d->end_infix();
+        for (auto iter = pull_to_d->begin_infix(); iter != iter_end; ++iter) {
+            delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pull_name, std::get<1>(*iter), "");
+        }
+
+        delete pull_to_d;
+
+        if (_all_trees_allocators.contains(pull_name)) {
+            memory * this_pool_allocator = _all_trees_allocators[pull_name];
+            delete this_pool_allocator;
+            _all_trees_allocators.erase(pull_name);
+        }
+
+    } else if (collection_name.empty()) {
+        auto * scheme_to_d = reinterpret_cast<bs_tree<std::string,
+                                                associative_container<tkey, db_value *> *, string_comparer> *>(to_delete);
+
+        auto iter_end = scheme_to_d->end_infix();
+        for (auto iter = scheme_to_d->begin_infix(); iter != iter_end; ++iter) {
+            delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pull_name, scheme_name, std::get<1>(*iter));
+        }
+
+        delete scheme_to_d;
+
+        std::string scheme_full_name = pull_name + "/" + scheme_name;
+        if (_all_trees_allocators.contains(scheme_full_name)) {
+            memory * this_pool_allocator = _all_trees_allocators[scheme_full_name];
+            delete this_pool_allocator;
+            _all_trees_allocators.erase(scheme_full_name);
+        }
+
+    } else {
+//        auto * collection_to_d = reinterpret_cast<bs_tree<tkey, db_value *, tkey_comparer> *>(to_delete);
+        auto * collection_to_d = reinterpret_cast<unsigned char *>(to_delete);
+
+        delete collection_to_d;
+
+        std::string full_path_to_collection = pull_name + "/" + scheme_name + "/" + collection_name;
+        if (_all_trees_allocators.contains(full_path_to_collection)) {
+            memory * this_pool_allocator = _all_trees_allocators[full_path_to_collection];
+            delete this_pool_allocator;
+            _all_trees_allocators.erase(full_path_to_collection);
+        }
+    }
+}
+
+template<typename tkey, typename tkey_comparer>
+void
 data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_name, const std::string &scheme_name,
                                                       const std::string &collection_name)
 {
@@ -446,12 +514,32 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
         throw data_base<tkey, tkey_comparer>::db_remove_exception(
                 "delete_from_structure:: one should pass pull name for correct work of method");
     }
+    // TODO: make this function recursive, thus it will delete (for pull deletion) -- 1. collections, 2. schemes, 3.pull
+
+    // delete pull. should delete all schemes' collections' allocators, delete all schemes' allocators, delete pull's allocator
+    if (scheme_name.empty()) {
+        // 1. get pool
+        associative_container<std::string,
+                associative_container<std::string,
+                        associative_container<tkey, db_value *> *
+                > *
+        > * pull = nullptr;
+
+        try {
+            pull = _database->get(pull_name);
+        }
+        catch (bs_tree<tkey, db_value *, tkey_comparer> const &) {
+            throw db_remove_exception("delete_from_structure:: not found passed pool " + pull_name);
+        }
+
+    }
 
     // deleting pull
     // make sure to delete all its schemes and in schemes all collections and in collection all values
     if (scheme_name.empty()) {
         try {
             _database->remove(pull_name);
+            // todo: delete all schemes' collections' allocators, delete all schemes' allocators, delete pull's allocator
         }
         catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
             throw data_base<tkey, tkey_comparer>::db_remove_exception(
@@ -473,6 +561,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
 
         try {
             data_pull->remove(scheme_name);
+            // todo: delete all scheme's collections' allocators, delete scheme's allocator
         }
         catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
             throw data_base<tkey, tkey_comparer>::db_remove_exception(
@@ -495,6 +584,7 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
 
         try {
             data_scheme->remove(collection_name);
+            // delete collection's allocator
         }
         catch (typename bs_tree<tkey, db_value *, tkey_comparer>::remove_exception const &) {
                 throw data_base<tkey, tkey_comparer>::db_remove_exception(
