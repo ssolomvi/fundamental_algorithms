@@ -448,6 +448,10 @@ data_base<tkey, tkey_comparer>::add_to_structure(const std::string &pull_name, c
     }
 }
 
+#pragma endregion
+
+#pragma region Deleting from structure of data base
+
 template<typename tkey, typename tkey_comparer>
 void
 data_base<tkey, tkey_comparer>::delete_from_structure_inner
@@ -591,6 +595,27 @@ data_base<tkey, tkey_comparer>::delete_from_structure(const std::string &pull_na
                         "delete_from_structure:: no collection with name " + collection_name + "in data base");
         }
     }
+}
+
+template<typename tkey, typename tkey_comparer>
+data_base<tkey, tkey_comparer>::~data_base() {
+    // todo: done only for bst-like trees
+    associative_container<std::string,
+            associative_container<std::string,
+                    associative_container<tkey, db_value *> *
+            > *
+    > * pull = nullptr;
+    std::string pull_name;
+
+    auto iter_end = _database->end_infix();
+    for (auto iter = _database->begin_infix(); iter != iter_end; ++iter) {
+        pull_name = std::get<1>(*iter);
+        pull = std::get<2>(*iter);
+
+        this->delete_from_structure_inner(reinterpret_cast<void *>(pull), pull_name, "", "");
+    }
+
+    delete _database;
 }
 
 #pragma endregion

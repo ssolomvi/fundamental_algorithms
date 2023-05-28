@@ -1,7 +1,9 @@
 #ifndef KEY_H
 #define KEY_H
 
-#include <sstream>
+#include <iostream>
+#include <fstream>
+//#include <sstream>
 
 class key
 {

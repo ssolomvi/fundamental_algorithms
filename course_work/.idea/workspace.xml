@@ -16,14 +16,16 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_tree/bs_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/binary_tree/bs_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-d7b4cb67bde9b257198d.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-05-25T02-14-01-0298.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-course_work-Debug-03b03a2f041ddecefc86.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db_key/key.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_key/key.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +65,11 @@
   }
 }</component>
   <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -86,7 +93,7 @@
       <workItem from="1685122763763" duration="7687000" />
       <workItem from="1685130547093" duration="7684000" />
       <workItem from="1685191292575" duration="200000" />
-      <workItem from="1685202004205" duration="12146000" />
+      <workItem from="1685202004205" duration="14807000" />
     </task>
     <servers />
   </component>

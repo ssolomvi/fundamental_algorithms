@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <ctime>
+#include <fstream>
 
 #include "../allocator/memory_holder.h"
 #include "../allocator_from_global_heap/memory_from_global_heap.h"
@@ -23,7 +24,7 @@
 
 //#include "../db_value/db_value.h"
 #include "../chain_of_resp_and_command/handler.h"
-#include "../db_key/key.h"
+//#include "../db_key/key.h"
 
 template<
         typename tkey,
@@ -202,8 +203,6 @@ public:
 #pragma endregion
 
 #pragma region Deletion from structure of data base
-    // deleting a collection: no string is empty
-    // deleting a scheme: collection string is empty
 private:
     void delete_from_structure_inner
     (void * to_delete, std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
@@ -253,16 +252,7 @@ public:
                                                                      , string_comparer>(this_db_logger, this_db_allocator);
     }
 
-    ~data_base() override
-    {
-        // todo: done only for bst-like trees
-        auto iter_end = _database->end_infix();
-        for (auto iter = _database->begin_infix(); iter != iter_end; ++iter) {
-            this->delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), std::get<1>(*iter), "", "");
-        }
-
-        delete _database;
-    }
+    ~data_base() override;
 
     // copy constructor
     data_base(data_base<tkey, tkey_comparer> const &obj) = delete;
