@@ -2,6 +2,7 @@
 #define BS_TREE_H
 
 #include <stack>
+#include <utility>
 #include "associative_container.h"
 #include "../logger/logger.h"
 #include "../logger/logger_holder.h"
@@ -41,12 +42,12 @@ public:
         std::string _message;
 
     public:
-        explicit insert_exception(std::string const &message)
-                : _message(message) {
+        explicit insert_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -56,12 +57,12 @@ public:
         std::string _message;
 
     public:
-        explicit find_exception(std::string const &message)
-                : _message(message) {
+        explicit find_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -71,12 +72,12 @@ public:
         std::string _message;
 
     public:
-        explicit remove_exception(std::string const &message)
-                : _message(message) {
+        explicit remove_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -86,12 +87,12 @@ public:
         std::string _message;
 
     public:
-        explicit iterator_exception(std::string const &message)
-                : _message(message) {
+        explicit iterator_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -529,7 +530,7 @@ protected:
 
     private:
 
-        logger *get_logger() const noexcept override
+        [[nodiscard]] logger *get_logger() const noexcept override
         {
             return _target_tree->get_logger();
         }
@@ -611,7 +612,7 @@ protected:
 
     protected:
 
-        virtual size_t get_node_size() const
+        [[nodiscard]] virtual size_t get_node_size() const
         {
             return sizeof(node);
         }
@@ -631,7 +632,7 @@ protected:
 
     private:
 
-        memory *get_memory() const noexcept override
+        [[nodiscard]] memory *get_memory() const noexcept override
         {
             return this->_target_tree->_allocator;
         }
@@ -1095,14 +1096,14 @@ public:
 
 private:
 
-    memory *get_memory() const noexcept override
+    [[nodiscard]] memory *get_memory() const noexcept override
     {
         return _allocator;
     }
 
 private:
 
-    logger *get_logger() const noexcept override
+    [[nodiscard]] logger *get_logger() const noexcept override
     {
         return _logger;
     }

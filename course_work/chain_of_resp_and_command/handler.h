@@ -52,7 +52,7 @@ public:
         this->_next_handler = handler;
         return handler;
     }
-
+/*
     // this handler (the first in chain) cannot be proved to be last in this function. Must do a check-up in invoker function
     handler ** find_last_handler(handler * invoker_handler) const
     {
@@ -68,7 +68,7 @@ public:
 
         return last_handler;
     }
-
+*/
 public:
     db_value* handle(db_value ** request, uint64_t time_parameter)
     {
