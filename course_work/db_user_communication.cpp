@@ -23,8 +23,8 @@ void help() {
             << std::endl;
     std::cout << "\t- delete <full path>" << std::endl;
     std::cout << "DB commands list:" << std::endl;
-    std::cout << "\t- save <filename>" << std::endl;
-    std::cout << "\t- upload <filename>" << std::endl;
+//    std::cout << "\t- save <filename>" << std::endl;
+//    std::cout << "\t- upload <filename>" << std::endl;
     std::cout << "\t- help" << std::endl;
     std::cout << "\t- delete DB" << std::endl;
     std::cout << "\t- exit" << std::endl;
@@ -34,7 +34,7 @@ void help() {
 commands_ get_command(std::string const &user_input) {
     if (user_input == "add") {
         return commands_::_add_;
-    } else if (user_input == "find_pair") {
+    } else if (user_input == "find") {
         return commands_::_find_;
     } else if (user_input == "update") {
         return commands_::_update_;
@@ -65,7 +65,8 @@ parse_user_input(std::string const &user_input) {
         s.erase(0, pos + 1);
     } else {
         s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
-        command = get_command(user_input);
+        command = get_command(s);
+        s.erase();
     }
 
     // a path is what is left from s
@@ -251,7 +252,7 @@ void
 do_add_command
 (data_base *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
-    if (input_str_leftover.empty() || is_cin) {
+    if (input_str_leftover.empty()) {
         // adding a value
         key tmp_key(input_stream, is_cin);
 
@@ -282,7 +283,9 @@ do_add_command
         db->add_to_structure(std::get<0>(struct_parse_path_result),
                              std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
                              tree_type, allocator_type, allocator_pool_size);
-        std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
+        if (is_cin) {
+            std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
+        }
     }
 }
 
@@ -302,8 +305,15 @@ short get_part_of_data_from_input_str(std::string &str, std::string &delimiter, 
         }
         str.erase(0, pos + delimiter_length);
     } else {
-        throw parse_exception(
-                "get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
+        try {
+            to_return = std::stoi(str.substr(0, pos));
+        }
+        catch (std::invalid_argument const &) {
+            throw parse_exception("get_part_of_data_from_input_str:: incorrect value for data passed. Only digits");
+        }
+        str.erase();
+//        throw parse_exception(
+//                "get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
     }
     return to_return;
 }
@@ -344,6 +354,13 @@ uint64_t parse_time_from_input_str(std::string &input_stream) {
     to_return.mm = get_part_of_data_from_input_str(input_stream, part_delimiter, delimiter_length);
     to_return.ss = get_part_of_data_from_input_str(input_stream, part_delimiter, delimiter_length);
 
+    if (to_return.hh > 23 || to_return.hh < 0 ||
+        to_return.mm > 60 || to_return.mm < 0 ||
+        to_return.ss > 60 || to_return.ss < 0)
+    {
+        throw parse_exception("parse_time_from_input_str:: incorrect data passed");
+    }
+
     //todo: check if data is correct
     return convert_time_str_to_ms(to_return);
 }
@@ -383,7 +400,7 @@ do_find_command
         to_return_vector = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                              std::get<2>(path_parse_result),
                                              min, max);
-    } else {
+    } else if (input_str_leftover.empty()) {
         key tmp_key(input_stream, is_cin);
         std::tuple<std::string, std::string, std::string> path_parse_result = get_path_from_user_input(input_stream,
                                                                                                        is_cin, true);
@@ -391,6 +408,8 @@ do_find_command
         simply_found = db->find_among_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                                  std::get<2>(path_parse_result),
                                                  tmp_key);
+    } else {
+        throw parse_exception("do_find_command:: Incorrect command entered");
     }
 
     return {found_with_time, to_return_vector, simply_found};

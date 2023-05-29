@@ -19,7 +19,10 @@ data_base::find_data_pull(const std::string &pull_name)
     try {
         data_pull = this->_database->get(pull_name);
     }
-    catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+    catch (bs_tree<std::string,
+            associative_container<std::string,
+                associative_container<std::string,
+                    associative_container<key, db_value *> *> *> *, data_base::string_comparer>::find_exception const &) {
         this->debug_with_guard("data_base::find_data_pull data pull not found")
                 ->trace_with_guard("data_base::find_data_pull method finished");
         throw data_base::db_find_exception("find_data_pull:: data pull not found");
@@ -48,7 +51,9 @@ data_base::find_data_scheme(const std::string &pull_name, const std::string &sch
     try {
         data_scheme = data_pull->get(scheme_name);
     }
-    catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+    catch (typename bs_tree<std::string,
+            associative_container<std::string,
+                associative_container<key, db_value *> *> *, data_base::string_comparer>::find_exception const &) {
         this->debug_with_guard("data_base::find_data_scheme data scheme not found")
                 ->trace_with_guard("data_base::find_data_scheme method finished");
         throw data_base::db_find_exception("find_data_scheme:: data scheme not found");
@@ -62,7 +67,7 @@ associative_container<key, db_value *> *
 data_base::find_data_collection(const std::string &pull_name,
                                 const std::string &scheme_name,
                                 const std::string &collection_name) {
-    this->trace_with_guard("data_base::find_data_collection method finished");
+    this->trace_with_guard("data_base::find_data_collection method started");
 
     if (collection_name.empty()) {
         this->warning_with_guard("data_base::find_data_collection collection name must not be an empty string")
@@ -78,7 +83,7 @@ data_base::find_data_collection(const std::string &pull_name,
     try {
         data_collection = data_scheme->get(collection_name);
     }
-    catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+    catch (typename bs_tree<std::string, associative_container<key, db_value *> *, data_base::string_comparer>::find_exception const &) {
         this->debug_with_guard("data_base::find_data_collection data collection not found")
                 ->trace_with_guard("data_base::find_data_collection method finished");
         throw data_base::db_find_exception("find_data_collection:: data collection not found");
@@ -250,6 +255,8 @@ data_base::find_in_range(const std::string &pull_name, const std::string &scheme
         if (in_range) {
             if (comparer(max_key, std::get<1>(*it)) >= 0) {
                 to_return_vector.push_back(std::get<2>(*it));
+            } else {
+                break;
             }
         }
 
@@ -276,8 +283,8 @@ data_base::delete_from_collection(const std::string &pull_name, const std::strin
     associative_container<key, db_value *> *data_collection
             = find_data_collection(pull_name, scheme_name, collection_name);
 
-    db_value * found_value;
     try {
+        db_value * found_value = data_collection->get(_key);
         handler * delete_handle = new remove_handler();
         handler * last_handler = found_value->get_last_handler();
         if (last_handler == nullptr) {
@@ -524,54 +531,57 @@ data_base::delete_from_structure_inner
         (void * to_delete, std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name)
 {
     this->trace_with_guard("data_base::delete_from_structure_inner method started");
+    std::string full_path = pull_name + "/" + scheme_name + "/" + collection_name;
     // todo: done for bst-like only
+    // todo : redo сначала нужно удалять из дерева, в котором структура находится, потом уже делать delete
     if (scheme_name.empty()) {
         auto * pull_to_d =  reinterpret_cast<bs_tree<std::string,
                 associative_container<std::string,
                         associative_container<key, db_value *> *> *, string_comparer> *>(to_delete);
 
-        auto iter_end = pull_to_d->end_infix();
-        for (auto iter = pull_to_d->begin_infix(); iter != iter_end; ++iter) {
+        auto iter_end = pull_to_d->end_postfix();
+        for (auto iter = pull_to_d->begin_postfix(); iter != iter_end; ++iter) {
             delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pull_name, std::get<1>(*iter), "");
         }
 
-        delete pull_to_d;
-
-        if (_all_trees_allocators.contains(pull_name)) {
-            memory * this_pool_allocator = _all_trees_allocators[pull_name];
+        if (_all_trees_allocators.contains(full_path)) {
+            memory * this_pool_allocator = _all_trees_allocators[full_path];
             delete this_pool_allocator;
-            _all_trees_allocators.erase(pull_name);
+            _all_trees_allocators.erase(full_path);
         }
+        this->_database->remove(pull_name);
+
+        delete pull_to_d;
 
     } else if (collection_name.empty()) {
         auto * scheme_to_d = reinterpret_cast<bs_tree<std::string,
                 associative_container<key, db_value *> *, string_comparer> *>(to_delete);
 
-        auto iter_end = scheme_to_d->end_infix();
-        for (auto iter = scheme_to_d->begin_infix(); iter != iter_end; ++iter) {
+        auto iter_end = scheme_to_d->end_postfix();
+        for (auto iter = scheme_to_d->begin_postfix(); iter != iter_end; ++iter) {
             delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pull_name, scheme_name, std::get<1>(*iter));
         }
 
-        delete scheme_to_d;
-
-        std::string scheme_full_name = pull_name + "/" + scheme_name;
-        if (_all_trees_allocators.contains(scheme_full_name)) {
-            memory * this_pool_allocator = _all_trees_allocators[scheme_full_name];
+        if (_all_trees_allocators.contains(full_path)) {
+            memory * this_pool_allocator = _all_trees_allocators[full_path];
             delete this_pool_allocator;
-            _all_trees_allocators.erase(scheme_full_name);
+            _all_trees_allocators.erase(full_path);
         }
+
+        auto * this_scheme_pool = find_data_pull(pull_name);
+        delete (this_scheme_pool->remove(scheme_name));
 
     } else {
         auto * collection_to_d = reinterpret_cast<unsigned char *>(to_delete);
 
-        delete collection_to_d;
-
-        std::string full_path_to_collection = pull_name + "/" + scheme_name + "/" + collection_name;
-        if (_all_trees_allocators.contains(full_path_to_collection)) {
-            memory * this_pool_allocator = _all_trees_allocators[full_path_to_collection];
+        if (_all_trees_allocators.contains(full_path)) {
+            memory * this_pool_allocator = _all_trees_allocators[full_path];
             delete this_pool_allocator;
-            _all_trees_allocators.erase(full_path_to_collection);
+            _all_trees_allocators.erase(full_path);
         }
+
+        auto * this_collection_scheme = find_data_scheme(pull_name, scheme_name);
+        delete (this_collection_scheme->remove(collection_name));
     }
     this->debug_with_guard("data_base::delete_from_structure_inner method finished");
 }
@@ -587,40 +597,28 @@ data_base::delete_from_structure(const std::string &pull_name, const std::string
         throw data_base::db_remove_exception(
                 "delete_from_structure:: one should pass pull name for correct work of method");
     }
+
     // delete pull. should delete all schemes' collections' allocators, delete all schemes' allocators, delete pull's allocator
     if (scheme_name.empty()) {
-        // 1. get pool
-        associative_container<std::string,
-                associative_container<std::string,
-                        associative_container<key, db_value *> *
-                > *
-        > * pull = nullptr;
-
         try {
-            pull = _database->get(pull_name);
+            associative_container<std::string,
+                    associative_container<std::string,
+                            associative_container<key, db_value *> *
+                    > *
+            > * pull = _database->get(pull_name);
+
+            delete_from_structure_inner(reinterpret_cast<void *>(pull), pull_name, "", "");
         }
-        catch (bs_tree<key, db_value *, key_comparer> const &) {
+        catch (bs_tree<std::string,
+                    associative_container<std::string,
+                        associative_container<std::string,
+                            associative_container<key, db_value *> *> *> *, data_base::string_comparer>::find_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure not found passed pool " + pull_name)
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw db_remove_exception("delete_from_structure:: not found passed pool " + pull_name);
         }
-
     }
-
-    // deleting pull
-    // make sure to delete all its schemes and in schemes all collections and in collection all values
-    if (scheme_name.empty()) {
-        try {
-            _database->remove(pull_name);
-        }
-        catch (typename bs_tree<key, db_value *, key_comparer>::remove_exception const &) {
-            this->debug_with_guard("data_base::delete_from_structure no pool with name " + pull_name + "in data base")
-                    ->trace_with_guard("data_base::delete_from_structure method finished");
-            throw data_base::db_remove_exception(
-                    "delete_from_structure:: no pool with name " + pull_name + "in data base");
-        }
-    }
-        // deleting scheme
+    // deleting scheme
     else if (collection_name.empty()) {
         associative_container<std::string,
                 associative_container<std::string,
@@ -635,16 +633,21 @@ data_base::delete_from_structure(const std::string &pull_name, const std::string
         }
 
         try {
-            data_pull->remove(scheme_name);
+            associative_container<std::string,
+                    associative_container<key, db_value *> *> * data_scheme = data_pull->get(scheme_name);
+
+            delete_from_structure_inner(reinterpret_cast<void *>(data_scheme), pull_name, scheme_name, "");
         }
-        catch (typename bs_tree<key, db_value *, key_comparer>::remove_exception const &) {
+        catch (typename bs_tree<key,
+                            associative_container<std::string,
+                                associative_container<key, db_value *> *> *, key_comparer>::find_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure no scheme with name " + scheme_name + "in data base")
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw data_base::db_remove_exception(
                     "delete_from_structure:: no scheme with name " + scheme_name + "in data base");
         }
     }
-        // deleting collection
+    // deleting collection
     else {
         // find a scheme
         associative_container<std::string,
@@ -661,10 +664,11 @@ data_base::delete_from_structure(const std::string &pull_name, const std::string
         }
 
         try {
-            data_scheme->remove(collection_name);
-            // delete collection's allocator
+            associative_container<key, db_value *> * data_collection = data_scheme->get(collection_name);
+
+            delete_from_structure_inner(reinterpret_cast<void *>(data_collection), pull_name, scheme_name, collection_name);
         }
-        catch (typename bs_tree<key, db_value *, key_comparer>::remove_exception const &) {
+        catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure no collection with name " + collection_name + "in data base")
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw data_base::db_remove_exception(
@@ -676,7 +680,13 @@ data_base::delete_from_structure(const std::string &pull_name, const std::string
 }
 
 data_base::~data_base() {
+    if (_database == nullptr) {
+        this->warning_with_guard("data_base::~data_base data_base has already been removed");
+        return;
+//        throw data_base::db_remove_exception("data_base::~data_base data_base has already been removed");
+    }
     // todo: done only for bst-like trees
+
     this->trace_with_guard("data_base::~data_base() method started");
     associative_container<std::string,
             associative_container<std::string,
@@ -685,16 +695,15 @@ data_base::~data_base() {
     > * pull = nullptr;
     std::string pull_name;
 
-    auto iter_end = _database->end_infix();
-    for (auto iter = _database->begin_infix(); iter != iter_end; ++iter) {
-        pull_name = std::get<1>(*iter);
-        pull = std::get<2>(*iter);
-
-        this->delete_from_structure_inner(reinterpret_cast<void *>(pull), pull_name, "", "");
+    auto iter_end = _database->end_postfix();
+    for (auto iter = _database->begin_postfix(); iter != iter_end; ++iter) {
+        this->delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), std::get<1>(*iter), "", "");
     }
 
-    this->trace_with_guard("data_base::~data_base() method finished");
     delete _database;
+    this->_database = nullptr;
+
+    this->trace_with_guard("data_base::~data_base() method finished");
 }
 
 #pragma endregion

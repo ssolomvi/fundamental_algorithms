@@ -786,7 +786,9 @@ protected:
                 *target_ptr = target_right_subtree;
             }
 
-            after_remove(path);
+            if (!(path.empty())) {
+                after_remove(path);
+            }
 
             this->trace_with_guard("bs_tree::removing_template_method::remove method finished");
             return result;

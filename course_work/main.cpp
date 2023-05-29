@@ -25,9 +25,6 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
             case commands_::_add_:
                 try {
                     do_add_command(db, leftover, input_stream, is_cin);
-                    if (is_cin) {
-                        std::cout << "Added successfully!" << std::endl;
-                    }
                 }
                 catch (parse_exception const & except) {
                     if (is_cin) {
@@ -73,12 +70,13 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                         if (is_cin) {
                             std::cout << (*found_with_time) << std::endl;
                         }
+                        delete found_with_time;
                     }
                     else if (!(db_value_vector_in_range.empty())) {
                         if (is_cin) {
                             unsigned i, size_of_vector = db_value_vector_in_range.size();
                             for (i = 0; i < size_of_vector; i++) {
-                                std::cout << "----- " << i << " value " << "-----" << std::endl;
+                                std::cout << "----- " << i + 1 << " value " << "-----" << std::endl;
                                 std::cout << (*(db_value_vector_in_range[i])) << std::endl;
                             }
                         }
@@ -109,9 +107,6 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
             case commands_::_update_:
                 try {
                     do_update_command(db, input_stream, is_cin);
-                    if (is_cin) {
-                        std::cout << "Updated successfully!" << std::endl;
-                    }
                 }
                 catch (key::create_exception const & exception) {
                     if (is_cin) {
@@ -208,7 +203,7 @@ int main(int argc, char **argv)
     data_base db(logg);
 
     db_test(&db, file, false);
-
+/*
     std::cout << "Hello! Would you like to get some closer interaction with my program? Print y for yes an n for no\n>>";
     std::string answer_to_important_question;
     std::getline(std::cin, answer_to_important_question);
@@ -216,5 +211,9 @@ int main(int argc, char **argv)
     if (answer_to_important_question == "y") {
         db_test(&db, nullptr, true);
     }
+*/
+    db_test(&db, nullptr, true);
+
+
     return 0;
 }
