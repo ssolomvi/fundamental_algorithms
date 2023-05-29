@@ -1,0 +1,2 @@
+<--- [ warning ]  --->
+[ 29/05/2023 11:34:26 ][ warning ] data_base::add_to_structure one should pass pull name for correct work of method

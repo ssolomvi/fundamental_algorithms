@@ -7,8 +7,8 @@
 
 class key
 {
-    int _applicant_id;
-    int _contest_id;
+    int _applicant_id{};
+    int _contest_id{};
 
     friend class key_comparer;
     friend std::ostream &operator<<(std::ostream &out, const key &_key_);
@@ -62,6 +62,62 @@ public:
         this->_contest_id = stoi(contest_id);
         // to get the time as a string: dt = asctime(new_key.utc_time);
     }
+
+    key() = default;
+
+    key(int applicant_id, int contest_id)
+    : _contest_id(contest_id), _applicant_id(applicant_id)
+    {
+
+    }
+
+    // copy constructor
+    key(key const &obj)
+    : key(obj._applicant_id, obj._contest_id)
+    {
+
+    }
+
+    // move constructor
+    key(key &&obj) noexcept
+    : key(obj._applicant_id, obj._contest_id)
+    {
+        obj._applicant_id = 0;
+        obj._contest_id = 0;
+    }
+
+    // copy assignment (оператор присваивания)
+    key &operator=(key const &obj)
+    {
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        _applicant_id = obj._applicant_id;
+        _contest_id = obj._contest_id;
+
+        return *this;
+    }
+
+    // move assignment (оператор присваивания перемещением)
+    key &operator=(key &&obj) noexcept
+    {
+        if (this == &obj)
+        {
+            return *this;
+        }
+
+        _applicant_id = obj._applicant_id;
+        obj._applicant_id = 0;
+
+        _contest_id = obj._contest_id;
+        obj._contest_id = 0;
+
+        return *this;
+    }
+
+    ~key() = default;
 };
 
 inline std::ostream &operator<<(std::ostream &out, const key &_key_)

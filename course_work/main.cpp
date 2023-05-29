@@ -23,7 +23,6 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
 
         switch (command) {
             case commands_::_add_:
-                break;
                 try {
                     do_add_command(db, leftover, input_stream, is_cin);
                     if (is_cin) {
@@ -60,6 +59,7 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                         std::cout << except.what() << std::endl;
                     }
                 }
+                break;
             case commands_::_find_:
                 try {
                     std::tuple<db_value *, std::vector<db_value *>, db_value *> found
@@ -183,7 +183,7 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
         }
     }
 }
-// todo: допилить конструктор, деструктор
+
 // todo: сделать все todo
 
 int main(int argc, char **argv)
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 
     db_test(&db, file, false);
 
-    std::cout << "Would you like to get some closer interaction with my program? Print y for yes an n for no\n>>";
+    std::cout << "Hello! Would you like to get some closer interaction with my program? Print y for yes an n for no\n>>";
     std::string answer_to_important_question;
     std::getline(std::cin, answer_to_important_question);
 

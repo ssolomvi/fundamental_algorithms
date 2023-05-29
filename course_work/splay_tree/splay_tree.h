@@ -17,7 +17,7 @@ public:
             : public bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics
     {
     public:
-        void splay(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) const
+        void splay(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **&target_ptr) const
         {
             typename bs_tree<tkey, tvalue, tkey_comparer>::node ** parent, **grandparent = nullptr;
             typename bs_tree<tkey, tvalue, tkey_comparer>::node *tree_root = (reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree))->_root;
@@ -30,11 +30,14 @@ public:
                     // zig
                     // rotate right/left: target_ptr becomes new _root if its grandparent is nullptr
                     if ((*parent)->left_subtree == (*current_node)) {
+//                        this->rotate_right(path, current_node);
                         this->rotate_right(path, current_node);
                     } else {
+//                        this->rotate_left(path, current_node);
                         this->rotate_left(path, current_node);
                     }
-                    current_node = parent;
+                    target_ptr = parent;
+//                    (*target_ptr) = (*parent);
                     break;
                 }
                 else {
@@ -111,11 +114,11 @@ public:
     class finding_splay_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::finding_template_method
     {
-        void after_find_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **target_ptr) override
+        void after_find_inner(std::stack<typename bs_tree<tkey, tvalue, tkey_comparer>::node **> &path, typename bs_tree<tkey, tvalue, tkey_comparer>::node **&target_ptr) override
         {
             this->trace_with_guard("splay_tree::finding_splay_tree::after_find_inner::splay method started");
             reinterpret_cast<template_method_splay *>(this)->splay(path, target_ptr);
-            this->trace_with_guard("splay_tree::finding_splay_tree::after_find_inner::splay method started");
+            this->trace_with_guard("splay_tree::finding_splay_tree::after_find_inner::splay method finished");
         }
 
     public:

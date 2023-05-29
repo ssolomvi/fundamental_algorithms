@@ -1,0 +1,136 @@
+<--- [ trace ]  --->
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] An object of global heap allocator was constructed
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 29/05/2023 11:34:26 ][ information ] memory block with _size = 72 was allocated successfully
+[ 29/05/2023 11:34:26 ][ debug ] Allocated block address: 0x000001987c2c8030
+[ 29/05/2023 11:34:26 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 29/05/2023 11:34:26 ][ trace ] avl_tree::insertion_avl_tree::after_insert_inner method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ warning ] data_base::add_to_structure one should pass pull name for correct work of method
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_scheme method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_scheme method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] An object of global heap allocator was constructed
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_scheme method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::finding_splay_tree::after_find_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_pull method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method started
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::finding_template_method::find method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::find_data_scheme method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method started
+[ 29/05/2023 11:34:26 ][ trace ] splay_tree::insertion_splay_tree::after_insert_inner::splay method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method finished
+[ 29/05/2023 11:34:26 ][ trace ] data_base::add_to_structure method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 29/05/2023 11:34:26 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree constructor was called
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method started
+[ 29/05/2023 11:34:26 ][ debug ] bs_tree::insertion_template_method::insert passed key is not unique
+[ 29/05/2023 11:34:26 ][ trace ] bs_tree::insertion_template_method::insert method finished

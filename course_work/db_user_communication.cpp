@@ -213,23 +213,29 @@ parse_for_add_command(std::string &input_str_leftover) {
     unsigned delimiter_length = delimiter.length();
     if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
         token = input_str_leftover.substr(0, pos);
+        input_str_leftover.erase(0, pos + delimiter_length);
+
         tree_type = get_tree_type(token);
         allocator_type = get_allocator_type(token);
 
-        auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter, pos,
-                                                             delimiter_length);
-        allocator_type = allocator_type_and_size.first;
-        allocator_pool_size = allocator_type_and_size.second;
+        if (allocator_type != data_base::not_an_allocator) {
+            auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter, pos,
+                                                                 delimiter_length);
+            allocator_type = allocator_type_and_size.first;
+            allocator_pool_size = allocator_type_and_size.second;
+        }
 
         if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
             token = input_str_leftover.substr(0, pos);
+            input_str_leftover.erase(0, pos + delimiter_length);
+
             if (tree_type == data_base::not_a_tree) {
                 tree_type = get_tree_type(token);
             }
 
             if (allocator_type == data_base::not_an_allocator) {
                 allocator_type = get_allocator_type(token);
-                allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter,
+                auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter,
                                                                 pos,
                                                                 delimiter_length);
                 allocator_type = allocator_type_and_size.first;
@@ -245,7 +251,7 @@ void
 do_add_command
 (data_base *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
-    if (input_stream != nullptr || is_cin) {
+    if (input_str_leftover.empty() || is_cin) {
         // adding a value
         key tmp_key(input_stream, is_cin);
 
