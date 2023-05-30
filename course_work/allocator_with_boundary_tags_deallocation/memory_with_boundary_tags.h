@@ -18,7 +18,6 @@ private:
 #pragma endregion
 
 #pragma region Occupied block methods
-    void * get_first_occupied_block_address() const override;
     void ** get_first_occupied_block_address_address() const override;
 
     size_t get_occupied_block_service_block_size() const override;
@@ -42,6 +41,5 @@ public:
 private:
     logger *get_logger() const noexcept override;
 };
-
 
 #endif //MEMORY_WITH_BOUNDARY_TAGS_H

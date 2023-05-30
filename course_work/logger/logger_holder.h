@@ -7,7 +7,6 @@ class logger_holder
 {
 
 public:
-
     virtual ~logger_holder() noexcept = default;
 
 public:
@@ -32,7 +31,5 @@ protected:
 
     virtual logger *get_logger() const noexcept = 0;
 };
-
-
 
 #endif //LOGGER_HOLDER_H

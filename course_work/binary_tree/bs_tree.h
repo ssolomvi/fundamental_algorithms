@@ -2,7 +2,6 @@
 #define BS_TREE_H
 
 #include <stack>
-#include <utility>
 #include "associative_container.h"
 #include "../logger/logger.h"
 #include "../logger/logger_holder.h"
@@ -30,7 +29,6 @@ public:
         node() = default;
 
         virtual ~node() noexcept = default;
-
     };
 
 public:
@@ -253,6 +251,9 @@ public:
                     _path.push(_current_node);
                     _current_node = _current_node->left_subtree;
                 }
+            }
+            else if (_path.empty()) {
+                _current_node = nullptr;
             }
             else if (_path.top()->left_subtree == _current_node) {
                 _current_node = _path.top();
@@ -683,7 +684,6 @@ protected:
 
 #pragma endregion
 
-
 #pragma region removing template method
     class removing_template_method:
             public template_method_basics,
@@ -1045,12 +1045,6 @@ public:
         _insertion->insert(key, std::move(value));
     }
 
-    /*
-    void update_value(key const &key, key const &new_key, tvalue &&value) override
-    {
-        _insertion->update(key, new_key, std::move(value));
-    }
-     */
     tvalue const &get(
             tkey const &key) override
     {

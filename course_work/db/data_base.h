@@ -4,9 +4,6 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
-#include <cstring>
-#include <ctime>
-#include <fstream>
 
 #include "../allocator/memory_holder.h"
 #include "../allocator_from_global_heap/memory_from_global_heap.h"
@@ -22,11 +19,8 @@
 #include "../splay_tree/splay_tree.h"
 #include "../rb_tree/rb_tree.h"
 
-//#include "../db_value/db_value.h"
 #include "../chain_of_resp_and_command/handler.h"
 #include "../db_key/key.h"
-
-//#define key std::pair<int, int>
 
 class data_base final :
         private memory_holder,
@@ -133,55 +127,55 @@ public:
 
 #pragma region Find structure
 private:
-    associative_container<std::string, associative_container<std::string, associative_container<key, db_value *> *> *> *
-    find_data_pull
-    (std::string const & pull_name);
+    [[nodiscard]] associative_container<std::string, associative_container<std::string, associative_container<key, db_value *> *> *> *
+    find_data_pool
+    (std::string const & pool_name) const;
 
-    associative_container<std::string, associative_container<key, db_value *> *> *
+    [[nodiscard]] associative_container<std::string, associative_container<key, db_value *> *> *
     find_data_scheme
-    (std::string const & pull_name, std::string const & scheme_name);
+    (std::string const & pool_name, std::string const & scheme_name) const;
 
-    associative_container<key, db_value *> *
+    [[nodiscard]] associative_container<key, db_value *> *
     find_data_collection
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name) const;
 #pragma endregion
 
 #pragma region Collection-related functions
 #pragma region Insertion in collection
 public:
     void add_to_collection
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key _key, db_value * value);
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     const key& _key, db_value * value) const;
 
 #pragma endregion
 
 #pragma region Updating a collection value
 public:
     void update_in_collection
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key _key, std::map<db_value_fields, unsigned char *> upd_dict);
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     const key& _key, std::map<db_value_fields, unsigned char *> upd_dict) const;
 #pragma endregion
 
 #pragma region Finding among collection
 public:
-    db_value * find_among_collection
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key _key);
+    [[nodiscard]] db_value * find_among_collection
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     const key& _key) const;
 
-    db_value * find_with_time
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key _key, uint64_t time_parameter);
+    [[nodiscard]] db_value * find_with_time
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     const key& _key, uint64_t time_parameter) const;
 
-     std::vector<db_value *> find_in_range
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key min_key, key max_key);
+    [[nodiscard]] std::vector<db_value *> find_in_range
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     key min_key, key max_key) const;
 #pragma endregion
 
 #pragma region Deletion from collection
 public:
     void delete_from_collection
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
-     key key);
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
+     const key& key) const;
 #pragma endregion
 #pragma endregion
 
@@ -192,23 +186,24 @@ public:
 private:
     memory *
     get_new_allocator_for_inner_trees
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
      allocator_types_ allocator_type, size_t allocator_pool_size);
 
 public:
     void add_to_structure
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name,
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
      trees_types_ tree_type, allocator_types_ allocator_type, size_t allocator_pool_size);
 #pragma endregion
 
 #pragma region Deletion from structure of data base
 private:
     void delete_from_structure_inner
-    (void * to_delete, std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+    (void * to_delete,
+     std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name);
 
 public:
     void delete_from_structure
-    (std::string const & pull_name, std::string const & scheme_name, std::string const & collection_name);
+    (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name);
 #pragma endregion
 #pragma endregion
 

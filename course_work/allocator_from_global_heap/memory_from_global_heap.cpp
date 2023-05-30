@@ -19,7 +19,6 @@ void *memory_from_global_heap::allocate(size_t target_size) const {
             ->trace_with_guard("memory_from_global_heap::allocate method execution finished");
         throw memory::memory_exception("A block cannot be allocated in global heap allocator");
     }
-    this->trace_with_guard("memory_from_global_heap::allocate method execution finished");
 }
 
 void memory_from_global_heap::deallocate(const void *const target_to_dealloc) const {

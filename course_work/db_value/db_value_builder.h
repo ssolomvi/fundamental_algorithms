@@ -2,7 +2,6 @@
 #define DB_VALUE_BUILDER_H
 
 #include "db_value.h"
-#include <sstream>
 
 class db_value_builder {
     std::string _surname, _name, _patronymic;

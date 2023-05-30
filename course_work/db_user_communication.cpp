@@ -4,7 +4,7 @@
 void help() {
     std::cout << "----- Course work help -----" << std::endl;
     std::cout << "Collection commands list:" << std::endl;
-    std::cout << "Full path to collection: <pull_name>/<scheme_name>/<collection_name>" << std::endl;
+    std::cout << "Full path to collection: <pool_name>/<scheme_name>/<collection_name>" << std::endl;
     std::cout << "\t- add" << std::endl;
     std::cout << "\t- find" << std::endl;
     std::cout << "\t- find dataset" << std::endl;
@@ -80,13 +80,13 @@ parse_path(std::string &input_string) {
         throw parse_exception("parse_path:: incorrect path passed (is empty)");
     }
 
-    std::string pull_name, scheme_name, collection_name;
+    std::string pool_name, scheme_name, collection_name;
     std::string delimiter = "/";
     unsigned delimiter_length = delimiter.size();
     size_t pos;
 
     if ((pos = input_string.find(delimiter)) != std::string::npos) {
-        pull_name = input_string.substr(0, pos);
+        pool_name = input_string.substr(0, pos);
         input_string.erase(0, pos + delimiter_length);
 
         if ((pos = input_string.find(delimiter)) != std::string::npos) {
@@ -98,12 +98,12 @@ parse_path(std::string &input_string) {
             scheme_name = input_string;
         }
     } else {
-        pull_name = input_string;
+        pool_name = input_string;
     }
-    return {pull_name, scheme_name, collection_name};
+    return {pool_name, scheme_name, collection_name};
 }
 
-// returns pull/scheme/collection
+// returns pool/scheme/collection
 std::tuple<std::string, std::string, std::string>
 get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path) {
     std::string path_inner;
@@ -158,7 +158,7 @@ define_allocator_type
          size_t pos, unsigned delimiter_length) {
     if (allocator_type == data_base::allocator_types_::for_inner_use_sorted_list ||
         allocator_type == data_base::allocator_types_::for_inner_use_descriptors) {
-        s.erase(0, pos + delimiter_length);
+//        s.erase(0, pos + delimiter_length);
         if ((pos = s.find(delimiter)) != std::string::npos) {
             token = s.substr(0, pos);
             if (token == "best") {
@@ -312,8 +312,6 @@ short get_part_of_data_from_input_str(std::string &str, std::string &delimiter, 
             throw parse_exception("get_part_of_data_from_input_str:: incorrect value for data passed. Only digits");
         }
         str.erase();
-//        throw parse_exception(
-//                "get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
     }
     return to_return;
 }
@@ -566,7 +564,7 @@ void do_delete_command(data_base *db, std::string &path_inner, std::ifstream *in
             std::cout << "Database was deleted successfully!" << std::endl;
         }
     }
-        // delete pull/scheme/collection
+        // delete pool/scheme/collection
     else {
         auto path_parse_result = parse_path(const_cast<std::string &>(path_inner));
 

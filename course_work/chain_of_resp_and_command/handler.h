@@ -1,11 +1,7 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
-//#include "../db_value/db_value.h"
 #include "command.h"
-#include <chrono>
-
-//class db_value;
 
 class handler {
 public:
@@ -37,11 +33,6 @@ protected:
     handler_types _type_of_handler;
 
 public:
-    [[nodiscard]] uint64_t get_timestamp() const
-    {
-        return this->timestamp;
-    }
-
     [[nodiscard]] handler_types get_handler_type() const
     {
         return this->_type_of_handler;
@@ -52,23 +43,7 @@ public:
         this->_next_handler = handler;
         return handler;
     }
-/*
-    // this handler (the first in chain) cannot be proved to be last in this function. Must do a check-up in invoker function
-    handler ** find_last_handler(handler * invoker_handler) const
-    {
-        if (invoker_handler->_next_handler == nullptr) {
-            return nullptr;
-        }
 
-        handler **last_handler = &(invoker_handler->_next_handler);
-
-        while ((*last_handler)->_next_handler != nullptr) {
-            last_handler = &((*last_handler)->_next_handler);
-        }
-
-        return last_handler;
-    }
-*/
 public:
     db_value* handle(db_value ** request, uint64_t time_parameter)
     {
@@ -111,8 +86,6 @@ public:
 
 class add_handler final : public handler
 {
-
-    // принимает на вход АБСОЛЮТНО новое значение, никак не связанное с initial db_value
 public:
     explicit add_handler(db_value * new_value)
     {

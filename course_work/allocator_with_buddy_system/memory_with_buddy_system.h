@@ -31,7 +31,6 @@ private:
     memory ** _buddy_system_get_ptr_to_ptr_parent_allocator() const;
     void ** _buddy_system_get_ptr_to_ptr_to_pool_start() const;
     void * get_ptr_to_allocator_trusted_pool() const override;
-
     [[nodiscard]] logger** get_ptr_logger_of_allocator() const override;
 
 #pragma endregion
@@ -62,7 +61,7 @@ public:
     memory_with_buddy_system(memory_with_buddy_system const&) = delete;
     memory_with_buddy_system& operator= (memory_with_buddy_system const&) = delete;
     memory_with_buddy_system(char pow, logger* logger, memory* parent_allocator);
-    ~memory_with_buddy_system();
+    ~memory_with_buddy_system() override;
 
     void *allocate(size_t target_size) const override;
 

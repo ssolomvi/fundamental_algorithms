@@ -72,6 +72,11 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                         }
                         delete found_with_time;
                     }
+                    else if (simpy_found != nullptr) {
+                        if (is_cin) {
+                            std::cout << (*simpy_found) << std::endl;
+                        }
+                    }
                     else if (!(db_value_vector_in_range.empty())) {
                         if (is_cin) {
                             unsigned i, size_of_vector = db_value_vector_in_range.size();
@@ -80,10 +85,9 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                                 std::cout << (*(db_value_vector_in_range[i])) << std::endl;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (is_cin) {
-                            std::cout << (*simpy_found) << std::endl;
+                            std::cout << "No values were found" << std::endl;
                         }
                     }
                 }
@@ -203,17 +207,16 @@ int main(int argc, char **argv)
     data_base db(logg);
 
     db_test(&db, file, false);
-/*
+
     std::cout << "Hello! Would you like to get some closer interaction with my program? Print y for yes an n for no\n>>";
     std::string answer_to_important_question;
     std::getline(std::cin, answer_to_important_question);
 
     if (answer_to_important_question == "y") {
         db_test(&db, nullptr, true);
+    } else {
+        delete_db(&db);
     }
-*/
-    db_test(&db, nullptr, true);
-
 
     return 0;
 }

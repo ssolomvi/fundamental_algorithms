@@ -11,9 +11,6 @@ void * memory_with_boundary_tags::get_ptr_to_allocator_trusted_pool() const {
 #pragma endregion
 
 #pragma region Occupied block methods
-void *memory_with_boundary_tags::get_first_occupied_block_address() const {
-    return *get_ptr_to_ptr_to_pool_start();
-}
 
 void **memory_with_boundary_tags::get_first_occupied_block_address_address() const {
     return get_ptr_to_ptr_to_pool_start();

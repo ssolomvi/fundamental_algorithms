@@ -45,7 +45,7 @@ public:
     memory_with_sorted_list_deallocation& operator=(memory_with_sorted_list_deallocation const&) = delete; // assignment
 
     memory_with_sorted_list_deallocation(size_t size, memory::Allocation_strategy mode, logger*, memory *);
-    ~memory_with_sorted_list_deallocation();
+    ~memory_with_sorted_list_deallocation() override;
 
     void *allocate(size_t target_size) const override;
     void deallocate(void const * const target_to_dealloc) const override;
@@ -53,6 +53,5 @@ public:
 private:
     logger *get_logger() const noexcept override;
 };
-
 
 #endif //MEMORY_WITH_SORTED_LIST_DEALLOCATION_H

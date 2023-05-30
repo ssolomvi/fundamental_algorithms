@@ -16,27 +16,6 @@ protected:
     struct rb_node
         : public bs_tree<tkey, tvalue, tkey_comparer>::node
     {
-        /*
-    enum color {
-        red = 0,
-        black = 1
-    };
-
-
-    protected:
-        color _color;
-
-    public:
-        color get_color()
-        {
-            return (this == nullptr ? black : _color);
-        }
-
-        void change_color(color color_to_set)
-        {
-            _color = color_to_set;
-        }
-         */
     private:
         // red == 1, black = 0
         bool _color;
@@ -65,19 +44,6 @@ protected:
 
 protected:
 #pragma region template methods rb tree
-    /*
-    class template_methods_rb :
-            public bs_tree<key, tvalue, tkey_comparer>::template_method_basics
-    {
-    public:
-        explicit template_methods_rb(rb_tree<key, tvalue, tkey_comparer> *target_tree)
-            : bs_tree<key, tvalue, tkey_comparer>::template_method_basics(target_tree)
-        {
-
-        }
-    };
-     */
-
 #pragma region insertion to rb tree
     class insertion_rb_tree final :
             public bs_tree<tkey, tvalue, tkey_comparer>::insertion_template_method
@@ -609,14 +575,6 @@ public:
     ~rb_tree()
     {
         this->trace_with_guard("rb_tree destructor was called");
-
-        /*
-        delete this->_insertion;
-        delete this->_finding;
-        delete this->_removing;
-
-        this->clearup(this->_root);
-        */
      }
 
 private:

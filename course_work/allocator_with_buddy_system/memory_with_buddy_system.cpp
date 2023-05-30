@@ -50,18 +50,8 @@ void *memory_with_buddy_system::get_ptr_to_buddy(void * block, void * ptr_to_poo
     size_t shift =
             reinterpret_cast<size_t>(block_relatively_pool) ^ get_number_in_bin_pow(*_buddy_system_get_size_of_block(block));
 
-    auto * to_return = reinterpret_cast<void *>(shift + reinterpret_cast<char *>(ptr_to_pool_start));
-//    auto * to_return = reinterpret_cast<void *>(
-//            reinterpret_cast<size_t>(block) ^ get_number_in_bin_pow((*_buddy_system_get_size_of_block(block))));
-    return to_return;
+    return reinterpret_cast<void *>(shift + reinterpret_cast<char *>(ptr_to_pool_start));
 }
-// ini 0x1bee6b45319
-// 11: 0x1bee6b45b19
-// 10: 0x1bee6b45719
-// 9:  0x1bee6b45119 < initial
-// 8:  0x1bee6b45219 < initial
-// 7:  0x1bee6b45399
-// 6:  0x1bee6b45359
 
 #pragma endregion
 
@@ -215,7 +205,6 @@ void *memory_with_buddy_system::allocate(size_t target_size) const {
     }
 
     // delete target_block from list of available blocks
-    // 0x2c7007339a9 target block
     void * next_to_target_block = get_next_available_block_address(target_block);
     if (previous_to_target_block) {
         *_buddy_system_get_available_block_address_field(previous_to_target_block) = next_to_target_block;

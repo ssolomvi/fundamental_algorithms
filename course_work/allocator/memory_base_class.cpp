@@ -22,11 +22,6 @@ void **memory::get_ptr_to_ptr_to_pool_start() const {
 }
 #pragma endregion
 
-void memory::set_logger(logger * const logger) const
-{
-    *get_ptr_logger_of_allocator() = logger;
-}
-
 std::string memory::address_to_hex(const void * ptr) const {
     char address_buf[(sizeof(void const * const) << 3) + 3];
     sprintf(address_buf, "0x%p", ptr);
@@ -93,11 +88,6 @@ size_t memory::get_available_block_size(void * memory_block) const
 void * memory::get_next_available_block_address(void * memory_block) const
 {
     throw memory::memory_exception("Method get_next_available_block_address not implemented");
-}
-
-void * memory::get_first_occupied_block_address() const
-{
-    throw memory::memory_exception("Method get_first_occupied_block_address not implemented");
 }
 
 void ** memory::get_first_occupied_block_address_address() const
