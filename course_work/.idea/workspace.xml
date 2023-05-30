@@ -16,13 +16,13 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/trace.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/trace.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/warning.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/allocator/memory_base_class.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_base_class.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logger/logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logger/logger_builder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger_builder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +91,7 @@
       <workItem from="1685130547093" duration="7684000" />
       <workItem from="1685191292575" duration="200000" />
       <workItem from="1685202004205" duration="14863000" />
-      <workItem from="1685281164824" duration="63957000" />
+      <workItem from="1685281164824" duration="70210000" />
     </task>
     <servers />
   </component>
@@ -136,6 +136,11 @@
           <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
           <line>546</line>
           <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main.cpp</url>
+          <line>201</line>
+          <option name="timeStamp" value="83" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

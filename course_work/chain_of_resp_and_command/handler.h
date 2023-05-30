@@ -47,12 +47,12 @@ public:
 public:
     db_value* handle(db_value ** request, uint64_t time_parameter)
     {
+        // todo: если у значения, заданного в дереве timestamp < time_parameter, сгенерить исключение
         if (this->timestamp <= time_parameter) {
             request = _command->execute(request);
         } else {
             return (*request);
         }
-        // do command
 
         if (this->_next_handler != nullptr) {
             return this->_next_handler->handle(request, time_parameter);

@@ -1,4 +1,3 @@
-//#include "db/data_base.h"
 #include "db_user_communication.h"
 
 void help() {

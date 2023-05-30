@@ -1,7 +1,6 @@
 #ifndef MEMORY_BASE_CLASS_H
 #define MEMORY_BASE_CLASS_H
 
-//#include <functional>
 #include "../logger/logger_builder.h"
 #include "../logger/logger_holder.h"
 
@@ -50,8 +49,7 @@ protected:
     void dump_occupied_block_before_deallocate(void *const current_block_address) const;
 
 #pragma region Allocator properties
-    virtual size_t get_allocator_service_block_size() const;
-
+    [[nodiscard]] virtual size_t get_allocator_service_block_size() const;
     [[nodiscard]] virtual size_t* get_ptr_size_of_allocator_pool() const;
     [[nodiscard]] virtual logger** get_ptr_logger_of_allocator() const;
     [[nodiscard]] virtual memory** get_ptr_to_ptr_parent_allocator() const;
@@ -70,8 +68,7 @@ protected:
 #pragma endregion
 
 #pragma region Occupied block methods
-//    virtual void * get_first_occupied_block_address() const;
-    virtual void ** get_first_occupied_block_address_address() const;
+    [[nodiscard]] virtual void ** get_first_occupied_block_address_address() const;
 
     [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;   // get
     virtual size_t get_occupied_block_size(void * memory_block) const;

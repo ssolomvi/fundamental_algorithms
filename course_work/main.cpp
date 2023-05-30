@@ -158,12 +158,6 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                     }
                 }
                 break;
-//            case commands_::_save_:
-//                do_save_command(path_inner, &db);
-//                break;
-//            case commands_::_upload_:
-//                do_upload_command(path_inner, &db);
-//                break;
             case commands_::_help_:
                 help();
                 break;
@@ -207,6 +201,7 @@ int main(int argc, char **argv)
     data_base db(logg);
 
     db_test(&db, file, false);
+    file->close();
 
     std::cout << "Hello! Would you like to get some closer interaction with my program? Print y for yes an n for no\n>>";
     std::string answer_to_important_question;

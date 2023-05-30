@@ -28,17 +28,6 @@ std::string memory::address_to_hex(const void * ptr) const {
     return std::string { address_buf };
 }
 
-/*
-memory const * memory::log_with_guard(std::string const & target, logger::severity severity) const
-{
-    logger* logger = *get_ptr_logger_of_allocator();
-    if (logger != nullptr) {
-        logger->log(target, severity);
-    }
-    return this;
-}
- */
-
 void memory::dump_occupied_block_before_deallocate(void *const current_block_address) const {
     if (*get_ptr_logger_of_allocator() == nullptr) {
         return;
@@ -124,44 +113,3 @@ void *memory::get_ptr_to_allocator_trusted_pool() const {
 }
 
 #pragma endregion
-
-/*
-size_t memory::get_size_of_allocator_pool() const
-{
-    return *reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
-}
-
-logger* memory::get_logger_of_allocator() const
-{
-    return *reinterpret_cast<logger **>(reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1);
-}
-
-memory* memory::get_ptr_to_parent_allocator() const
-{
-    return *reinterpret_cast<memory **>(reinterpret_cast<logger **>(reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1) + 1);
-}
-
-memory::Allocation_strategy memory::get_allocation_mode() const
-{
-    return *reinterpret_cast<memory::Allocation_strategy *>(
-            reinterpret_cast<memory **>(
-                    reinterpret_cast<logger **>(
-                            reinterpret_cast<size_t *> (_ptr_to_allocator_metadata) + 1
-                            ) + 1
-                    ) + 1
-            );
-}
-
-void * memory::get_ptr_to_pool_allocator() const
-{
-    return *reinterpret_cast<void **>(
-            reinterpret_cast<memory::Allocation_strategy *>(
-                    reinterpret_cast<memory **>(
-                            reinterpret_cast<logger **>(
-                                    reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1
-                                    ) + 1
-                            ) + 1
-                    ) + 1
-            );
-}
-*/

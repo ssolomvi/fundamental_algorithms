@@ -10,7 +10,6 @@
 #include <map>
 #include <string>
 #include <chrono>
-#include <utility>
 
 class logger_builder;
 
