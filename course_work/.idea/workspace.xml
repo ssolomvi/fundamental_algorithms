@@ -16,24 +16,6 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator/memory_base_class.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_base_class.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator/memory_base_class.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_base_class.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_from_global_heap/memory_from_global_heap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_from_global_heap/memory_from_global_heap.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_from_global_heap/memory_from_global_heap.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_from_global_heap/memory_from_global_heap.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_from_global_heap/memory_from_global_heap_showcase.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags_showcase.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system_showcase.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation_showcase.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/avl_tree/avl_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/avl_tree/avl_tree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_tree/associative_container.h" beforeDir="false" afterPath="$PROJECT_DIR$/binary_tree/associative_container.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_tree/bs_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/binary_tree/bs_tree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
@@ -41,15 +23,6 @@
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/warning.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_key/key.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_key/key.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/db_value_builder.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/db_value_builder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logger_builder.h" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger_builder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logger_holder.h" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger_holder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rb_tree/rb_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/rb_tree/rb_tree.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +67,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="C:\fund-algths\course_work\test\data_base_test3" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
+    <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="C:\fund-algths\course_work\test\data_base_test2" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -118,7 +91,7 @@
       <workItem from="1685130547093" duration="7684000" />
       <workItem from="1685191292575" duration="200000" />
       <workItem from="1685202004205" duration="14863000" />
-      <workItem from="1685281164824" duration="57596000" />
+      <workItem from="1685281164824" duration="63957000" />
     </task>
     <servers />
   </component>
@@ -140,24 +113,29 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/db_user_communication.cpp</url>
-          <line>238</line>
-          <option name="timeStamp" value="71" />
+          <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
+          <line>654</line>
+          <option name="timeStamp" value="77" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
+          <line>680</line>
+          <option name="timeStamp" value="78" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
+          <line>707</line>
+          <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
           <line>595</line>
-          <option name="timeStamp" value="73" />
+          <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
-          <line>566</line>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/db/data_base.cpp</url>
-          <line>539</line>
-          <option name="timeStamp" value="75" />
+          <line>546</line>
+          <option name="timeStamp" value="82" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

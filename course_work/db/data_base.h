@@ -173,6 +173,16 @@ public:
 
 #pragma region Deletion from collection
 public:
+    void delete_collection
+    (const std::string & full_path, const std::string & collection_name, associative_container<std::string,
+            associative_container<key, db_value *> *> * parent_scheme);
+
+    void delete_scheme
+    (const std::string & full_path, const std::string & scheme_name, associative_container<std::string,
+        associative_container<std::string, associative_container<key, db_value *> *> *> * parent_pool);
+
+    void delete_pool(const std::string & pool_name);
+
     void delete_from_collection
     (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
      const key& key) const;

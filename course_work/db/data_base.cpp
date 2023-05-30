@@ -532,61 +532,109 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
 
 #pragma region Deleting from structure of data base
 
-void
-data_base::delete_from_structure_inner
-        (void * to_delete, std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name)
+void data_base::delete_pool(const std::string & pool_name)
 {
-    this->trace_with_guard("data_base::delete_from_structure_inner method started");
-    std::string full_path = pool_name + "/" + scheme_name + "/" + collection_name;
-    // todo: done for bst-like only
-    if (scheme_name.empty()) {
-        auto * pool_to_d =  reinterpret_cast<bs_tree<std::string,
-                associative_container<std::string,
-                        associative_container<key, db_value *> *> *, string_comparer> *>(to_delete);
+    associative_container<std::string,
+            associative_container<std::string,
+                associative_container<key, db_value *> *> *> * data_pool = _database->remove(pool_name);
 
-        auto iter_end = pool_to_d->end_postfix();
-        for (auto iter = pool_to_d->begin_postfix(); iter != iter_end; ++iter) {
-            delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pool_name, std::get<1>(*iter), "");
+    std::vector<memory *> sub_structures_allocators;
+
+    auto * pool_to_d = reinterpret_cast<bs_tree<std::string,
+                                            associative_container<std::string,
+                                                associative_container<key, db_value *> *> *, string_comparer> *>(data_pool);
+
+    std::string sub_struct_full_name;
+
+    auto iter_over_schemes_end = pool_to_d->end_postfix();
+    for (auto iter_over_schemes = pool_to_d->begin_postfix(); iter_over_schemes != iter_over_schemes_end; ++iter_over_schemes) {
+        auto * sub_scheme = reinterpret_cast<bs_tree<std::string,
+                associative_container<key, db_value *> *, string_comparer> *>(std::get<2>(*iter_over_schemes));
+
+        auto iter_over_collections_end = sub_scheme->end_postfix();
+        for (auto iter_over_collections = sub_scheme->begin_postfix(); iter_over_collections != iter_over_collections_end; ++iter_over_collections) {
+            sub_struct_full_name = pool_name + "/" + std::get<1>(*iter_over_schemes) + "/" + std::get<1>(*iter_over_collections);
+            if (_all_trees_allocators.contains(sub_struct_full_name)) {
+                sub_structures_allocators.push_back(_all_trees_allocators[sub_struct_full_name]);
+                _all_trees_allocators.erase(sub_struct_full_name);
+            }
         }
 
-        if (_all_trees_allocators.contains(full_path)) {
-            memory * this_pool_allocator = _all_trees_allocators[full_path];
-            delete this_pool_allocator;
-            _all_trees_allocators.erase(full_path);
+        sub_struct_full_name = pool_name + "/" + std::get<1>(*iter_over_schemes) + "/";
+        if (_all_trees_allocators.contains(sub_struct_full_name)) {
+            sub_structures_allocators.push_back(_all_trees_allocators[sub_struct_full_name]);
+            _all_trees_allocators.erase(sub_struct_full_name);
         }
-        this->_database->remove(pool_name);
-
-        delete pool_to_d;
-
-    } else if (collection_name.empty()) {
-        auto * scheme_to_d = reinterpret_cast<bs_tree<std::string,
-                associative_container<key, db_value *> *, string_comparer> *>(to_delete);
-
-        auto iter_end = scheme_to_d->end_postfix();
-        for (auto iter = scheme_to_d->begin_postfix(); iter != iter_end; ++iter) {
-            delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), pool_name, scheme_name, std::get<1>(*iter));
-        }
-
-        if (_all_trees_allocators.contains(full_path)) {
-            memory * this_pool_allocator = _all_trees_allocators[full_path];
-            delete this_pool_allocator;
-            _all_trees_allocators.erase(full_path);
-        }
-
-        auto * this_scheme_pool = find_data_pool(pool_name);
-        delete (this_scheme_pool->remove(scheme_name));
-
-    } else {
-        if (_all_trees_allocators.contains(full_path)) {
-            memory * this_pool_allocator = _all_trees_allocators[full_path];
-            delete this_pool_allocator;
-            _all_trees_allocators.erase(full_path);
-        }
-
-        auto * this_collection_scheme = find_data_scheme(pool_name, scheme_name);
-        delete (this_collection_scheme->remove(collection_name));
     }
-    this->debug_with_guard("data_base::delete_from_structure_inner method finished");
+
+    delete data_pool;
+
+    size_t size_of_vector = sub_structures_allocators.size();
+
+    unsigned i;
+    for (i = 0; i < size_of_vector; i++) {
+        delete sub_structures_allocators[i];
+    }
+
+    sub_struct_full_name = pool_name + "/" + "/";
+    if (_all_trees_allocators.contains(sub_struct_full_name)) {
+        memory * tmp = _all_trees_allocators[sub_struct_full_name];
+        _all_trees_allocators.erase(sub_struct_full_name);
+        delete tmp;
+    }
+}
+
+// full path must include pool/scheme/
+void data_base::delete_scheme(const std::string & full_path, const std::string & scheme_name, associative_container<std::string,
+                              associative_container<std::string, associative_container<key, db_value *> *> *> * parent_pool)
+{
+    associative_container<std::string,
+            associative_container<key, db_value *> *> * data_scheme = parent_pool->remove(scheme_name);
+
+    std::vector<memory *> sub_structures_allocators;
+
+    auto * scheme_to_d = reinterpret_cast<bs_tree<std::string,
+            associative_container<key, db_value *> *, string_comparer> *>(data_scheme);
+
+    std::string collection_full_name;
+
+    auto iter_end = scheme_to_d->end_postfix();
+    for (auto iter = scheme_to_d->begin_postfix(); iter != iter_end; ++iter) {
+        collection_full_name = full_path + std::get<1>(*iter);
+        if (_all_trees_allocators.contains(collection_full_name)) {
+            sub_structures_allocators.push_back(_all_trees_allocators[collection_full_name]);
+            _all_trees_allocators.erase(collection_full_name);
+        }
+    }
+
+    delete data_scheme;
+
+    size_t size_of_vector = sub_structures_allocators.size();
+
+    unsigned i;
+    for (i = 0; i < size_of_vector; i++) {
+        delete sub_structures_allocators[i];
+    }
+
+    if (_all_trees_allocators.contains(full_path)) {
+        memory * tmp = _all_trees_allocators[full_path];
+        _all_trees_allocators.erase(full_path);
+        delete tmp;
+    }
+}
+
+void data_base::delete_collection(const std::string & full_path, const std::string & collection_name, associative_container<std::string,
+        associative_container<key, db_value *> *> * parent_scheme)
+{
+    associative_container<key, db_value *> * data_collection = parent_scheme->remove(collection_name);
+
+    delete data_collection;
+
+    if (_all_trees_allocators.contains(full_path)) {
+        memory * this_collection_allocator = _all_trees_allocators[full_path];
+        delete this_collection_allocator;
+        _all_trees_allocators.erase(full_path);
+    }
 }
 
 void
@@ -604,18 +652,12 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
     // delete pool. should delete all schemes' collections' allocators, delete all schemes' allocators, delete pool's allocator
     if (scheme_name.empty()) {
         try {
-            associative_container<std::string,
-                    associative_container<std::string,
-                            associative_container<key, db_value *> *
-                    > *
-            > * pool = _database->get(pool_name);
-
-            delete_from_structure_inner(reinterpret_cast<void *>(pool), pool_name, "", "");
+            delete_pool(pool_name);
         }
         catch (bs_tree<std::string,
                     associative_container<std::string,
                         associative_container<std::string,
-                            associative_container<key, db_value *> *> *> *, data_base::string_comparer>::find_exception const &) {
+                            associative_container<key, db_value *> *> *> *, data_base::string_comparer>::remove_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure not found passed pool " + pool_name)
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw db_remove_exception("delete_from_structure:: not found passed pool " + pool_name);
@@ -636,18 +678,15 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
         }
 
         try {
-            associative_container<std::string,
-                    associative_container<key, db_value *> *> * data_scheme = data_pool->get(scheme_name);
-
-            delete_from_structure_inner(reinterpret_cast<void *>(data_scheme), pool_name, scheme_name, "");
+            delete_scheme(pool_name + "/" + scheme_name + "/", scheme_name, data_pool);
         }
-        catch (typename bs_tree<key,
+        catch (typename bs_tree<std::string,
                             associative_container<std::string,
-                                associative_container<key, db_value *> *> *, key_comparer>::find_exception const &) {
+                                associative_container<key, db_value *> *> *, string_comparer>::remove_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure no scheme with name " + scheme_name + "in data base")
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw data_base::db_remove_exception(
-                    "delete_from_structure:: no scheme with name " + scheme_name + "in data base");
+                    "delete_from_structure:: no scheme with name " + scheme_name + " in data base");
         }
     }
     // deleting collection
@@ -655,7 +694,6 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
         // find a scheme
         associative_container<std::string,
                 associative_container<key, db_value *> *> * data_scheme;
-
         try {
             data_scheme = find_data_scheme(pool_name, scheme_name);
         }
@@ -667,15 +705,13 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
         }
 
         try {
-            associative_container<key, db_value *> * data_collection = data_scheme->get(collection_name);
-
-            delete_from_structure_inner(reinterpret_cast<void *>(data_collection), pool_name, scheme_name, collection_name);
+            delete_collection(pool_name + "/" + scheme_name + "/" + collection_name, collection_name, data_scheme);
         }
-        catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+        catch (typename bs_tree<std::string, associative_container<key, db_value *> *, string_comparer>::remove_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure no collection with name " + collection_name + "in data base")
                     ->trace_with_guard("data_base::delete_from_structure method finished");
             throw data_base::db_remove_exception(
-                    "delete_from_structure:: no collection with name " + collection_name + "in data base");
+                    "delete_from_structure:: no collection with name " + collection_name + " in data base");
         }
     }
 
@@ -686,16 +722,14 @@ data_base::~data_base() {
     if (_database == nullptr) {
         this->warning_with_guard("data_base::~data_base data_base has already been removed");
         return;
-//        throw data_base::db_remove_exception("data_base::~data_base data_base has already been removed");
     }
     // todo: done only for bst-like trees
 
     this->trace_with_guard("data_base::~data_base() method started");
     std::string pool_name;
 
-    auto iter_end = _database->end_postfix();
-    for (auto iter = _database->begin_postfix(); iter != iter_end; ++iter) {
-        this->delete_from_structure_inner(reinterpret_cast<void *>(std::get<2>(*iter)), std::get<1>(*iter), "", "");
+    for (const auto& [key, value] : _all_trees_allocators) {
+        delete value;
     }
 
     delete _database;
