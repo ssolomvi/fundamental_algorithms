@@ -200,22 +200,80 @@ data_base::find_among_collection(const std::string &pool_name, const std::string
     return found_value;
 }
 
+std::vector<db_value *>
+data_base::find_dataset_with_time
+(const std::string &pool_name, const std::string &scheme_name, const std::string &collection_name,
+ key min_key, key max_key, uint64_t time_parameter)
+{
+    this->trace_with_guard("data_base::find_dataset_with_time method started");
+    associative_container<key, db_value *> *data_collection
+            = find_data_collection(pool_name, scheme_name, collection_name);
+
+    key_comparer comparer;
+    auto comparison_result = comparer(min_key, max_key);
+    if (comparison_result > 0) {
+        key tmp = min_key;
+        min_key = max_key;
+        max_key = tmp;
+    }
+
+    std::vector<db_value *> to_return_vector;
+
+    if (comparison_result == 0) {
+        try {
+            db_value * found = find_with_time(pool_name, scheme_name, collection_name, nullptr, min_key, time_parameter);
+            to_return_vector.push_back(found);
+            return to_return_vector;
+        }
+        catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+            throw db_find_exception("data_base::find_in_range no appropriate values found in collection");
+        }
+    }
+
+    // done only for bst-like trees. B and B+ trees require another iterators
+    auto * bst = reinterpret_cast<bs_tree<key, db_value *, key_comparer> *>(data_collection);
+    auto end_iteration = bst->end_infix();
+    bool in_range = false;
+
+    for (auto it = bst->begin_infix(); it != end_iteration; ++it) {
+        if (in_range) {
+            if (comparer(max_key, std::get<1>(*it)) >= 0) {
+                to_return_vector.push_back(find_with_time(pool_name, scheme_name, collection_name, std::get<2>(*it), std::get<1>(*it), time_parameter));
+            } else {
+                break;
+            }
+        }
+
+        if (!in_range) {
+            if (comparer(min_key, std::get<1>(*it)) <= 0) {
+                in_range = true;
+                to_return_vector.push_back(find_with_time(pool_name, scheme_name, collection_name, std::get<2>(*it), std::get<1>(*it), time_parameter));
+            }
+        }
+    }
+
+    this->trace_with_guard("data_base::find_dataset_with_time method finished");
+    return to_return_vector;
+}
+
 db_value *
 data_base::find_with_time
 (const std::string &pool_name, const std::string &scheme_name, const std::string &collection_name,
+ db_value * found_value,
  const key& _key, uint64_t time_parameter) const
 {
     this->trace_with_guard("data_base::find_with_time method started");
-    associative_container<key, db_value *> * collection = find_data_collection(pool_name, scheme_name, collection_name);
+    if (found_value == nullptr) {
+        associative_container<key, db_value *> * collection = find_data_collection(pool_name, scheme_name, collection_name);
 
-    db_value * found_value;
-    try {
-        found_value = collection->get(_key);
-    }
-    catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
-        this->debug_with_guard("data_base::find_with_time cannot find a value with passed key")
-                ->trace_with_guard("data_base::find_with_time method finished");
-        throw data_base::db_find_exception("find_with_time:: cannot find a value with passed key");
+        try {
+            found_value = collection->get(_key);
+        }
+        catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+            this->debug_with_guard("data_base::find_with_time cannot find a found_value with passed key")
+                    ->trace_with_guard("data_base::find_with_time method finished");
+            throw data_base::db_find_exception("find_with_time:: cannot find a found_value with passed key");
+        }
     }
 
     db_value * found_value_copy = found_value->make_a_copy();
@@ -240,14 +298,25 @@ data_base::find_in_range(const std::string &pool_name, const std::string &scheme
             = find_data_collection(pool_name, scheme_name, collection_name);
 
     key_comparer comparer;
-    if (comparer(min_key, max_key) > 0) {
+    auto comparison_result = comparer(min_key, max_key);
+    if (comparison_result > 0) {
         key tmp = min_key;
         min_key = max_key;
         max_key = tmp;
     }
-    // todo: if comparer(min_key, max_key) == 0, do simple finding
 
     std::vector<db_value *> to_return_vector;
+
+    if (comparison_result == 0) {
+        try {
+            db_value * found = data_collection->get(min_key);
+            to_return_vector.push_back(found);
+            return to_return_vector;
+        }
+        catch (typename bs_tree<key, db_value *, key_comparer>::find_exception const &) {
+            throw db_find_exception("data_base::find_in_range no appropriate values found in collection");
+        }
+    }
 
     // done only for bst-like trees. B and B+ trees require another iterators
     auto * bst = reinterpret_cast<bs_tree<key, db_value *, key_comparer> *>(data_collection);
@@ -353,7 +422,7 @@ data_base::get_new_allocator_for_inner_trees
             break;
     }
     if (new_allocator != nullptr) {
-        _all_trees_allocators[pool_name + "/" + scheme_name + "/" + collection_name] = new_allocator;
+        _all_trees_allocators[pool_name] = new_allocator;
     }
 
     this->trace_with_guard("data_base::get_new_allocator_for_inner_trees method finished");
@@ -374,10 +443,10 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
         throw data_base::db_insert_exception("add_to_structure:: one should pass pool name for correct work of method");
     }
 
-    memory * new_allocator = get_new_allocator_for_inner_trees(pool_name, scheme_name, collection_name, allocator_type, allocator_pool_size);
-
     // insert data pool in _database
     if (scheme_name.empty()) {
+        memory * new_allocator = get_new_allocator_for_inner_trees(pool_name, scheme_name, collection_name, allocator_type, allocator_pool_size);
+
         associative_container<std::string,
                 associative_container<std::string,
                         associative_container<key, db_value *> *> *> *data_pool = nullptr;
@@ -408,12 +477,32 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
         try {
             _database->insert(pool_name, std::move(data_pool));
         }
+        catch (bs_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, associative_container<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, associative_container<key, db_value*>*>*, data_base::string_comparer>::insert_exception const &) {
+            delete data_pool;
+            _all_trees_allocators.erase(pool_name);
+            delete new_allocator;
+
+            this->warning_with_guard("data_base::add_to_structure insert failed due to non-unique pool name to insert")
+                    ->trace_with_guard("data_base::add_to_structure method finished");
+            throw data_base::db_insert_exception("add_to_structure:: insert failed due to non-unique pool name to insert");
+        }
         catch (typename bs_tree<std::string,
                 associative_container<std::string,
-                    associative_container<std::string,
-                        associative_container<key, db_value *> *> *> *, string_comparer>::insert_exception const &) {
-            delete data_pool; // ?? todo: check
-            _all_trees_allocators.erase(pool_name + "/" + scheme_name + "/" + collection_name);
+                        associative_container<key, db_value *> *> *, data_base::string_comparer>::insert_exception const &) {
+            delete data_pool;
+            _all_trees_allocators.erase(pool_name);
+            delete new_allocator;
+
+            this->warning_with_guard("data_base::add_to_structure insert failed due to non-unique pool name to insert")
+                    ->trace_with_guard("data_base::add_to_structure method finished");
+            throw data_base::db_insert_exception("add_to_structure:: insert failed due to non-unique pool name to insert");
+        }
+        catch (bs_tree<std::string,
+                associative_container<std::string,
+                        associative_container<std::string,
+                                associative_container<key, db_value *> *> *> *, data_base::string_comparer>::insert_exception const &) {
+            delete data_pool;
+            _all_trees_allocators.erase(pool_name);
             delete new_allocator;
 
             this->warning_with_guard("data_base::add_to_structure insert failed due to non-unique pool name to insert")
@@ -423,6 +512,11 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
     }
         // insert data scheme
     else if (collection_name.empty()) {
+        memory * new_allocator = nullptr;
+        if (_all_trees_allocators.contains(pool_name)) {
+            new_allocator = _all_trees_allocators[pool_name];
+        }
+
         // find a pool
         associative_container<std::string,
                 associative_container<std::string,
@@ -465,10 +559,9 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
         try {
             data_pool->insert(scheme_name, std::move(data_scheme));
         }
-        catch (typename bs_tree<key, db_value *, key_comparer>::insert_exception const &) {
-            delete data_scheme; // ?? todo: check
-            _all_trees_allocators.erase(pool_name + "/" + scheme_name + "/" + collection_name);
-            delete new_allocator;
+        catch (typename bs_tree<std::string,
+                associative_container<key, db_value *>, string_comparer>::insert_exception const &) {
+            delete data_scheme;
 
             this->warning_with_guard("data_base::add_to_structure insert failed due to non-unique scheme name to insert")
                     ->trace_with_guard("data_base::add_to_structure method finished");
@@ -479,6 +572,11 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
         // insert collection
     else {
         // find a scheme
+        memory * new_allocator = nullptr;
+        if (_all_trees_allocators.contains(pool_name)) {
+            new_allocator = _all_trees_allocators[pool_name];
+        }
+
         associative_container<std::string,
                 associative_container<key, db_value *> *> * data_scheme;
 
@@ -486,9 +584,6 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
             data_scheme = find_data_scheme(pool_name, scheme_name);
         }
         catch (data_base::db_find_exception const &) {
-            _all_trees_allocators.erase(pool_name + "/" + scheme_name + "/" + collection_name);
-            delete new_allocator;
-
             this->debug_with_guard("data_base::add_to_structure no such pool/scheme name in data_base")
                     ->trace_with_guard("data_base::add_to_structure method finished");
             throw data_base::db_insert_exception("add_to_structure:: no such pool/scheme name in data_base");
@@ -515,10 +610,7 @@ data_base::add_to_structure(const std::string &pool_name, const std::string &sch
             data_scheme->insert(collection_name, std::move(data_collection));
         }
         catch (typename bs_tree<key, db_value *, key_comparer>::insert_exception const &) {
-            delete data_collection; // ?? todo: check
-            _all_trees_allocators.erase(pool_name + "/" + scheme_name + "/" + collection_name);
-            delete new_allocator;
-
+            delete data_collection;
             this->warning_with_guard("data_base::add_to_structure insert failed due to non-unique collection name to insert")
                     ->trace_with_guard("data_base::add_to_structure method finished");
             throw data_base::db_insert_exception(
@@ -538,103 +630,31 @@ void data_base::delete_pool(const std::string & pool_name)
             associative_container<std::string,
                 associative_container<key, db_value *> *> *> * data_pool = _database->remove(pool_name);
 
-    std::vector<memory *> sub_structures_allocators;
-
-    auto * pool_to_d = reinterpret_cast<bs_tree<std::string,
-                                            associative_container<std::string,
-                                                associative_container<key, db_value *> *> *, string_comparer> *>(data_pool);
-
-    std::string sub_struct_full_name;
-
-    auto iter_over_schemes_end = pool_to_d->end_postfix();
-    for (auto iter_over_schemes = pool_to_d->begin_postfix(); iter_over_schemes != iter_over_schemes_end; ++iter_over_schemes) {
-        auto * sub_scheme = reinterpret_cast<bs_tree<std::string,
-                associative_container<key, db_value *> *, string_comparer> *>(std::get<2>(*iter_over_schemes));
-
-        auto iter_over_collections_end = sub_scheme->end_postfix();
-        for (auto iter_over_collections = sub_scheme->begin_postfix(); iter_over_collections != iter_over_collections_end; ++iter_over_collections) {
-            sub_struct_full_name = pool_name + "/" + std::get<1>(*iter_over_schemes) + "/" + std::get<1>(*iter_over_collections);
-            if (_all_trees_allocators.contains(sub_struct_full_name)) {
-                sub_structures_allocators.push_back(_all_trees_allocators[sub_struct_full_name]);
-                _all_trees_allocators.erase(sub_struct_full_name);
-            }
-        }
-
-        sub_struct_full_name = pool_name + "/" + std::get<1>(*iter_over_schemes) + "/";
-        if (_all_trees_allocators.contains(sub_struct_full_name)) {
-            sub_structures_allocators.push_back(_all_trees_allocators[sub_struct_full_name]);
-            _all_trees_allocators.erase(sub_struct_full_name);
-        }
-    }
-
     delete data_pool;
 
-    size_t size_of_vector = sub_structures_allocators.size();
-
-    unsigned i;
-    for (i = 0; i < size_of_vector; i++) {
-        delete sub_structures_allocators[i];
-    }
-
-    sub_struct_full_name = pool_name + "/" + "/";
-    if (_all_trees_allocators.contains(sub_struct_full_name)) {
-        memory * tmp = _all_trees_allocators[sub_struct_full_name];
-        _all_trees_allocators.erase(sub_struct_full_name);
+    if (_all_trees_allocators.contains(pool_name)) {
+        memory * tmp = _all_trees_allocators[pool_name];
+        _all_trees_allocators.erase(pool_name);
         delete tmp;
     }
 }
 
 // full path must include pool/scheme/
-void data_base::delete_scheme(const std::string & full_path, const std::string & scheme_name, associative_container<std::string,
+void data_base::delete_scheme(const std::string & scheme_name, associative_container<std::string,
                               associative_container<std::string, associative_container<key, db_value *> *> *> * parent_pool)
 {
     associative_container<std::string,
             associative_container<key, db_value *> *> * data_scheme = parent_pool->remove(scheme_name);
 
-    std::vector<memory *> sub_structures_allocators;
-
-    auto * scheme_to_d = reinterpret_cast<bs_tree<std::string,
-            associative_container<key, db_value *> *, string_comparer> *>(data_scheme);
-
-    std::string collection_full_name;
-
-    auto iter_end = scheme_to_d->end_postfix();
-    for (auto iter = scheme_to_d->begin_postfix(); iter != iter_end; ++iter) {
-        collection_full_name = full_path + std::get<1>(*iter);
-        if (_all_trees_allocators.contains(collection_full_name)) {
-            sub_structures_allocators.push_back(_all_trees_allocators[collection_full_name]);
-            _all_trees_allocators.erase(collection_full_name);
-        }
-    }
-
     delete data_scheme;
-
-    size_t size_of_vector = sub_structures_allocators.size();
-
-    unsigned i;
-    for (i = 0; i < size_of_vector; i++) {
-        delete sub_structures_allocators[i];
-    }
-
-    if (_all_trees_allocators.contains(full_path)) {
-        memory * tmp = _all_trees_allocators[full_path];
-        _all_trees_allocators.erase(full_path);
-        delete tmp;
-    }
 }
 
-void data_base::delete_collection(const std::string & full_path, const std::string & collection_name, associative_container<std::string,
+void data_base::delete_collection(const std::string & collection_name, associative_container<std::string,
         associative_container<key, db_value *> *> * parent_scheme)
 {
     associative_container<key, db_value *> * data_collection = parent_scheme->remove(collection_name);
 
     delete data_collection;
-
-    if (_all_trees_allocators.contains(full_path)) {
-        memory * this_collection_allocator = _all_trees_allocators[full_path];
-        delete this_collection_allocator;
-        _all_trees_allocators.erase(full_path);
-    }
 }
 
 void
@@ -678,7 +698,7 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
         }
 
         try {
-            delete_scheme(pool_name + "/" + scheme_name + "/", scheme_name, data_pool);
+            delete_scheme(scheme_name, data_pool);
         }
         catch (typename bs_tree<std::string,
                             associative_container<std::string,
@@ -705,7 +725,7 @@ data_base::delete_from_structure(const std::string &pool_name, const std::string
         }
 
         try {
-            delete_collection(pool_name + "/" + scheme_name + "/" + collection_name, collection_name, data_scheme);
+            delete_collection(collection_name, data_scheme);
         }
         catch (typename bs_tree<std::string, associative_container<key, db_value *> *, string_comparer>::remove_exception const &) {
             this->debug_with_guard("data_base::delete_from_structure no collection with name " + collection_name + "in data base")
@@ -723,14 +743,12 @@ data_base::~data_base() {
         this->warning_with_guard("data_base::~data_base data_base has already been removed");
         return;
     }
-    // todo: done only for bst-like trees
+    //  done only for bst-like trees
 
     this->trace_with_guard("data_base::~data_base() method started");
-    std::string pool_name;
 
-    for (const auto& [key, value] : _all_trees_allocators) {
-        delete value;
-    }
+    for (auto&& p : _all_trees_allocators) { delete p.second; }
+    _all_trees_allocators.clear();
 
     delete _database;
     this->_database = nullptr;

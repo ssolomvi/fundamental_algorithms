@@ -1,5 +1,5 @@
-#ifndef LAB5_MEMORY_HOLDER_H
-#define LAB5_MEMORY_HOLDER_H
+#ifndef MEMORY_HOLDER_H
+#define MEMORY_HOLDER_H
 
 #include "memory_base_class.h"
 
@@ -17,4 +17,4 @@ protected:
 };
 
 
-#endif //LAB5_MEMORY_HOLDER_H
+#endif //MEMORY_HOLDER_H

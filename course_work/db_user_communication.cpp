@@ -7,6 +7,7 @@ void help() {
     std::cout << "\t- add" << std::endl;
     std::cout << "\t- find" << std::endl;
     std::cout << "\t- find dataset" << std::endl;
+    std::cout << "\t- find dataset DD/MM/YYYY hh/mm/ss" << std::endl;
     std::cout << "\t- find DD/MM/YYYY hh/mm/ss" << std::endl;
     std::cout << "\t- update" << std::endl;
     std::cout << "\t- delete" << std::endl;
@@ -22,8 +23,7 @@ void help() {
             << std::endl;
     std::cout << "\t- delete <full path>" << std::endl;
     std::cout << "DB commands list:" << std::endl;
-//    std::cout << "\t- save <filename>" << std::endl;
-//    std::cout << "\t- upload <filename>" << std::endl;
+    std::cout << "\t- from <filename>" << std::endl;
     std::cout << "\t- help" << std::endl;
     std::cout << "\t- delete DB" << std::endl;
     std::cout << "\t- exit" << std::endl;
@@ -47,6 +47,8 @@ commands_ get_command(std::string const &user_input) {
         return commands_::_help_;
     } else if (user_input == "exit") {
         return commands_::_exit_;
+    } else if (user_input == "from") {
+        return commands_::_from_;
     }
     return commands_::_not_a_command_;
 }
@@ -358,32 +360,52 @@ uint64_t parse_time_from_input_str(std::string &input_stream) {
         throw parse_exception("parse_time_from_input_str:: incorrect data passed");
     }
 
-    //todo: check if data is correct
     return convert_time_str_to_ms(to_return);
 }
 
-std::tuple<db_value *, std::vector<db_value *>, db_value *>
+std::tuple<db_value *, std::vector<db_value *>, std::vector<db_value *>, db_value *>
 do_find_command
 (data_base *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
-    std::vector<db_value *> to_return_vector;
+    std::vector<db_value *> to_return_vector_simply_found;
+    std::vector<db_value *> to_return_vector_found_with_time;
     db_value *found_with_time = nullptr, *simply_found = nullptr;
 
     std::string token, delimiter = " ";
-//    unsigned delimiter_length = delimiter.length();
-//    size_t pos;
+    unsigned delimiter_length = delimiter.length();
+    size_t pos;
 
-    if (input_str_leftover.find(delimiter) != std::string::npos) {
+    if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
         // with time
-        uint64_t time_stamp = parse_time_from_input_str(input_str_leftover);
+        std::string lexeme = input_str_leftover.substr(0, pos);
+        uint64_t time_stamp;
 
-        key tmp_key(input_stream, is_cin);
+        if (lexeme == "dataset") {
+            input_str_leftover.erase(0, pos + 1);
 
-        auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
+            time_stamp = parse_time_from_input_str(input_str_leftover);
 
-        found_with_time = db->find_with_time(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
-                                             std::get<2>(path_parse_result),
-                                             tmp_key, time_stamp);
+            if (is_cin) {
+                std::cout << "Enter min and max keys" << std::endl;
+            }
+            key min(input_stream, is_cin);
+            key max(input_stream, is_cin);
+
+            auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
+
+            to_return_vector_found_with_time =  db->find_dataset_with_time(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                                                           std::get<2>(path_parse_result), min, max, time_stamp);
+        } else {
+            time_stamp = parse_time_from_input_str(input_str_leftover);
+
+            key tmp_key(input_stream, is_cin);
+
+            auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
+
+            found_with_time = db->find_with_time(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+                                                 std::get<2>(path_parse_result), nullptr,
+                                                 tmp_key, time_stamp);
+        }
     } else if (input_str_leftover == "dataset") {
         // find in range
         if (is_cin) {
@@ -394,7 +416,7 @@ do_find_command
 
         auto path_parse_result = get_path_from_user_input(input_stream, is_cin, true);
 
-        to_return_vector = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
+        to_return_vector_simply_found = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                              std::get<2>(path_parse_result),
                                              min, max);
     } else if (input_str_leftover.empty()) {
@@ -409,7 +431,7 @@ do_find_command
         throw parse_exception("do_find_command:: Incorrect command entered");
     }
 
-    return {found_with_time, to_return_vector, simply_found};
+    return {found_with_time, to_return_vector_found_with_time, to_return_vector_simply_found, simply_found};
 }
 
 #pragma endregion
@@ -575,29 +597,3 @@ void do_delete_command(data_base *db, std::string &path_inner, std::ifstream *in
 }
 
 #pragma endregion
-/*
-// todo: do_save_command
-void do_save_command(std::string const & path_inner, data_base * db)
-{
-    // path should not be empty
-    if (path_inner.empty()) {
-        get_path_from_user_input(false);
-    } else {
-        parse_path(const_cast<std::string &>(path_inner));
-    }
-    // save to file
-}
-*/
-/*
-// todo: do_upload_command
-void do_upload_command(std::string const & path_inner, data_base * db)
-{
-    // path should not be empty
-    if (path_inner.empty()) {
-        get_path_from_user_input(false);
-    } else {
-        parse_path(const_cast<std::string &>(path_inner));
-    }
-    // upload from file
-}
-*/

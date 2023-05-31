@@ -1,6 +1,6 @@
 #include "db_user_communication.h"
 
-// todo: обмазать всё логами
+void do_from_file_command(data_base * db, std::string const & filename);
 
 void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
     if (is_cin) {
@@ -59,12 +59,13 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                 break;
             case commands_::_find_:
                 try {
-                    std::tuple<db_value *, std::vector<db_value *>, db_value *> found
+                    std::tuple<db_value *, std::vector<db_value *>, std::vector<db_value *>, db_value *> found
                             = do_find_command(db, leftover, input_stream, is_cin);
 
                     db_value * found_with_time = std::get<0>(found);
-                    std::vector<db_value *> db_value_vector_in_range = std::get<1>(found);
-                    db_value * simpy_found = std::get<2>(found);
+                    std::vector<db_value *> db_value_vector_with_time = std::get<1>(found);
+                    std::vector<db_value *> db_value_vector_simply = std::get<2>(found);
+                    db_value * simpy_found = std::get<3>(found);
 
                     if (found_with_time != nullptr) {
                         if (is_cin) {
@@ -77,15 +78,25 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                             std::cout << (*simpy_found) << std::endl;
                         }
                     }
-                    else if (!(db_value_vector_in_range.empty())) {
+                    else if (!(db_value_vector_simply.empty())) {
                         if (is_cin) {
-                            unsigned i, size_of_vector = db_value_vector_in_range.size();
+                            unsigned i, size_of_vector = db_value_vector_simply.size();
                             for (i = 0; i < size_of_vector; i++) {
                                 std::cout << "----- " << i + 1 << " value " << "-----" << std::endl;
-                                std::cout << (*(db_value_vector_in_range[i])) << std::endl;
+                                std::cout << (*(db_value_vector_simply[i])) << std::endl;
                             }
                         }
-                    } else {
+                    } else if (!(db_value_vector_with_time.empty())) {
+                        if (is_cin) {
+                            unsigned i, size_of_vector = db_value_vector_with_time.size();
+                            for (i = 0; i < size_of_vector; i++) {
+                                std::cout << "----- " << i + 1 << " value " << "-----" << std::endl;
+                                std::cout << (*(db_value_vector_with_time[i])) << std::endl;
+                                delete db_value_vector_with_time[i];
+                            }
+                        }
+                    }
+                    else {
                         if (is_cin) {
                             std::cout << "No values were found" << std::endl;
                         }
@@ -168,6 +179,9 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                 }
                 not_exited = false;
                 break;
+            case commands_::_from_:
+                do_from_file_command(db, leftover);
+                break;
             default:
                 if (is_cin) {
                     std::cout << "Wrong command passed, try again!" << std::endl;
@@ -177,7 +191,16 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
     }
 }
 
-// todo: сделать все todo
+void do_from_file_command(data_base * db, std::string const & filename)
+{
+    auto * from_file = new std::ifstream(filename);
+    if (!(*from_file)) {
+        std::cout << "Could not open a file " << filename << std::endl;
+    } else {
+        db_test(db, from_file, false);
+        from_file->close();
+    }
+}
 
 int main(int argc, char **argv)
 {

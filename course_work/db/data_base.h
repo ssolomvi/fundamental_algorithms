@@ -164,7 +164,7 @@ public:
 
     [[nodiscard]] db_value * find_with_time
     (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
-     const key& _key, uint64_t time_parameter) const;
+     db_value * found_value, const key& _key, uint64_t time_parameter) const;
 
     [[nodiscard]] std::vector<db_value *> find_in_range
     (std::string const & pool_name, std::string const & scheme_name, std::string const & collection_name,
@@ -198,11 +198,11 @@ public:
 #pragma region Deletion from structure of data base
 private:
     void delete_collection
-            (const std::string & full_path, const std::string & collection_name, associative_container<std::string,
+            (const std::string & collection_name, associative_container<std::string,
                     associative_container<key, db_value *> *> * parent_scheme);
 
     void delete_scheme
-            (const std::string & full_path, const std::string & scheme_name, associative_container<std::string,
+            (const std::string & scheme_name, associative_container<std::string,
                     associative_container<std::string, associative_container<key, db_value *> *> *> * parent_pool);
 
     void delete_pool(const std::string & pool_name);
@@ -267,6 +267,11 @@ public:
     data_base &operator=(data_base &&obj) noexcept = delete;
 
 #pragma endregion
+
+    std::vector<db_value *>
+    find_dataset_with_time(const std::string &pool_name, const std::string &scheme_name,
+                           const std::string &collection_name,
+                           key min_key, key max_key, uint64_t time_parameter);
 };
 
 #endif //DATA_BASE_H

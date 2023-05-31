@@ -89,6 +89,9 @@ public:
 
         if ((*(string_and_used.second)) == 1) {
             _pool->remove(key);
+        } // todo:
+        else {
+
         }
     }
 
