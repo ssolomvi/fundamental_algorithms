@@ -29,12 +29,11 @@ public:
         std::string _message;
 
     public:
-        severity_exception(std::string const &message)
-                : _message(message) {
-
+        explicit severity_exception(std::string message)
+                : _message(std::move(message)) {
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
 

@@ -1,10 +1,9 @@
-//#include "db/data_base.h"
 #include "db_user_communication.h"
 
 void help() {
     std::cout << "----- Course work help -----" << std::endl;
     std::cout << "Collection commands list:" << std::endl;
-    std::cout << "Full path to collection: <pull_name>/<scheme_name>/<collection_name>" << std::endl;
+    std::cout << "Full path to collection: <pool_name>/<scheme_name>/<collection_name>" << std::endl;
     std::cout << "\t- add" << std::endl;
     std::cout << "\t- find" << std::endl;
     std::cout << "\t- find dataset" << std::endl;
@@ -23,8 +22,8 @@ void help() {
             << std::endl;
     std::cout << "\t- delete <full path>" << std::endl;
     std::cout << "DB commands list:" << std::endl;
-    std::cout << "\t- save <filename>" << std::endl;
-    std::cout << "\t- upload <filename>" << std::endl;
+//    std::cout << "\t- save <filename>" << std::endl;
+//    std::cout << "\t- upload <filename>" << std::endl;
     std::cout << "\t- help" << std::endl;
     std::cout << "\t- delete DB" << std::endl;
     std::cout << "\t- exit" << std::endl;
@@ -34,7 +33,7 @@ void help() {
 commands_ get_command(std::string const &user_input) {
     if (user_input == "add") {
         return commands_::_add_;
-    } else if (user_input == "find_pair") {
+    } else if (user_input == "find") {
         return commands_::_find_;
     } else if (user_input == "update") {
         return commands_::_update_;
@@ -65,7 +64,8 @@ parse_user_input(std::string const &user_input) {
         s.erase(0, pos + 1);
     } else {
         s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
-        command = get_command(user_input);
+        command = get_command(s);
+        s.erase();
     }
 
     // a path is what is left from s
@@ -79,13 +79,13 @@ parse_path(std::string &input_string) {
         throw parse_exception("parse_path:: incorrect path passed (is empty)");
     }
 
-    std::string pull_name, scheme_name, collection_name;
+    std::string pool_name, scheme_name, collection_name;
     std::string delimiter = "/";
     unsigned delimiter_length = delimiter.size();
     size_t pos;
 
     if ((pos = input_string.find(delimiter)) != std::string::npos) {
-        pull_name = input_string.substr(0, pos);
+        pool_name = input_string.substr(0, pos);
         input_string.erase(0, pos + delimiter_length);
 
         if ((pos = input_string.find(delimiter)) != std::string::npos) {
@@ -97,12 +97,12 @@ parse_path(std::string &input_string) {
             scheme_name = input_string;
         }
     } else {
-        pull_name = input_string;
+        pool_name = input_string;
     }
-    return {pull_name, scheme_name, collection_name};
+    return {pool_name, scheme_name, collection_name};
 }
 
-// returns pull/scheme/collection
+// returns pool/scheme/collection
 std::tuple<std::string, std::string, std::string>
 get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path) {
     std::string path_inner;
@@ -124,67 +124,67 @@ get_path_from_user_input(std::ifstream *input_stream, bool is_cin, bool is_path)
 
 #pragma region Add command
 
-data_base<key, key_comparer>::trees_types_ get_tree_type(std::string const &user_input) {
+data_base::trees_types_ get_tree_type(std::string const &user_input) {
     if (user_input == "BST" || user_input == "bst") {
-        return data_base<key, key_comparer>::trees_types_::BST;
+        return data_base::trees_types_::BST;
     } else if (user_input == "AVL" || user_input == "avl") {
-        return data_base<key, key_comparer>::trees_types_::AVL;
+        return data_base::trees_types_::AVL;
     } else if (user_input == "SPLAY" || user_input == "splay") {
-        return data_base<key, key_comparer>::trees_types_::SPLAY;
+        return data_base::trees_types_::SPLAY;
     } else if (user_input == "RB" || user_input == "rb") {
-        return data_base<key, key_comparer>::trees_types_::RB;
+        return data_base::trees_types_::RB;
     }
-    return data_base<key, key_comparer>::trees_types_::not_a_tree;
+    return data_base::trees_types_::not_a_tree;
 }
 
-data_base<key, key_comparer>::allocator_types_ get_allocator_type(std::string const &user_input) {
+data_base::allocator_types_ get_allocator_type(std::string const &user_input) {
     if (user_input == "global") {
-        return data_base<key, key_comparer>::allocator_types_::global;
+        return data_base::allocator_types_::global;
     } else if (user_input == "sorted_list") {
-        return data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list;
+        return data_base::allocator_types_::for_inner_use_sorted_list;
     } else if (user_input == "descriptors") {
-        return data_base<key, key_comparer>::allocator_types_::for_inner_use_descriptors;
+        return data_base::allocator_types_::for_inner_use_descriptors;
     } else if (user_input == "buddy_system") {
-        return data_base<key, key_comparer>::allocator_types_::buddy_system;
+        return data_base::allocator_types_::buddy_system;
     }
-    return data_base<key, key_comparer>::allocator_types_::not_an_allocator;
+    return data_base::allocator_types_::not_an_allocator;
 }
 
-std::pair<data_base<key, key_comparer>::allocator_types_, size_t>
+std::pair<data_base::allocator_types_, size_t>
 define_allocator_type
-        (data_base<key, key_comparer>::allocator_types_ allocator_type,
+        (data_base::allocator_types_ allocator_type,
          std::string &s, std::string &token, std::string &delimiter,
          size_t pos, unsigned delimiter_length) {
-    if (allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list ||
-        allocator_type == data_base<key, key_comparer>::allocator_types_::for_inner_use_descriptors) {
-        s.erase(0, pos + delimiter_length);
+    if (allocator_type == data_base::allocator_types_::for_inner_use_sorted_list ||
+        allocator_type == data_base::allocator_types_::for_inner_use_descriptors) {
+//        s.erase(0, pos + delimiter_length);
         if ((pos = s.find(delimiter)) != std::string::npos) {
             token = s.substr(0, pos);
             if (token == "best") {
                 allocator_type = (allocator_type ==
-                                  data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_best
-                                  : data_base<key, key_comparer>::allocator_types_::descriptors_best);
+                                  data_base::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base::allocator_types_::sorted_list_best
+                                  : data_base::allocator_types_::descriptors_best);
             } else if (token == "worst") {
                 allocator_type = (allocator_type ==
-                                  data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_worst
-                                  : data_base<key, key_comparer>::allocator_types_::descriptors_worst);
+                                  data_base::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base::allocator_types_::sorted_list_worst
+                                  : data_base::allocator_types_::descriptors_worst);
             } else if (token == "first") {
                 allocator_type = (allocator_type ==
-                                  data_base<key, key_comparer>::allocator_types_::for_inner_use_sorted_list
-                                  ? data_base<key, key_comparer>::allocator_types_::sorted_list_first
-                                  : data_base<key, key_comparer>::allocator_types_::descriptors_first);
+                                  data_base::allocator_types_::for_inner_use_sorted_list
+                                  ? data_base::allocator_types_::sorted_list_first
+                                  : data_base::allocator_types_::descriptors_first);
             }
         } else {
-            allocator_type = data_base<key, key_comparer>::allocator_types_::not_an_allocator;
+            allocator_type = data_base::allocator_types_::not_an_allocator;
         }
     }
 
     size_t allocator_pool_size = 0;
 
-    if (allocator_type != data_base<key, key_comparer>::allocator_types_::global &&
-        allocator_type != data_base<key, key_comparer>::allocator_types_::not_an_allocator) {
+    if (allocator_type != data_base::allocator_types_::global &&
+        allocator_type != data_base::allocator_types_::not_an_allocator) {
         // need to read a size of allocator
         s.erase(0, pos + delimiter_length);
         if ((pos = s.find(delimiter)) != std::string::npos) {
@@ -202,10 +202,10 @@ define_allocator_type
     return {allocator_type, allocator_pool_size};
 }
 
-std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t>
+std::tuple<data_base::trees_types_, data_base::allocator_types_, size_t>
 parse_for_add_command(std::string &input_str_leftover) {
-    data_base<key, key_comparer>::trees_types_ tree_type = data_base<key, key_comparer>::trees_types_::not_a_tree;
-    data_base<key, key_comparer>::allocator_types_ allocator_type = data_base<key, key_comparer>::allocator_types_::not_an_allocator;
+    data_base::trees_types_ tree_type = data_base::trees_types_::not_a_tree;
+    data_base::allocator_types_ allocator_type = data_base::allocator_types_::not_an_allocator;
 
     size_t allocator_pool_size = 0, pos;
     std::string token, delimiter = " ";
@@ -213,23 +213,29 @@ parse_for_add_command(std::string &input_str_leftover) {
     unsigned delimiter_length = delimiter.length();
     if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
         token = input_str_leftover.substr(0, pos);
+        input_str_leftover.erase(0, pos + delimiter_length);
+
         tree_type = get_tree_type(token);
         allocator_type = get_allocator_type(token);
 
-        auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter, pos,
-                                                             delimiter_length);
-        allocator_type = allocator_type_and_size.first;
-        allocator_pool_size = allocator_type_and_size.second;
+        if (allocator_type != data_base::not_an_allocator) {
+            auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter, pos,
+                                                                 delimiter_length);
+            allocator_type = allocator_type_and_size.first;
+            allocator_pool_size = allocator_type_and_size.second;
+        }
 
         if ((pos = input_str_leftover.find(delimiter)) != std::string::npos) {
             token = input_str_leftover.substr(0, pos);
-            if (tree_type == data_base<key, key_comparer>::not_a_tree) {
+            input_str_leftover.erase(0, pos + delimiter_length);
+
+            if (tree_type == data_base::not_a_tree) {
                 tree_type = get_tree_type(token);
             }
 
-            if (allocator_type == data_base<key, key_comparer>::not_an_allocator) {
+            if (allocator_type == data_base::not_an_allocator) {
                 allocator_type = get_allocator_type(token);
-                allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter,
+                auto allocator_type_and_size = define_allocator_type(allocator_type, input_str_leftover, token, delimiter,
                                                                 pos,
                                                                 delimiter_length);
                 allocator_type = allocator_type_and_size.first;
@@ -243,9 +249,9 @@ parse_for_add_command(std::string &input_str_leftover) {
 
 void
 do_add_command
-(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
+(data_base *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
-    if (input_stream != nullptr || is_cin) {
+    if (input_str_leftover.empty()) {
         // adding a value
         key tmp_key(input_stream, is_cin);
 
@@ -263,11 +269,11 @@ do_add_command
         }
     } else {
         // adding to structure
-        std::tuple<data_base<key, key_comparer>::trees_types_, data_base<key, key_comparer>::allocator_types_, size_t> parse_result
+        std::tuple<data_base::trees_types_, data_base::allocator_types_, size_t> parse_result
                 = parse_for_add_command(input_str_leftover);
 
-        data_base<key, key_comparer>::trees_types_ tree_type = std::get<0>(parse_result);
-        data_base<key, key_comparer>::allocator_types_ allocator_type = std::get<1>(parse_result);
+        data_base::trees_types_ tree_type = std::get<0>(parse_result);
+        data_base::allocator_types_ allocator_type = std::get<1>(parse_result);
         size_t allocator_pool_size = std::get<2>(parse_result);
 
         std::tuple<std::string, std::string, std::string> struct_parse_path_result = parse_path(input_str_leftover);
@@ -276,7 +282,9 @@ do_add_command
         db->add_to_structure(std::get<0>(struct_parse_path_result),
                              std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
                              tree_type, allocator_type, allocator_pool_size);
-        std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
+        if (is_cin) {
+            std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
+        }
     }
 }
 
@@ -296,8 +304,13 @@ short get_part_of_data_from_input_str(std::string &str, std::string &delimiter, 
         }
         str.erase(0, pos + delimiter_length);
     } else {
-        throw parse_exception(
-                "get_part_of_data_from_input_str:: incorrect value for data passed. Format: DD/MM/YYYY hh/mm/ss");
+        try {
+            to_return = std::stoi(str.substr(0, pos));
+        }
+        catch (std::invalid_argument const &) {
+            throw parse_exception("get_part_of_data_from_input_str:: incorrect value for data passed. Only digits");
+        }
+        str.erase();
     }
     return to_return;
 }
@@ -338,13 +351,20 @@ uint64_t parse_time_from_input_str(std::string &input_stream) {
     to_return.mm = get_part_of_data_from_input_str(input_stream, part_delimiter, delimiter_length);
     to_return.ss = get_part_of_data_from_input_str(input_stream, part_delimiter, delimiter_length);
 
+    if (to_return.hh > 23 || to_return.hh < 0 ||
+        to_return.mm > 60 || to_return.mm < 0 ||
+        to_return.ss > 60 || to_return.ss < 0)
+    {
+        throw parse_exception("parse_time_from_input_str:: incorrect data passed");
+    }
+
     //todo: check if data is correct
     return convert_time_str_to_ms(to_return);
 }
 
 std::tuple<db_value *, std::vector<db_value *>, db_value *>
 do_find_command
-(data_base<key, key_comparer> *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
+(data_base *db, std::string &input_str_leftover, std::ifstream *input_stream, bool is_cin)
 {
     std::vector<db_value *> to_return_vector;
     db_value *found_with_time = nullptr, *simply_found = nullptr;
@@ -377,7 +397,7 @@ do_find_command
         to_return_vector = db->find_in_range(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                              std::get<2>(path_parse_result),
                                              min, max);
-    } else {
+    } else if (input_str_leftover.empty()) {
         key tmp_key(input_stream, is_cin);
         std::tuple<std::string, std::string, std::string> path_parse_result = get_path_from_user_input(input_stream,
                                                                                                        is_cin, true);
@@ -385,6 +405,8 @@ do_find_command
         simply_found = db->find_among_collection(std::get<0>(path_parse_result), std::get<1>(path_parse_result),
                                                  std::get<2>(path_parse_result),
                                                  tmp_key);
+    } else {
+        throw parse_exception("do_find_command:: Incorrect command entered");
     }
 
     return {found_with_time, to_return_vector, simply_found};
@@ -497,7 +519,7 @@ get_update_key_and_dictionary(std::ifstream *input_stream, bool is_cin) {
     return {to_return_key, to_return_dict};
 }
 
-void do_update_command(data_base<key, key_comparer> *db, std::ifstream *input_stream, bool is_cin) {
+void do_update_command(data_base *db, std::ifstream *input_stream, bool is_cin) {
     std::pair<key, std::map<db_value_fields, unsigned char *>> key_and_dict = get_update_key_and_dictionary(
             input_stream, is_cin);
 
@@ -514,11 +536,11 @@ void do_update_command(data_base<key, key_comparer> *db, std::ifstream *input_st
 
 #pragma region Delete command
 
-void delete_db(data_base<key, key_comparer> *db) {
+void delete_db(data_base *db) {
     db->~data_base();
 }
 
-void do_delete_command(data_base<key, key_comparer> *db, std::string &path_inner, std::ifstream *input_stream,
+void do_delete_command(data_base *db, std::string &path_inner, std::ifstream *input_stream,
                        bool is_cin) {
     path_inner.erase(remove_if(path_inner.begin(), path_inner.end(), isspace), path_inner.end());
 
@@ -541,7 +563,7 @@ void do_delete_command(data_base<key, key_comparer> *db, std::string &path_inner
             std::cout << "Database was deleted successfully!" << std::endl;
         }
     }
-        // delete pull/scheme/collection
+        // delete pool/scheme/collection
     else {
         auto path_parse_result = parse_path(const_cast<std::string &>(path_inner));
 

@@ -1,12 +1,11 @@
 #ifndef MEMORY_BASE_CLASS_H
 #define MEMORY_BASE_CLASS_H
 
-#include <functional>
 #include "../logger/logger_builder.h"
 #include "../logger/logger_holder.h"
 
 /* Common structure for allocators:
- * size_t          -- size of allocator pull
+ * size_t          -- size of allocator pool
  * logger*
  * memory*         -- parent allocator (if present)
  * allocation_mode -- first/best/worst
@@ -45,35 +44,17 @@ public:
 
     };
 
-
 protected:
     void *_ptr_to_allocator_metadata;
-    // current_block_address is address of block after metadata.
-    // one must implement get_size_of_occupied_block_pool with this knowledge
     void dump_occupied_block_before_deallocate(void *const current_block_address) const;
 
 #pragma region Allocator properties
-    /*
-    size_t get_size_of_allocator_pool() const;
-    logger* get_logger_of_allocator() const;
-    memory* get_ptr_to_parent_allocator() const;
-    Allocation_strategy get_allocation_mode() const;
-    virtual void * get_ptr_to_pool_allocator() const;
-*/
-    virtual size_t get_allocator_service_block_size() const;
-
+    [[nodiscard]] virtual size_t get_allocator_service_block_size() const;
     [[nodiscard]] virtual size_t* get_ptr_size_of_allocator_pool() const;
     [[nodiscard]] virtual logger** get_ptr_logger_of_allocator() const;
     [[nodiscard]] virtual memory** get_ptr_to_ptr_parent_allocator() const;
     [[nodiscard]] virtual Allocation_strategy* get_ptr_allocation_mode() const;
     [[nodiscard]] virtual void ** get_ptr_to_ptr_to_pool_start() const;
-    /*
-    size_t* get_ptr_size_of_allocator_pool() const;
-    logger** get_ptr_logger_of_allocator() const;
-    memory** get_ptr_to_ptr_parent_allocator() const;
-    Allocation_strategy* get_ptr_allocation_mode() const;
-    void ** get_ptr_to_ptr_to_pool_start() const;
-*/
     [[nodiscard]] virtual void * get_ptr_to_allocator_trusted_pool() const;
 #pragma endregion
 
@@ -87,10 +68,9 @@ protected:
 #pragma endregion
 
 #pragma region Occupied block methods
-    virtual void * get_first_occupied_block_address() const;
-    virtual void ** get_first_occupied_block_address_address() const;
+    [[nodiscard]] virtual void ** get_first_occupied_block_address_address() const;
 
-    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;   // get
+    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;
     virtual size_t get_occupied_block_size(void * memory_block) const;
     virtual size_t get_size_of_occupied_block_pool(void * const occupied_block) const = 0;
 
@@ -102,9 +82,6 @@ protected:
 
 public:
     virtual ~memory() noexcept = default;
-//    memory const * log_with_guard(std::string const & target, logger::severity severity) const;
-
-    void set_logger(logger * const logger) const;
 
     virtual void *allocate(size_t target_size) const = 0;
 

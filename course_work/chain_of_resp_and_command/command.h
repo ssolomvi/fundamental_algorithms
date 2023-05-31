@@ -1,8 +1,6 @@
 #ifndef COURSE_WORK_COMMAND_H
 #define COURSE_WORK_COMMAND_H
 
-#include <utility>
-
 #include "../db_value/db_value.h"
 #include "../db_value/db_value_builder.h"
 

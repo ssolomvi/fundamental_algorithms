@@ -25,6 +25,4 @@ public:
     logger *config_from_json(const std::string &filename) override;
 };
 
-
-
 #endif //LAB5_LOGGER_BUILDER_H

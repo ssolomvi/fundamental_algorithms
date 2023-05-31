@@ -11,9 +11,6 @@ void * memory_with_boundary_tags::get_ptr_to_allocator_trusted_pool() const {
 #pragma endregion
 
 #pragma region Occupied block methods
-void *memory_with_boundary_tags::get_first_occupied_block_address() const {
-    return *get_ptr_to_ptr_to_pool_start();
-}
 
 void **memory_with_boundary_tags::get_first_occupied_block_address_address() const {
     return get_ptr_to_ptr_to_pool_start();
@@ -121,7 +118,6 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
     // not even one block was allocated in allocator
     if (current_block == nullptr && size_of_allocator_pool >= size_needed) {
        target_block = start_of_allocator_pool;
-//       *get_first_occupied_block_address_address() = target_block;
     }
     // at least one block was allocated
     else {

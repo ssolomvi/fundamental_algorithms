@@ -24,8 +24,6 @@ logger *logger_builder_impl::config_from_json(const std::string &filename) {
         throw std::runtime_error("Error parsing configuration file");
     }
 
-    // building an object of logger
-    // logger_builder *builder = new logger_builder_impl();
     logger *log;
     const rapidjson::Value &streams = doc["streams"];
     rapidjson::Value::ConstValueIterator iter;

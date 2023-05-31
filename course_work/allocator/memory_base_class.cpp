@@ -22,27 +22,11 @@ void **memory::get_ptr_to_ptr_to_pool_start() const {
 }
 #pragma endregion
 
-void memory::set_logger(logger * const logger) const
-{
-    *get_ptr_logger_of_allocator() = logger;
-}
-
 std::string memory::address_to_hex(const void * ptr) const {
     char address_buf[(sizeof(void const * const) << 3) + 3];
     sprintf(address_buf, "0x%p", ptr);
     return std::string { address_buf };
 }
-
-/*
-memory const * memory::log_with_guard(std::string const & target, logger::severity severity) const
-{
-    logger* logger = *get_ptr_logger_of_allocator();
-    if (logger != nullptr) {
-        logger->log(target, severity);
-    }
-    return this;
-}
- */
 
 void memory::dump_occupied_block_before_deallocate(void *const current_block_address) const {
     if (*get_ptr_logger_of_allocator() == nullptr) {
@@ -95,11 +79,6 @@ void * memory::get_next_available_block_address(void * memory_block) const
     throw memory::memory_exception("Method get_next_available_block_address not implemented");
 }
 
-void * memory::get_first_occupied_block_address() const
-{
-    throw memory::memory_exception("Method get_first_occupied_block_address not implemented");
-}
-
 void ** memory::get_first_occupied_block_address_address() const
 {
     throw memory::memory_exception("Method get_first_occupied_block_address_address not implemented");
@@ -134,44 +113,3 @@ void *memory::get_ptr_to_allocator_trusted_pool() const {
 }
 
 #pragma endregion
-
-/*
-size_t memory::get_size_of_allocator_pool() const
-{
-    return *reinterpret_cast<size_t *>(_ptr_to_allocator_metadata);
-}
-
-logger* memory::get_logger_of_allocator() const
-{
-    return *reinterpret_cast<logger **>(reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1);
-}
-
-memory* memory::get_ptr_to_parent_allocator() const
-{
-    return *reinterpret_cast<memory **>(reinterpret_cast<logger **>(reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1) + 1);
-}
-
-memory::Allocation_strategy memory::get_allocation_mode() const
-{
-    return *reinterpret_cast<memory::Allocation_strategy *>(
-            reinterpret_cast<memory **>(
-                    reinterpret_cast<logger **>(
-                            reinterpret_cast<size_t *> (_ptr_to_allocator_metadata) + 1
-                            ) + 1
-                    ) + 1
-            );
-}
-
-void * memory::get_ptr_to_pool_allocator() const
-{
-    return *reinterpret_cast<void **>(
-            reinterpret_cast<memory::Allocation_strategy *>(
-                    reinterpret_cast<memory **>(
-                            reinterpret_cast<logger **>(
-                                    reinterpret_cast<size_t *>(_ptr_to_allocator_metadata) + 1
-                                    ) + 1
-                            ) + 1
-                    ) + 1
-            );
-}
-*/
