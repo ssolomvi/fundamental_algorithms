@@ -17,12 +17,13 @@
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/allocator/memory_base_class.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_base_class.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/handler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger/logger_builder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/logger/logger_builder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_buddy_system/memory_with_buddy_system.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/avl_tree/avl_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/avl_tree/avl_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_tree/bs_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/binary_tree/bs_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rb_tree/rb_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/rb_tree/rb_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/splay_tree/splay_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/splay_tree/splay_tree.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +92,7 @@
       <workItem from="1685130547093" duration="7684000" />
       <workItem from="1685191292575" duration="200000" />
       <workItem from="1685202004205" duration="14863000" />
-      <workItem from="1685281164824" duration="70210000" />
+      <workItem from="1685281164824" duration="87112000" />
     </task>
     <servers />
   </component>

@@ -89,7 +89,7 @@ size_t memory_with_buddy_system::get_number_in_bin_pow(char power) const {
 }
 
 char memory_with_buddy_system::get_bin_pow_of_number(size_t number) const {
-    return ceil(log2(number));
+    return log2(number);
 }
 
 memory_with_buddy_system::memory_with_buddy_system(

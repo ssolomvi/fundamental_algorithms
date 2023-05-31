@@ -118,7 +118,6 @@ void *memory_with_boundary_tags::allocate(size_t target_size) const {
     // not even one block was allocated in allocator
     if (current_block == nullptr && size_of_allocator_pool >= size_needed) {
        target_block = start_of_allocator_pool;
-//       *get_first_occupied_block_address_address() = target_block;
     }
     // at least one block was allocated
     else {

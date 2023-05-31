@@ -70,7 +70,7 @@ protected:
 #pragma region Occupied block methods
     [[nodiscard]] virtual void ** get_first_occupied_block_address_address() const;
 
-    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;   // get
+    [[nodiscard]] virtual size_t get_occupied_block_service_block_size() const;
     virtual size_t get_occupied_block_size(void * memory_block) const;
     virtual size_t get_size_of_occupied_block_pool(void * const occupied_block) const = 0;
 

@@ -7,7 +7,6 @@ size_t memory_with_sorted_list_deallocation::get_allocator_service_block_size() 
 
 void * memory_with_sorted_list_deallocation::get_ptr_to_allocator_trusted_pool() const {
     return reinterpret_cast<void *>(get_ptr_to_ptr_to_pool_start() + 1);
-//    return *(get_ptr_to_ptr_to_pool_start() + 1);
 }
 
 #pragma endregion
@@ -233,10 +232,7 @@ void memory_with_sorted_list_deallocation::deallocate(const void *const target_t
 
     dump_occupied_block_before_deallocate(const_cast<void *>(target_to_dealloc));
 
-//    auto * tmp = reinterpret_cast<void *>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) - 1);
     auto * tmp = reinterpret_cast<void *>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) - 1);
-//    *const_cast<void **>(&target_to_dealloc) =
-//            reinterpret_cast<void *>(reinterpret_cast<size_t *>(const_cast<void *>(target_to_dealloc)) - sizeof(size_t));
 
     std::string target_to_dealloc_address = address_to_hex(reinterpret_cast<void *>(
                    reinterpret_cast<char *>(tmp) - reinterpret_cast<char *>(get_ptr_to_allocator_trusted_pool())

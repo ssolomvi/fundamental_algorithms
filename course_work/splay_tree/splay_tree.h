@@ -30,10 +30,8 @@ public:
                     // zig
                     // rotate right/left: target_ptr becomes new _root if its grandparent is nullptr
                     if ((*parent)->left_subtree == (*current_node)) {
-//                        this->rotate_right(path, current_node);
                         this->rotate_right(path, current_node);
                     } else {
-//                        this->rotate_left(path, current_node);
                         this->rotate_left(path, current_node);
                     }
                     target_ptr = parent;
@@ -74,7 +72,7 @@ public:
                     }
                 }
 
-                tree_root = /*reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::template_method_basics *>(const_cast<template_method_splay *>(this))->*/reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->_root;
+                tree_root = reinterpret_cast<splay_tree<tkey, tvalue, tkey_comparer> *>(this->_target_tree)->_root;
             }
         }
 
@@ -83,7 +81,7 @@ public:
                 splay_tree<tkey, tvalue, tkey_comparer> *target_tree)
         : bs_tree<tkey, tvalue, tkey_comparer>::template_method_basics(target_tree)
                 {
-            //target_tree->_root = nullptr;
+
                 }
 
             virtual ~template_method_splay() = default;

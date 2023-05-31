@@ -577,37 +577,6 @@ protected:
             this->trace_with_guard("bs_tree::insertion_template_method::insert method finished");
         }
 
-        // pass old key, new key, new value
-        void update(tkey const &key, tkey const & new_key, tvalue &&value)
-        {
-            this->trace_with_guard("bs_tree::insertion_template_method::update method started");
-            auto path_and_target = this->find_path(key);
-            auto path = path_and_target.first;
-            auto **target_ptr = path_and_target.second;
-
-            if (*target_ptr == nullptr)
-            {
-                this->debug_with_guard("bs_tree::insertion_template_method::update passed key is not in collection")
-                        ->trace_with_guard("bs_tree::insertion_template_method::update method finished");
-                throw insert_exception("bs_tree::insertion_template_method::update passed key is not in collection");
-            }
-
-            path_and_target = this->find_path(new_key);
-            path = path_and_target.first;
-            target_ptr = path_and_target.second;
-
-            *target_ptr = reinterpret_cast<node *>(allocate_with_guard(get_node_size()));
-            initialize_memory_with_node(*target_ptr);
-
-            (*target_ptr)->key = new_key;
-            (*target_ptr)->value = std::move(value);
-            (*target_ptr)->left_subtree = nullptr;
-            (*target_ptr)->right_subtree = nullptr;
-
-            after_insert_inner(path, target_ptr);
-            this->trace_with_guard("bs_tree::insertion_template_method::update method finished");
-        }
-
     protected:
 
         [[nodiscard]] virtual size_t get_node_size() const
@@ -615,15 +584,12 @@ protected:
             return sizeof(node);
         }
 
-        virtual void initialize_memory_with_node(
-                node *target_ptr) const
+        virtual void initialize_memory_with_node(node *target_ptr) const
         {
             new(target_ptr) node;
         }
 
-        virtual void after_insert_inner(
-                std::stack<node **> &path,
-                node **target_ptr)
+        virtual void after_insert_inner(std::stack<node **> &path, node **target_ptr)
         {
 
         }
@@ -673,9 +639,7 @@ protected:
 
     protected:
 
-        virtual void after_find_inner(
-                std::stack<node **> &path,
-                node **&target_ptr)
+        virtual void after_find_inner(std::stack<node **> &path, node **&target_ptr)
         {
             // TODO: nothing to do here in BST context...
         }
@@ -797,18 +761,14 @@ protected:
     protected:
 
         template<typename T>
-        void swap(
-                T **left,
-                T **right)
+        void swap(T **left, T **right)
         {
             T *temp = *left;
             *left = *right;
             *right = temp;
         }
 
-        node** swap_nodes(
-                node **one_node,
-                node **another_node)
+        node** swap_nodes(node **one_node, node **another_node)
         {
             // близкородственный свап до хорошего не доводит
             if ((*another_node)->left_subtree == (*one_node)) {
@@ -831,8 +791,7 @@ protected:
             }
         }
 
-        void cleanup_node(
-                node **node_address)
+        void cleanup_node(node **node_address)
         {
             (*node_address)->~node();
             deallocate_with_guard(reinterpret_cast<void *>(*node_address));
@@ -842,15 +801,12 @@ protected:
 
     protected:
 
-        virtual void swap_additional_data(
-                node *one_node,
-                node *another_node)
+        virtual void swap_additional_data(node *one_node, node *another_node)
         {
 
         }
 
-        virtual void after_remove(
-                std::stack<node **> &path) const
+        virtual void after_remove(std::stack<node **> &path) const
         {
 
         }

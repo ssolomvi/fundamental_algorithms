@@ -54,8 +54,7 @@ protected:
             return sizeof(rb_node);
         }
 
-        void initialize_memory_with_node(
-                typename bs_tree<tkey, tvalue, tkey_comparer>::node *target_ptr) const override
+        void initialize_memory_with_node(typename bs_tree<tkey, tvalue, tkey_comparer>::node *target_ptr) const override
         {
             new(reinterpret_cast<rb_node *>(target_ptr)) rb_node;
         }
@@ -96,14 +95,14 @@ protected:
                 return;
             }
 
-            rb_node ** uncle = find_uncle(path, current_node);
-            // uncle might be a null terminated leaf, thus its color will be black accordingly to rb tree properties
-            bool uncle_color = (uncle == nullptr ? BLACK : (*uncle)->get_color());
-
             // perform balance if parent is red
             if ((*parent)->is_black()) {
                 return;
             }
+
+            rb_node ** uncle = find_uncle(path, current_node);
+            // uncle might be a null terminated leaf, thus its color will be black accordingly to rb tree properties
+            bool uncle_color = (uncle == nullptr ? BLACK : (*uncle)->get_color());
 
             if (uncle_color == RED) {
                 (*parent)->change_color(BLACK);
@@ -133,7 +132,6 @@ protected:
                         path.pop();
                         parent = reinterpret_cast<rb_node **>(this->rotate_right(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent)));
                         grandparent = reinterpret_cast<rb_node **>(&((*parent)->right_subtree));
-//                        path.push(reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::node **>(parent));
 
                         (*parent)->change_color(BLACK);
                         (*grandparent)->change_color(RED);
@@ -154,7 +152,6 @@ protected:
                         path.pop();
                         parent = reinterpret_cast<rb_node **>(this->rotate_left(path, reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(parent)));
                         grandparent = reinterpret_cast<rb_node **>(&((*parent)->left_subtree));
-//                        path.push(reinterpret_cast<typename bs_tree<key, tvalue, tkey_comparer>::node **>(parent));
 
                         (*parent)->change_color(BLACK);
                         (*grandparent)->change_color(RED);
@@ -578,20 +575,6 @@ public:
      }
 
 private:
-    void clearup(typename bs_tree<tkey, tvalue, tkey_comparer>::node *element) override
-    {
-        if (element == nullptr)
-        {
-            return;
-        }
-
-        clearup(element->left_subtree);
-        clearup(element->right_subtree);
-
-        reinterpret_cast<rb_node *>(element)->~rb_node();
-        this->deallocate_with_guard(element);
-    }
-
     typename bs_tree<tkey, tvalue, tkey_comparer>::node *copy(typename bs_tree<tkey, tvalue, tkey_comparer>::node *from) override
     {
         if (from == nullptr)

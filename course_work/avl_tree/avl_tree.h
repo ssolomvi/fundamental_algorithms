@@ -64,9 +64,8 @@ protected:
                 left_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->left_subtree)->get_balance();
                 right_subtree_balance = reinterpret_cast<avl_node *>((*current_node)->right_subtree)->get_balance();
 
-                if (balance > 1) { // == 2
+                if (balance == 2) { // == 2
                     path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(current_node));
-                    // to_do: add path
                     // returned by rotations values are current top node
                     if (left_subtree_balance >= 0) {
                         this->rotate_right(path, &((*current_node)->left_subtree));
@@ -81,7 +80,7 @@ protected:
                     reinterpret_cast<avl_node *>((*current_node)->right_subtree)->update_height();
                     reinterpret_cast<avl_node *>((*current_node))->update_height();
 
-                } else if (balance < -1) {
+                } else if (balance == -2) {
                     path.push(reinterpret_cast<typename bs_tree<tkey, tvalue, tkey_comparer>::node **>(current_node));
                     if (right_subtree_balance <= 0) {
                         this->rotate_left(path, &((*current_node)->right_subtree));
@@ -339,20 +338,6 @@ public:
     }
 
 private:
-//    void clearup(typename bs_tree<tkey, tvalue, tkey_comparer>::node *element) override
-//    {
-//        if (element == nullptr)
-//        {
-//            return;
-//        }
-//
-//        clearup(element->left_subtree);
-//        clearup(element->right_subtree);
-//
-//        reinterpret_cast<avl_node *>(element)->~avl_node();
-//        this->deallocate_with_guard(element);
-//    }
-
     typename bs_tree<tkey, tvalue, tkey_comparer>::node *copy(typename bs_tree<tkey, tvalue, tkey_comparer>::node *from) override
     {
         if (from == nullptr)
