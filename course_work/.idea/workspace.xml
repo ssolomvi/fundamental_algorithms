@@ -16,21 +16,6 @@
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator/memory_holder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_holder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/allocator/memory_holder.h" beforeDir="false" afterPath="$PROJECT_DIR$/allocator/memory_holder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" beforeDir="false" afterPath="$PROJECT_DIR$/chain_of_resp_and_command/command.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/course_work.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/trace.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/trace.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/warning.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/data_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/data_base.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_user_communication.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_user_communication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db_value/string_holder.h" beforeDir="false" afterPath="$PROJECT_DIR$/db_value/string_holder.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/data_base_test3" beforeDir="false" afterPath="$PROJECT_DIR$/test/data_base_test3" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,17 +43,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "C:/fund-algths/lab5",
+    "structure.view.defaults.are.configured": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="course_work" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="C:\fund-algths\course_work\test\data_base_test3" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="course_work" TARGET_NAME="course_work" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="course_work" RUN_TARGET_NAME="course_work">
       <method v="2">
@@ -97,6 +83,7 @@
       <workItem from="1685281164824" duration="87286000" />
       <workItem from="1685501050002" duration="2910000" />
       <workItem from="1685515093207" duration="8725000" />
+      <workItem from="1685571614885" duration="108000" />
     </task>
     <servers />
   </component>
