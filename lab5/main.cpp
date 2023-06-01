@@ -106,8 +106,7 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
                 break;
         }
 
-//        if (i++ % 10 == 0)
-        if (i++)
+        if (i++ % 100 == 0)
         {
             std::cout << "Tree state after iteration #" << i << ":" << std::endl;
 
@@ -411,7 +410,7 @@ int main()
 {
 
 #pragma region tree test
-    unsigned iterations = 5001;
+    unsigned iterations = 1001;
 
     logger_builder *allocator_logger_builder = new logger_builder_impl();
     logger *allocator_logger = allocator_logger_builder
@@ -427,7 +426,7 @@ int main()
 
     memory *allocator = new memory_from_global_heap(allocator_logger);
 
-    my_tree_test(iterations, allocator, tree_logger, B_TREE, 2);
+    my_tree_test(iterations, allocator, tree_logger, B_TREE, 13);
 
     delete allocator;
     delete allocator_logger;
