@@ -35,8 +35,30 @@ public:
         b_tree<tkey, tvalue, tkey_comparer> * _target_tree;
 
 #pragma region insertion
+        unsigned find_key(tkey const & key)
+        {
+            unsigned to_return = 0;
+            tkey_comparer comparer;
+            while (to_return < _key_count && comparer(_key_array[to_return], key) < 0) {
+                ++to_return;
+            }
+            return to_return;
+        }
+
         void split_child(unsigned index, tkey const &key, b_node * child)
         {
+            // todo: delete
+            int j;
+            std::string c_str, child_str;
+            for (j = 0; j < _key_count; j++) {
+                c_str += std::to_string(_key_array[j]) +  " ";
+            }
+            for (j = 0; j < child->_key_count; j++) {
+                child_str += std::to_string(child->_key_array[j]) +  " ";
+            }
+            _target_tree->debug_with_guard("current node before split: " + c_str);
+            _target_tree->debug_with_guard("child node before split:   " + child_str);
+
             _target_tree->debug_with_guard("b_node::split_child method started");
             tkey_comparer comparer;
             if (comparer(child->_key_array[_target_tree->_order_of_tree - 1], key) == 0) {
@@ -77,6 +99,20 @@ public:
             _value_array[index] = std::move(child->_value_array[_target_tree->_order_of_tree - 1]);
 
             _key_count++;
+
+            // todo: delete
+            std::string c1_str, child1_str, brother_str;
+            for (j = 0; j < _key_count; j++) {
+                c_str += std::to_string(_key_array[j]) +  " ";
+            }
+            for (j = 0; j < child->_key_count; j++) {
+                child_str += std::to_string(child->_key_array[j]) +  " ";
+                brother_str += std::to_string(brother_to_child->_key_array[j]) +  " ";
+            }
+            _target_tree->debug_with_guard("current node after split: " + c_str);
+            _target_tree->debug_with_guard("child node after split:   " + child_str);
+            _target_tree->debug_with_guard("brother node after split: " + brother_str);
+
             _target_tree->debug_with_guard("b_node::split_child method finished");
         }
 
@@ -93,20 +129,21 @@ public:
 
             if (_is_leaf) {
                 // перемещаем ключи и значения в списках текущего узла и находим индекс для вставки нового элемента
-                while (index_of_newly_inserted >= 0 &&
-                      (comparison_result = comparer(_key_array[index_of_newly_inserted], key)) > 0) {
-                    _key_array[index_of_newly_inserted + 1] = _key_array[index_of_newly_inserted];
-                    _value_array[index_of_newly_inserted + 1] = _value_array[index_of_newly_inserted];
-                    index_of_newly_inserted--;
-                }
-
-                if (comparison_result == 0) {
+                _target_tree->debug_with_guard("b_node::insert_in_non_full inserting to leaf");
+                unsigned found_index = find_key(key);
+                if (comparer(_key_array[found_index], key) == 0) {
                     _target_tree->warning_with_guard("b_tree::b_node::insert_in_non_full a key to insert is not unique");
                     throw b_tree<tkey, tvalue, tkey_comparer>::insert_exception("b_tree::b_node::insert_in_non_full a key to insert is not unique");
                 }
+
+                if (found_index != _key_count) {
+                    memmove((_key_array + found_index + 1), (_key_array + found_index), sizeof(tkey) * (_key_count - found_index));
+                    memmove((_value_array + found_index + 1), (_value_array + found_index), sizeof(tvalue) * (_key_count - found_index));
+                }
+
                 // вставляем новый элемент
-                _key_array[index_of_newly_inserted + 1] = key;
-                _value_array[index_of_newly_inserted + 1] = std::move(value);
+                _key_array[found_index] = key;
+                _value_array[found_index] = std::move(value);
                 _key_count++;
             }
             else {
@@ -123,6 +160,7 @@ public:
                 unsigned index_of_subtree_to_insert_to = index_of_newly_inserted + 1;
 
                 if (_sub_trees[index_of_subtree_to_insert_to]->_key_count == (2 * _target_tree->_order_of_tree - 1)) {
+                    _target_tree->debug_with_guard("b_node::insert_in_non_full splitting child");
                     split_child(index_of_subtree_to_insert_to, key, _sub_trees[index_of_subtree_to_insert_to]);
 
                     if (comparer(_key_array[index_of_subtree_to_insert_to], key) < 0) {
@@ -136,16 +174,6 @@ public:
 #pragma endregion
 
 #pragma region deletion
-        unsigned find_key(tkey const & key)
-        {
-            unsigned to_return = 0;
-            tkey_comparer comparer;
-            while (to_return < _key_count && comparer(_key_array[to_return], key) < 0) {
-                ++to_return;
-            }
-            return to_return;
-        }
-
         void delete_from_leaf(unsigned index)
         {
             if (index != _key_count - 1) {
@@ -793,6 +821,7 @@ protected:
             this->debug_with_guard("removing_template_method::remove new root after merging");
             b_node *tmp = this->_target_tree->_root;
             if (tmp->_is_leaf) {
+                tmp->~b_node();
                 this->_target_tree->_root == nullptr;
             } else {
                 this->_target_tree->_root = this->_target_tree->_root->_sub_trees[0];
