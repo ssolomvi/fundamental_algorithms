@@ -89,7 +89,6 @@ public:
 
 class add_command final : public command
 {
-    // добавляет фул новое значение, должна быть строго после remove
     std::map<db_value_fields, unsigned char *> _add_dictionary;
     // по факту, то же самое, что update command, но тут именно все поля новые, и т.к. add можно только после удаления, то нужно создать новое db_value;
 

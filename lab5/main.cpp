@@ -58,14 +58,16 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
     }
 
     srand((unsigned)time(nullptr));
-
+    bool fucked_up = false;
     int i = 1;
-    while (1)
+    // todo: DELETE
+    while (!fucked_up)
     {
         if (i == iterations)
             break;
         std::cout << "----------------------------------------" << std::endl << "Iteration #" << i << std::endl;
-
+        // todo: delete
+        tree_logger->log("Iteration #" + std::to_string(i), logger::severity::trace);
         auto key = rand() % 500;
         switch (rand() % 2)
         {
@@ -104,7 +106,8 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
                 break;
         }
 
-        if (i++ % 100 == 0)
+//        if (i++ % 10 == 0)
+        if (i++)
         {
             std::cout << "Tree state after iteration #" << i << ":" << std::endl;
 
@@ -125,6 +128,10 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
                 auto *b_t = reinterpret_cast<b_tree<int, char, int_comparer> *>(tree);
                 auto end_iteration = b_t->end_iter();
                 unsigned count_of_keys_in_node, i = 0;
+
+                // todo: delete
+                std::map<int, bool> content;
+
                 for (auto it = b_t->begin_iter(); it != end_iteration; ++it)
                 {
                     for (auto x = 0; x < std::get<0>(*it); x++)
@@ -134,8 +141,13 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
 
                     count_of_keys_in_node = std::get<3>(*it);
                     for (i = 0; i < count_of_keys_in_node; i++) {
-                        std::cout << "key: " << std::get<1>(*it)[i] << "; ";
-//            std::cout << "key: " << std::get<1>(*it)[i] << ", value: \"" << std::get<2>(*it)[i] << "\" ";
+                        if (content.contains(std::get<1>(*it)[i])) {
+                            std::cout << " fuck, " << std::get<1>(*it)[i];
+                            fucked_up = true;
+                        } else {
+                            content[std::get<1>(*it)[i]] = false;
+                            std::cout << "key: " << std::get<1>(*it)[i] << "; ";
+                        }
                     }
                     std::cout << std::endl;
                 }
@@ -147,6 +159,7 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
 
     delete tree;
 }
+
 
 void allocator_demo(memory *allocator, unsigned int iterations_count)
 {
@@ -333,14 +346,13 @@ void print_b_tree(b_tree<int, char, int_comparer>* tree)
 
         count_of_keys_in_node = std::get<3>(*it);
         for (i = 0; i < count_of_keys_in_node; i++) {
-            std::cout << "key: " << std::get<1>(*it)[i] << "; ";
-//            std::cout << "key: " << std::get<1>(*it)[i] << ", value: \"" << std::get<2>(*it)[i] << "\" ";
+            std::cout << "key: " << std::get<1>(*it)[i] << " "<< std::get<2>(*it)[i] << "; ";
         }
         std::cout << std::endl;
     }
 }
 
-void b_tree_tests(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type)
+ void b_tree_tests(unsigned iterations, memory* allocator, logger* tree_logger, trees tree_type)
 {
 
 }
@@ -363,12 +375,18 @@ void my_b_tree_test()
     b_tree<int, char, int_comparer> * b_t = new b_tree<int, char, int_comparer>(2, b_tree_logger, allocator);
 
     b_t->insert(4, 'a');
-    b_t->insert(2, 'b');
+    b_t->insert(4, 'a');
+    b_t->insert(4, 'a');
+    b_t->insert(4, 'a');
+    b_t->insert(4, 'a');
+    b_t->insert(4, 'a');
+
+    /*b_t->insert(2, 'b');
     b_t->insert(3, 'c');
     b_t->insert(1, 'd');
     b_t->insert(5, 'e');
     b_t->insert(7, 'f');
-    b_t->insert(6, 'g');
+    b_t->insert(6, 'g');*/
 
     print_b_tree(b_t);
 
@@ -391,6 +409,7 @@ void my_b_tree_test()
 
 int main()
 {
+
 #pragma region tree test
     unsigned iterations = 5001;
 
@@ -414,6 +433,7 @@ int main()
     delete allocator_logger;
     delete tree_logger;
 #pragma endregion
+
 
 //    my_b_tree_test();
     return 0;

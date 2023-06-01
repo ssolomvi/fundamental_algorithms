@@ -7,27 +7,6 @@
 
 void help();
 
-// добавление новой записи
-// add
-// <key, value>
-// + path to collection
-
-// чтение записи по ключу
-// find_pair
-// key
-// + path to collection
-
-// чтение набора данных в диапазоне [min ; max]
-// find_pair data set
-// min
-// max
-// + path to collection
-
-// обновление данных для записи по ключу
-// update
-// <key, value>
-// + path to collection
-
 #pragma region Parsing
 typedef enum commands {
     _add_,
@@ -38,6 +17,7 @@ typedef enum commands {
     _upload_,
     _help_,
     _exit_,
+    _from_,
     _not_a_command_
 } commands_;
 
@@ -85,7 +65,7 @@ typedef struct time_str
     short hh, mm, ss;
 } struct_time;
 
-std::tuple<db_value *, std::vector<db_value *>, db_value *>
+std::tuple<db_value *, std::vector<db_value *>, std::vector<db_value *>, db_value *>
 do_find_command
 (data_base * db, std::string &input_str_leftover, std::ifstream * input_stream, bool is_cin);
 
