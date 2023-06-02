@@ -253,7 +253,7 @@ data_base::find_dataset_with_time
     std::stack<std::tuple< key *, db_value **, unsigned, unsigned>> st;
 
     for (auto it = b_t->begin_iter(); it != end_iteration; ++it) {
-        if (std::get<4>(*it)) {
+        if (!(std::get<4>(*it))) {
             // is inner node
             std::tuple<key *, db_value **, unsigned, unsigned > inner
                     (const_cast<key *>(std::get<1>(*it)), const_cast<db_value **>(std::get<2>(*it)), std::get<3>(*it), 0);
@@ -382,7 +382,7 @@ data_base::find_in_range(const std::string &pool_name, const std::string &scheme
     std::stack<std::tuple< key *, db_value **, unsigned, unsigned>> st;
 
     for (auto it = b_t->begin_iter(); it != end_iteration; ++it) {
-        if (std::get<4>(*it)) {
+        if (!(std::get<4>(*it))) {
             // is inner node
             std::tuple<key *, db_value **, unsigned, unsigned > inner
                 (const_cast<key *>(std::get<1>(*it)), const_cast<db_value **>(std::get<2>(*it)), std::get<3>(*it), 0);

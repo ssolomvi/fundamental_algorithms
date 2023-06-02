@@ -91,8 +91,12 @@ void db_test(data_base * db, std::ifstream *input_stream, bool is_cin) {
                             unsigned i, size_of_vector = db_value_vector_with_time.size();
                             for (i = 0; i < size_of_vector; i++) {
                                 std::cout << "----- " << i + 1 << " value " << "-----" << std::endl;
-                                std::cout << (*(db_value_vector_with_time[i])) << std::endl;
-                                delete db_value_vector_with_time[i];
+                                if ((db_value_vector_with_time[i]) == nullptr) {
+                                    std::cout << "value does not exist on that time" << std::endl;
+                                } else {
+                                    std::cout << (*(db_value_vector_with_time[i])) << std::endl;
+                                    delete db_value_vector_with_time[i];
+                                }
                             }
                         }
                     }

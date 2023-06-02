@@ -29,3 +29,15 @@
 6	1035	7073805986432955	CMakeFiles/course_work.dir/db_value/db_value_builder.cpp.obj	2dd32743a4c0d7f
 14	1527	7073805991356997	CMakeFiles/course_work.dir/main.cpp.obj	255a738d4a55fae7
 1527	2205	7073805998060025	course_work.exe	b3883f1e666080eb
+21	1527	7073831040845334	CMakeFiles/course_work.dir/main.cpp.obj	255a738d4a55fae7
+14	1663	7073831042209810	CMakeFiles/course_work.dir/db_user_communication.cpp.obj	fbfdaf6750c01cdc
+7	2447	7073831049993383	CMakeFiles/course_work.dir/db/data_base.cpp.obj	93b15eeb67143daa
+2447	3126	7073831056757177	course_work.exe	b3883f1e666080eb
+22	2781	7073839082679642	CMakeFiles/course_work.dir/main.cpp.obj	255a738d4a55fae7
+6	3058	7073839084882983	CMakeFiles/course_work.dir/db_user_communication.cpp.obj	fbfdaf6750c01cdc
+15	4103	7073839096052914	CMakeFiles/course_work.dir/db/data_base.cpp.obj	93b15eeb67143daa
+4103	4974	7073839104919377	course_work.exe	b3883f1e666080eb
+7	2439	7073844781896882	CMakeFiles/course_work.dir/db/data_base.cpp.obj	93b15eeb67143daa
+2440	3122	7073844788668357	course_work.exe	b3883f1e666080eb
+6	2384	7073847756737827	CMakeFiles/course_work.dir/db/data_base.cpp.obj	93b15eeb67143daa
+2384	3078	7073847763631841	course_work.exe	b3883f1e666080eb

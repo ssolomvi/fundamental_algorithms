@@ -374,18 +374,17 @@ void my_b_tree_test()
     b_tree<int, char, int_comparer> * b_t = new b_tree<int, char, int_comparer>(2, b_tree_logger, allocator);
 
     b_t->insert(4, 'a');
-    b_t->insert(4, 'a');
-    b_t->insert(4, 'a');
-    b_t->insert(4, 'a');
-    b_t->insert(4, 'a');
-    b_t->insert(4, 'a');
-
-    /*b_t->insert(2, 'b');
+    b_t->insert(2, 'b');
     b_t->insert(3, 'c');
     b_t->insert(1, 'd');
     b_t->insert(5, 'e');
     b_t->insert(7, 'f');
-    b_t->insert(6, 'g');*/
+    b_t->insert(6, 'g');
+
+    std::cout << "found value " + std::to_string(4)<< b_t->get(4) << std::endl;
+    std::cout << "found value " + std::to_string(2)<< b_t->get(2) << std::endl;
+    std::cout << "found value " + std::to_string(7)<< b_t->get(7) << std::endl;
+    std::cout << "found value " + std::to_string(6)<< b_t->get(6) << std::endl;
 
     print_b_tree(b_t);
 
@@ -409,31 +408,31 @@ void my_b_tree_test()
 int main()
 {
 
-#pragma region tree test
-    unsigned iterations = 1001;
+//#pragma region tree test
+//    unsigned iterations = 1001;
+//
+//    logger_builder *allocator_logger_builder = new logger_builder_impl();
+//    logger *allocator_logger = allocator_logger_builder
+//            ->with_stream("allocator_tests.txt", logger::severity::trace)
+//            ->build();
+//    delete allocator_logger_builder;
+//
+//    logger_builder *logger_builder = new logger_builder_impl();
+//    logger *tree_logger = logger_builder
+//            ->with_stream("tree_tests.txt", logger::severity::trace)
+//            ->build();
+//    delete logger_builder;
+//
+//    memory *allocator = new memory_from_global_heap(allocator_logger);
+//
+//    my_tree_test(iterations, allocator, tree_logger, B_TREE, 13);
+//
+//    delete allocator;
+//    delete allocator_logger;
+//    delete tree_logger;
+//#pragma endregion
 
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
 
-    logger_builder *logger_builder = new logger_builder_impl();
-    logger *tree_logger = logger_builder
-            ->with_stream("tree_tests.txt", logger::severity::trace)
-            ->build();
-    delete logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-
-    my_tree_test(iterations, allocator, tree_logger, B_TREE, 13);
-
-    delete allocator;
-    delete allocator_logger;
-    delete tree_logger;
-#pragma endregion
-
-
-//    my_b_tree_test();
+    my_b_tree_test();
     return 0;
 }

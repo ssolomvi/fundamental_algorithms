@@ -618,7 +618,7 @@ protected:
             tkey_comparer comparer;
             int comparison_result;
             unsigned i = 0;
-            while (i < current_node->_key_count && (comparison_result == comparer(key, current_node->_key_array[i]))) {
+            while (i < current_node->_key_count && (comparison_result = comparer(key, current_node->_key_array[i])) > 0) {
                 i++;
             }
 
@@ -811,6 +811,8 @@ public:
 
     void clear_up_nodes(b_node * curr)
     {
+        if (curr == nullptr) { return;}
+
         if (!(curr->_is_leaf)) {
             unsigned i;
             for (i = 0; i < curr->_key_count; i++) {
