@@ -1,0 +1,8 @@
+# ninja log v5
+3	1589	7073600834761547	CMakeFiles/course_work.dir/logger/logger_holder.cpp.obj	99759eefbb0a32b5
+30	2167	7073600840505565	CMakeFiles/course_work.dir/logger/logger.cpp.obj	6ff75a0adfcc2842
+5	1223	7073744051226476	CMakeFiles/course_work.dir/db_value/db_value.cpp.obj	ab748f977a0e276c
+14	1232	7073744051326509	CMakeFiles/course_work.dir/db_value/db_value_builder.cpp.obj	2dd32743a4c0d7f
+1233	2225	7073744061273108	CMakeFiles/course_work.dir/allocator/memory_base_class.cpp.obj	f06c8ab438c0cd61
+19	2564	7073744064637488	CMakeFiles/course_work.dir/db/data_base.cpp.obj	93b15eeb67143daa
+1224	2712	7073744066121210	CMakeFiles/course_work.dir/main.cpp.obj	255a738d4a55fae7

@@ -1,0 +1,48 @@
+add global AVL p1
+add descriptors first 2000 AVL p2
+add AVL p2/s1
+add BST p2/s1/c1
+add p1/s1
+add
+18, 5
+Solomatina Svetlana Viktorovna
+14/11/2003
+link_to_CV.com
+1
+c++
+21
+9
+false
+p2/s1/c1
+update
+18, 5
+name: Uliya
+birthday: 13/11/2003
+exit
+p2/s1/c1
+add
+10, 5
+Nikiforof Alesha Popovich
+10/12/1506
+old_link.com
+2
+assembler
+21
+21
+false
+p2/s1/c1
+delete
+10, 5
+p2/s1/c1
+add
+10, 5
+Nikiforof Alesha Popovich
+10/12/1503
+old_link.com
+2
+c++
+21
+21
+false
+p2/s1/c1
+exit
