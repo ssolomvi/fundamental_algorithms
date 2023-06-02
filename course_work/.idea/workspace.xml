@@ -15,7 +15,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/b_tree/b_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/b_tree/b_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/course_work.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/trace.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/trace.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/warning.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/db/data_base.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test2" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/test/data_base_test2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test3" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/test/data_base_test3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/b_tree/b_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/b_tree/b_tree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/allocator_b_tests.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/allocator_b_tests.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/b_t_tests.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/b_t_tests.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/lab5.exe" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/lab5.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lab5/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +67,7 @@
     "WebServerToolWindowFactoryState": "false",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "last_opened_file_path": "C:/fund-algths/lab5",
+    "last_opened_file_path": "C:/fund-algths/course_work",
     "structure.view.defaults.are.configured": "true"
   }
 }]]></component>
@@ -84,6 +100,7 @@
       <workItem from="1685501050002" duration="2910000" />
       <workItem from="1685515093207" duration="8725000" />
       <workItem from="1685571614885" duration="108000" />
+      <workItem from="1685682735019" duration="1000" />
     </task>
     <servers />
   </component>

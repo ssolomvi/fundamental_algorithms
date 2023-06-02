@@ -672,7 +672,7 @@ protected:
             tkey_comparer comparer;
             int comparison_result;
             unsigned i = 0;
-            while (i < current_node->_key_count && (comparison_result == comparer(key, current_node->_key_array[i]))) {
+            while (i < current_node->_key_count && (comparison_result = comparer(key, current_node->_key_array[i])) > 0) {
                 i++;
             }
 
