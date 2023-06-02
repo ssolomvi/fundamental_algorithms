@@ -1,19 +1,12 @@
 #ifndef STRING_HOLDER_H
 #define STRING_HOLDER_H
 
-#include "../b_tree/associative_container.h"
-#include "../b_tree/b_tree.h"
+#include <iostream>
+#include <chrono>
+#include <map>
 
 class string_holder
 {
-public:
-    class string_comparer
-    {
-    public:
-        int operator()(std::string const & x, std::string const & y) {
-            return x.compare(y);
-        }
-    };
 private:
     static string_holder *_instance;
 public:
@@ -29,13 +22,13 @@ public:
 
 private:
 
-    associative_container<std::string, std::pair<std::string *, unsigned *>> *_pool;
+    std::map<std::string, std::pair<std::string *, unsigned *>> _pool;
 
 private:
 
     string_holder()
     {
-        _pool = new b_tree<std::string, std::pair<std::string *, unsigned *>, string_comparer>(5);
+
     }
 
 public:
@@ -48,50 +41,35 @@ public:
 
     string_holder &operator=(string_holder &&) = delete;
 
-    ~string_holder() noexcept
-    {
-        delete _pool;
-    }
+    ~string_holder() noexcept = default;
 
 public:
 
     std::string *get_string(std::string const &key)
     {
-        std::pair<std::string *, unsigned *> find_result;
-        try
-        {
-            find_result = _pool->get(key);
+        std::string * to_return = nullptr;
+        if (_pool.contains(key)) {
+            std::pair<std::string *, unsigned *> ptr_n_usages = _pool.operator[](key);
+            to_return = ptr_n_usages.first;
+            (*(ptr_n_usages.second))++;
+        } else {
+            std::pair<std::string *, unsigned *> alloc(new std::string(key), new unsigned(1));
+            to_return = alloc.first;
+            _pool.insert(std::make_pair(key, alloc));
         }
-        catch (b_tree<std::string, std::pair<std::string *, unsigned *>, string_comparer>::find_exception const &ex)
-        {
-            auto * string_to_insert = new std::string(key);
-            auto * used = new unsigned();
-            (*used) = 1;
-            _pool->insert(key, std::move(std::pair<std::string *, unsigned *>(string_to_insert, used)));
-            return _pool->get(key).first;
-        }
-        (*(find_result.second))++;
-        return find_result.first;
+
+        return to_return;
     }
 
     void remove_string(std::string const &key)
     {
-        std::pair<std::string *, unsigned *> string_and_used;
-        try
-        {
-            string_and_used = _pool->get(key);
-        }
-        catch (b_tree<std::string, std::string *, string_comparer>::find_exception const &ex)
-        {
-            return;
-        }
-
-        if ((*(string_and_used.second)) == 1) {
-            delete (string_and_used.second);
-            _pool->remove(key);
-        }
-        else {
-            (*(string_and_used.second))--;
+        if (_pool.contains(key)) {
+            std::pair<std::string *, unsigned *> ptr_n_usages = _pool.operator[](key);
+            if ((*(ptr_n_usages.second)) == 1) {
+                _pool.erase(key);
+            } else {
+                (*(ptr_n_usages.second))--;
+            }
         }
     }
 

@@ -27,8 +27,8 @@ private:
     class string_comparer
     {
     public:
-        int operator()(std::string const & x, std::string const & y) {
-            return x.compare(y);
+        int operator()(std::string * x, std::string * y) {
+            return (*x).compare((*y));
         }
     };
 
@@ -38,9 +38,9 @@ private:
      *          дерево коллекций
      *               коллекция
      * */
-    b_tree<std::string,
-        associative_container<std::string,
-            associative_container<std::string,
+    b_tree<std::string *,
+        associative_container<std::string *,
+            associative_container<std::string *,
                 associative_container<key, db_value *> *
                                  > *
                              > *, string_comparer
@@ -114,11 +114,11 @@ public:
 
 #pragma region Find structure
 private:
-    [[nodiscard]] associative_container<std::string, associative_container<std::string, associative_container<key, db_value *> *> *> *
+    [[nodiscard]] associative_container<std::string *, associative_container<std::string *, associative_container<key, db_value *> *> *> *
     find_data_pool
     (std::string const & pool_name) const;
 
-    [[nodiscard]] associative_container<std::string, associative_container<key, db_value *> *> *
+    [[nodiscard]] associative_container<std::string *, associative_container<key, db_value *> *> *
     find_data_scheme
     (std::string const & pool_name, std::string const & scheme_name) const;
 
@@ -185,12 +185,12 @@ public:
 #pragma region Deletion from structure of data base
 private:
     void delete_collection
-            (const std::string & collection_name, associative_container<std::string,
+            (const std::string & collection_name, associative_container<std::string *,
                     associative_container<key, db_value *> *> * parent_scheme);
 
     void delete_scheme
-            (const std::string & scheme_name, associative_container<std::string,
-                    associative_container<std::string, associative_container<key, db_value *> *> *> * parent_pool);
+            (const std::string & scheme_name, associative_container<std::string *,
+                    associative_container<std::string *, associative_container<key, db_value *> *> *> * parent_pool);
 
     void delete_pool(const std::string & pool_name);
 
@@ -217,9 +217,9 @@ public:
     explicit data_base(unsigned order_of_tree, logger * this_db_logger = nullptr, memory * this_db_allocator = nullptr)
     : _logger(this_db_logger), _allocator(this_db_allocator)
     {
-        _database = new b_tree<std::string,
-                                    associative_container<std::string,
-                                        associative_container<std::string,
+        _database = new b_tree<std::string *,
+                                    associative_container<std::string *,
+                                        associative_container<std::string *,
                                             associative_container<key, db_value *> *> *> *
                                                                      , string_comparer>(order_of_tree, this_db_logger, this_db_allocator);
     }

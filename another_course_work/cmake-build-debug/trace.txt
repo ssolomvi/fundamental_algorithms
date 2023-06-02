@@ -1,0 +1,37 @@
+<--- [ trace ]  --->
+[ 02/06/2023 07:09:56 ][ trace ] data_base::add_to_structure method started
+[ 02/06/2023 07:10:06 ][ trace ] data_base::get_new_allocator_for_inner_trees method started
+[ 02/06/2023 07:10:06 ][ trace ] An object of global heap allocator was constructed
+[ 02/06/2023 07:10:06 ][ trace ] data_base::get_new_allocator_for_inner_trees method finished
+[ 02/06/2023 07:11:11 ][ trace ] insertion_template_method::insert method started
+[ 02/06/2023 07:11:11 ][ debug ] insertion_template_method::insert inserting to root for the first time
+[ 02/06/2023 07:11:11 ][ trace ] insertion_template_method::insert method finished
+[ 02/06/2023 07:11:11 ][ trace ] data_base::add_to_structure method finished
+[ 02/06/2023 07:11:13 ][ trace ] data_base::add_to_structure method started
+[ 02/06/2023 07:11:17 ][ trace ] data_base::find_data_pool method started
+[ 02/06/2023 07:11:34 ][ trace ] finding_template_method::find method started
+[ 02/06/2023 07:11:34 ][ warning ] finding_template_method::find key-value pair not found
+[ 02/06/2023 07:11:34 ][ trace ] finding_template_method::find method finished
+[ 02/06/2023 07:11:34 ][ debug ] data_base::find_data_pool data pool not found
+[ 02/06/2023 07:11:34 ][ trace ] data_base::find_data_pool method finished
+[ 02/06/2023 07:11:34 ][ debug ] data_base::add_to_structure no such pool name in data_base
+[ 02/06/2023 07:11:34 ][ trace ] data_base::add_to_structure method finished
+[ 02/06/2023 07:11:36 ][ trace ] data_base::add_to_structure method started
+[ 02/06/2023 07:11:43 ][ trace ] data_base::find_data_scheme method started
+[ 02/06/2023 07:11:46 ][ trace ] data_base::find_data_pool method started
+[ 02/06/2023 07:12:00 ][ trace ] finding_template_method::find method started
+[ 02/06/2023 07:12:00 ][ warning ] finding_template_method::find key-value pair not found
+[ 02/06/2023 07:12:00 ][ trace ] finding_template_method::find method finished
+[ 02/06/2023 07:12:00 ][ debug ] data_base::find_data_pool data pool not found
+[ 02/06/2023 07:12:00 ][ trace ] data_base::find_data_pool method finished
+[ 02/06/2023 07:12:34 ][ debug ] data_base::add_to_structure no such pool/scheme name in data_base
+[ 02/06/2023 07:12:34 ][ trace ] data_base::add_to_structure method finished
+[ 02/06/2023 07:12:56 ][ trace ] data_base::find_among_collection method started
+[ 02/06/2023 07:12:56 ][ trace ] data_base::find_data_collection method started
+[ 02/06/2023 07:12:56 ][ trace ] data_base::find_data_scheme method started
+[ 02/06/2023 07:12:59 ][ trace ] data_base::find_data_pool method started
+[ 02/06/2023 07:13:26 ][ trace ] finding_template_method::find method started
+[ 02/06/2023 07:13:26 ][ warning ] finding_template_method::find key-value pair not found
+[ 02/06/2023 07:13:26 ][ trace ] finding_template_method::find method finished
+[ 02/06/2023 07:13:26 ][ debug ] data_base::find_data_pool data pool not found
+[ 02/06/2023 07:13:26 ][ trace ] data_base::find_data_pool method finished

@@ -5,6 +5,8 @@
 #include "db_value/db_value_builder.h"
 #include "db/data_base.h"
 
+#define DEFAULT_B_TREE_PARAMETER 10
+
 void help();
 
 #pragma region Parsing

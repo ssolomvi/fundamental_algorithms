@@ -1,12 +1,12 @@
-add AVL global pull1
-add sorted_list best 1000 RB pull2
-add SPLAY pull1/scheme1
-add BST descriptors worst pull2/scheme1
-add AVL pull2/scheme2
+add global pull1
+add pull2
+add pull1/scheme1
+add pull2/scheme1
+add pull2/scheme2
 add pull2/scheme3
-add buddy_system 5000 RB pull1/scheme1/collection1
-add BST pull1/scheme1/collection2
-add global pull1/scheme1/collection3
+add pull1/scheme1/collection1
+add pull1/scheme1/collection2
+add pull1/scheme1/collection3
 add
 0, 1
 Ivanova Yana Vladimirovna

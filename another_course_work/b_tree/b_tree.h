@@ -699,7 +699,7 @@ protected:
             if (this->_target_tree->_root == nullptr) {
                 this->debug_with_guard("insertion_template_method::insert inserting to root for the first time");
                 this->_target_tree->_root = new b_node(this->_target_tree);
-                this->_target_tree->_root->_key_array[0] = key;
+                this->_target_tree->_root->_key_array[0] = std::move(key);
                 this->_target_tree->_root->_value_array[0] = std::move(value);
                 this->_target_tree->_root->_key_count = 1;
             } else {

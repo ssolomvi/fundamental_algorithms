@@ -12,9 +12,9 @@ void help() {
     std::cout << "\t- update" << std::endl;
     std::cout << "\t- delete" << std::endl;
     std::cout << "Structural and customization commands list:" << std::endl;
-    std::cout
-            << "Supported allocators: global, sorted_list best||worst||first, descriptors best||worst||first, buddy_system"
-            << std::endl;
+//    std::cout
+//            << "Supported allocators: global, sorted_list best||worst||first, descriptors best||worst||first, buddy_system"
+//            << std::endl;
     std::cout << "\t- add <allocator type> <size of allocator> <full path>" << std::endl;
     std::cout << "\t- delete <full path>" << std::endl;
     std::cout << "DB commands list:" << std::endl;
@@ -232,15 +232,15 @@ do_add_command
         std::tuple<data_base::allocator_types_, size_t> parse_result
                 = parse_for_add_command(input_str_leftover);
 
-        data_base::allocator_types_ allocator_type = std::get<1>(parse_result);
-        size_t allocator_pool_size = std::get<2>(parse_result);
+        data_base::allocator_types_ allocator_type = std::get<0>(parse_result);
+        size_t allocator_pool_size = std::get<1>(parse_result);
 
         std::tuple<std::string, std::string, std::string> struct_parse_path_result = parse_path(input_str_leftover);
 
 
         db->add_to_structure(std::get<0>(struct_parse_path_result),
                              std::get<1>(struct_parse_path_result), std::get<2>(struct_parse_path_result),
-                             tree_type, allocator_type, allocator_pool_size);
+                             DEFAULT_B_TREE_PARAMETER, allocator_type, allocator_pool_size);
         if (is_cin) {
             std::cout << "Added " << input_str_leftover << " successfully!" << std::endl;
         }
@@ -406,7 +406,7 @@ get_update_key_and_dictionary(std::ifstream *input_stream, bool is_cin) {
     size_t pos;
     if (is_cin) {
         std::cout << "Print field_name: new_value" << std::endl
-                  << "Fields: surname, name, patronymic, birthday, link_to_resume, hr_id, p_language, tasks, solved, copying"
+                  << "Fields: description, surname, name, patronymic, email, phone, address, comment, timestamp"
                   << std::endl
                   << "To stop print exit" << std::endl;
     }
@@ -434,27 +434,25 @@ get_update_key_and_dictionary(std::ifstream *input_stream, bool is_cin) {
             throw parse_exception(
                     "get_update_key_and_dictionary:: incorrect input. Must be <field_name>:<new_field_value>");
         }
-
-        if (field_name == "surname") {
+        if (field_name == "description") {
+            dbValueField = db_value_fields::_description_;
+        }
+        else if (field_name == "surname") {
             dbValueField = db_value_fields::_surname_;
         } else if (field_name == "name") {
             dbValueField = db_value_fields::_name_;
         } else if (field_name == "patronymic") {
             dbValueField = db_value_fields::_patronymic_;
-        } else if (field_name == "birthday") {
-            dbValueField = db_value_fields::_birthday_;
-        } else if (field_name == "link_to_resume") {
-            dbValueField = db_value_fields::_link_to_resume_;
-        } else if (field_name == "hr_id") {
-            dbValueField = db_value_fields::_hr_id_;
-        } else if (field_name == "p_language") {
-            dbValueField = db_value_fields::_programming_language_;
-        } else if (field_name == "tasks") {
-            dbValueField = db_value_fields::_task_count_;
-        } else if (field_name == "solved") {
-            dbValueField = db_value_fields::_solved_task_count_;
-        } else if (field_name == "copying") {
-            dbValueField = db_value_fields::_copying_;
+        } else if (field_name == "email") {
+            dbValueField = db_value_fields::_email_;
+        } else if (field_name == "phone") {
+            dbValueField = db_value_fields::_phone_number_;
+        } else if (field_name == "address") {
+            dbValueField = db_value_fields::_address_;
+        } else if (field_name == "comment") {
+            dbValueField = db_value_fields::_user_comment_;
+        } else if (field_name == "timestamp") {
+            dbValueField = db_value_fields::_date_time_;
         } else {
             throw parse_exception("get_update_key_and_dictionary:: incorrect field name");
         }
@@ -463,37 +461,7 @@ get_update_key_and_dictionary(std::ifstream *input_stream, bool is_cin) {
             delete to_return_dict[dbValueField];
         }
 
-        if (dbValueField == db_value_fields::_surname_ || dbValueField == db_value_fields::_name_ ||
-            dbValueField == db_value_fields::_patronymic_ ||
-            dbValueField == db_value_fields::_birthday_ || dbValueField == db_value_fields::_link_to_resume_ ||
-            dbValueField == db_value_fields::_programming_language_) {
-            to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new std::string(token));
-        } else if (dbValueField == db_value_fields::_hr_id_) {
-            // try catch?
-            try {
-                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new int(std::stoi(token)));
-            }
-            catch (std::invalid_argument const &) {
-                throw parse_exception("get_update_key_and_dictionary:: hr id value must be of type int");
-            }
-        } else if (dbValueField == db_value_fields::_task_count_ ||
-                   dbValueField == db_value_fields::_solved_task_count_) {
-            try {
-                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new unsigned(std::stoi(token)));
-            }
-            catch (std::invalid_argument const &) {
-                throw parse_exception("get_update_key_and_dictionary:: task count value must be of type unsigned");
-            }
-        } else if (dbValueField == db_value_fields::_copying_) {
-            if (token == "true" || token == "1") {
-                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new bool(true));
-            } else if (token == "false" || token == "0") {
-                to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new bool(false));
-            } else {
-                throw parse_exception(
-                        "get_update_key_and_dictionary:: incorrect copying value. It must be true/false or 1/0");
-            }
-        }
+        to_return_dict[dbValueField] = reinterpret_cast<unsigned char *>(new std::string(token));
     }
     return {to_return_key, to_return_dict};
 }

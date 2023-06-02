@@ -1,4 +1,5 @@
 #include "db_value_builder.h"
+#include <fstream>
 
 db_value_builder *db_value_builder::with_description(std::string &&description) {
     _description = std::move(description);
