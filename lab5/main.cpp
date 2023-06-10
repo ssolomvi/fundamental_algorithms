@@ -155,7 +155,6 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
 
         }
     }
-
     delete tree;
 }
 
@@ -407,8 +406,11 @@ void my_b_tree_test()
 
 int main()
 {
+    int a = -19201;
+    std::cout << sizeof(int) << std::endl;
+    std::cout << sizeof(unsigned int) << std::endl;
 
-//#pragma region tree test
+#pragma region tree test
 //    unsigned iterations = 1001;
 //
 //    logger_builder *allocator_logger_builder = new logger_builder_impl();
@@ -430,9 +432,12 @@ int main()
 //    delete allocator;
 //    delete allocator_logger;
 //    delete tree_logger;
-//#pragma endregion
+#pragma endregion
 
+    std::cout << INT_MAX << std::endl;
+    std::cout << INT_MIN << std::endl;
+    std::cout << UINT_MAX << std::endl;
 
-    my_b_tree_test();
+    // my_b_tree_test();
     return 0;
 }

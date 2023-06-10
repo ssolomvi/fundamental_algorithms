@@ -15,23 +15,87 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18978bc0-5f79-4461-983d-df83f156e2a5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../another_course_work/b_tree/b_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/b_tree/b_tree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/course_work.exe" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/course_work.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/trace.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/trace.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/warning.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/db/data_base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/db/data_base.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test2" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/test/data_base_test2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test3" beforeDir="false" afterPath="$PROJECT_DIR$/../another_course_work/test/data_base_test3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/b_tree/b_tree.h" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/b_tree/b_tree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/allocator_b_tests.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/allocator_b_tests.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/b_t_tests.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/b_t_tests.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/cmake-build-debug/lab5.exe" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/cmake-build-debug/lab5.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab5/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../lab5/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/another_course_work.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator/memory_base_class.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator/memory_base_class.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator/memory_holder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator/memory_holder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_from_global_heap/memory_from_global_heap.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_from_global_heap/memory_from_global_heap.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_buddy_system/memory_with_buddy_system.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_buddy_system/memory_with_buddy_system.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/b_tree/associative_container.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/b_tree/b_tree.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/chain_of_resp_and_command/command.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/chain_of_resp_and_command/handler.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/query/cache-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/query/codemodel-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/query/toolchains-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/cache-v2-551cdcf730f2da114194.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-2044cb11ff08f7039184.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-a6c742e7ba3dace7c43e.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-d0094a50bb2071803777.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/index-2023-06-01T15-11-30-0649.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/target-course_work-Debug-0c3f5cc3f7b2b9cfb749.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-831aa37f75698408c49d.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_deps" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/.ninja_log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeCache.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeCXXCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeRCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CMakeSystem.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdC/a.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdCXX/a.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/cmake.check_cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/CMakeFiles/rules.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/build.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/cmake_install.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/course_work.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/trace.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/cmake-build-debug/warning.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db/data_base.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db/data_base.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_key/key.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_user_communication.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_user_communication.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_value/db_value.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_value/db_value.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_value/db_value_builder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_value/db_value_builder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/db_value/string_holder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger_builder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger_builder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger_holder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/logger/logger_holder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/data_base_test3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../another_course_work/test/update.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/trace.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/trace.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/warning.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/warning.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +131,8 @@
     "WebServerToolWindowFactoryState": "false",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "last_opened_file_path": "C:/fund-algths/course_work",
+    "last_opened_file_path": "C:/fund-algths/lab5",
+    "settings.editor.selected.configurable": "CPPToolchains",
     "structure.view.defaults.are.configured": "true"
   }
 }]]></component>
@@ -100,7 +165,11 @@
       <workItem from="1685501050002" duration="2910000" />
       <workItem from="1685515093207" duration="8725000" />
       <workItem from="1685571614885" duration="108000" />
-      <workItem from="1685682735019" duration="1000" />
+      <workItem from="1685682735019" duration="654000" />
+      <workItem from="1685683549266" duration="1079000" />
+      <workItem from="1685694338517" duration="21000" />
+      <workItem from="1686121724838" duration="669000" />
+      <workItem from="1686314410921" duration="39000" />
     </task>
     <servers />
   </component>
