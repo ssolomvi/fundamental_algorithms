@@ -406,6 +406,11 @@ void my_b_tree_test()
 
 int main()
 {
+    std::cout << (true + true) % 2 << std::endl;
+    std::cout << true + false << std::endl;
+    std::cout << false + true << std::endl;
+    std::cout << false + false << std::endl;
+
 #pragma region tree test
 //    unsigned iterations = 1001;
 //

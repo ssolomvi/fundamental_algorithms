@@ -369,12 +369,22 @@ bigint *bigint_impl::bigint_column_multiplication::multiply(const bigint *const 
                                                             const bigint *const right_multiplier) const
 {
     if (!left_multiplier || !right_multiplier) {
-        // todo:
+        return nullptr;
     }
 
     // todo: handle signs so we do multiply 2 positive numbers
-
     bigint * left = const_cast<bigint *>(left_multiplier), * right = const_cast<bigint *>(right_multiplier);
+    bool left_sign = left->get_sign(), right_sign = right->get_sign();
+    bool result_sign = (left_sign + right_sign) % 2;
+
+    if (left_sign) {
+        left->change_sign();
+    }
+
+    if (right_sign) {
+        right->change_sign();
+    }
+
     bigint * multiplying_result = new bigint_impl(left->get_multiplication(), left->get_division(), left->get_logger(), left->get_memory());
     multiplying_result->reallocate_digits_array((left->get_count_of_digits() + right->get_count_of_digits()));
 
@@ -491,7 +501,20 @@ bigint *bigint_impl::bigint_column_multiplication::multiply(const bigint *const 
     }
 
     multiplying_result->reallocate_digits_array(multiplying_result->get_count_of_digits());
-    return nullptr;
+
+    if (left_sign) {
+        left->change_sign();
+    }
+
+    if (right_sign) {
+        right->change_sign();
+    }
+
+    if (result_sign) {
+        multiplying_result->change_sign();
+    }
+
+    return multiplying_result;
 }
 
 #pragma endregion
