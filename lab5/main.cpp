@@ -406,10 +406,6 @@ void my_b_tree_test()
 
 int main()
 {
-    int a = -19201;
-    std::cout << sizeof(int) << std::endl;
-    std::cout << sizeof(unsigned int) << std::endl;
-
 #pragma region tree test
 //    unsigned iterations = 1001;
 //
@@ -434,9 +430,8 @@ int main()
 //    delete tree_logger;
 #pragma endregion
 
-    std::cout << INT_MAX << std::endl;
-    std::cout << INT_MIN << std::endl;
-    std::cout << UINT_MAX << std::endl;
+//    std::cout << INT_MAX << std::endl;
+//    std::cout << INT_MIN << std::endl;
 
     // my_b_tree_test();
     return 0;

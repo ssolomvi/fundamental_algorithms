@@ -363,3 +363,140 @@ bool bigint_impl::not_equals(const bigint *const other) const {
 }
 
 #pragma endregion
+
+#pragma region multiplication
+bigint *bigint_impl::bigint_column_multiplication::multiply(const bigint *const left_multiplier,
+                                                            const bigint *const right_multiplier) const
+{
+    if (!left_multiplier || !right_multiplier) {
+        // todo:
+    }
+
+    // todo: handle signs so we do multiply 2 positive numbers
+
+    bigint * left = const_cast<bigint *>(left_multiplier), * right = const_cast<bigint *>(right_multiplier);
+    bigint * multiplying_result = new bigint_impl(left->get_multiplication(), left->get_division(), left->get_logger(), left->get_memory());
+    multiplying_result->reallocate_digits_array((left->get_count_of_digits() + right->get_count_of_digits()));
+
+    unsigned iter_over_right_num = 0, iter_over_left_num = 0, iter_for_multiply = 0;
+    size_t sum_result = 0, additional = 0, left_len = left->get_count_of_digits() - 1, right_len = right->get_count_of_digits() - 1;
+    long long radix = 2^(sizeof(int) * 8 - 1);
+    int right_last_digit = (*(right->get_ptr_last_digit())), left_last_digit = (*(left->get_ptr_last_digit()));
+
+    // multiplying "digits"
+    if (right_last_digit != 0) {
+        // do the first multiply
+        // right number last digit multiply another last digit
+        for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
+            sum_result += left_last_digit;
+            if (sum_result - radix >= 0) {
+                ++additional;
+                sum_result -= radix;
+            }
+        }
+        (*(multiplying_result->get_ptr_last_digit())) = sum_result;
+        (*(multiplying_result->get_ptr_count_of_digits())) = 1;
+
+        // right number last digit multiply right number digit array
+        for (iter_over_left_num = 0; iter_over_left_num < left_len; iter_over_left_num++) {
+            sum_result = additional;
+            additional = 0;
+
+            unsigned left_digit = (*(left->get_ptr_digit_with_index(iter_over_left_num)));
+
+            if (left_digit != 0) {
+                for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
+                    sum_result += left_digit;
+                    if (sum_result - radix >= 0) {
+                        ++additional;
+                        sum_result -= radix;
+                    }
+                }
+            }
+
+            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num))) = sum_result;
+            ++(*(multiplying_result->get_ptr_count_of_digits()));
+        }
+
+        if (additional) {
+            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num))) = additional;
+            ++(*(multiplying_result->get_ptr_count_of_digits()));
+            additional = 0;
+        }
+    }
+
+    sum_result = 0;
+
+    for (iter_over_right_num = 0; iter_over_right_num < right_len; iter_over_right_num++) {
+        // do the first multiply
+        // right number last digit multiply another last digit
+        unsigned right_digit = (*(right->get_ptr_digit_with_index(iter_over_right_num)));
+        if (right_digit == 0) {
+            continue;
+        }
+
+        for (iter_for_multiply = 0; iter_for_multiply < right_digit; iter_for_multiply++) {
+            sum_result += left_last_digit;
+            if (sum_result - radix >= 0) {
+                ++additional;
+                sum_result -= radix;
+            }
+        }
+
+        if ((iter_over_right_num + 1) > (multiplying_result->get_count_of_digits()) - 1) {
+            (*(multiplying_result->get_ptr_count_of_digits())) = iter_over_right_num + 2;
+        }
+
+        sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num)));
+        if (sum_result - radix >= 0) {
+            ++additional;
+            sum_result -= radix;
+        }
+        (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num))) = (sum_result);
+
+        // right number last digit multiply right number digit array
+        for (iter_over_left_num = 0; iter_over_left_num < left_len; iter_over_left_num++) {
+            sum_result = additional;
+            additional = 0;
+
+            unsigned left_digit = (*(left->get_ptr_digit_with_index(iter_over_left_num)));
+
+            if (left_digit != 0) {
+                for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
+                    sum_result += left_digit;
+                    if (sum_result - radix >= 0) {
+                        ++additional;
+                        sum_result -= radix;
+                    }
+                }
+            }
+
+            if ((iter_over_right_num + iter_over_left_num + 2) > (multiplying_result->get_count_of_digits() - 1)) {
+                (*(multiplying_result->get_ptr_count_of_digits())) = (iter_over_right_num + iter_over_left_num + 3);
+            }
+
+            sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num + iter_over_left_num + 1)));
+            if (sum_result - radix >= 0) {
+                ++additional;
+                sum_result -= radix;
+            }
+            (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num + iter_over_left_num + 1))) = sum_result;
+        }
+
+        if (additional) {
+            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num + iter_over_left_num + 1))) = additional;
+            ++(*(multiplying_result->get_ptr_count_of_digits()));
+            additional = 0;
+        }
+    }
+
+    multiplying_result->reallocate_digits_array(multiplying_result->get_count_of_digits());
+    return nullptr;
+}
+
+#pragma endregion
+
+
+
+#pragma region division
+#pragma endregion

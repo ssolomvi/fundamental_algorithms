@@ -22,4 +22,4 @@ add_executable(lab5
         allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp
         allocator_with_buddy_system/memory_with_buddy_system.h allocator_with_buddy_system/memory_with_buddy_system.cpp
         main.cpp b_tree/b_tree.h
-        bigint/bigint_multiplication.cpp bigint/bigint_multiplication.h bigint/bigint_impl.cpp bigint/bigint_impl.h)
+        bigint/bigint_multiplication.cpp bigint/bigint_multiplication.h bigint/bigint_impl.cpp bigint/bigint_impl.h bigint/bigint_division.cpp bigint/bigint_division.h)
