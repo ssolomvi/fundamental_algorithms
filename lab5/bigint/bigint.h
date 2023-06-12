@@ -3,6 +3,8 @@
 
 #include "../logger/logger_holder.h"
 #include "../allocator/memory_holder.h"
+#include <cmath>
+#include <stack>
 
 class bigint
         : protected logger_holder,
@@ -11,6 +13,7 @@ class bigint
 public:
 #pragma region multiplication
     class bigint_multiplication {
+    public:
         virtual bigint *multiply(bigint const * const left_multiplier,
                                  bigint const * const right_multiplier) const = 0;
     };
@@ -19,6 +22,7 @@ public:
 
 #pragma region division
     class bigint_division {
+    public:
         virtual bigint* divide(bigint const * const dividend, bigint const * const divider,
                                bigint_multiplication const * const multiplication_impl) const = 0;
     };
@@ -163,6 +167,24 @@ public:
 
 #pragma endregion
 
+
+    bigint * operator*=(bigint const * const right_multiplier)
+    {
+        bigint * tmp = this->_multiplication->multiply(this, right_multiplier);
+        this->deallocate_with_guard(_digits);
+        this->_count_of_digits = tmp->_count_of_digits;
+        memcpy(_digits, this->_digits, sizeof(unsigned) * (tmp->_count_of_digits - 1));
+        this->_digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * (tmp->_count_of_digits - 1)));
+        this->_first_digit = tmp->_first_digit;
+        delete tmp;
+        return this;
+    }
+
+    bigint * operator*(bigint const * const right_multiplier) const
+    {
+        return this->_multiplication->multiply(this, right_multiplier);
+    }
+
 #pragma region substracting
 public:
     // -=
@@ -248,10 +270,28 @@ public:
     friend std::istream &operator>>(std::istream &in, const bigint &value);
 
 #pragma region rule 5
-    explicit bigint(char * from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
+    explicit bigint(std::string & from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
             : _logger(logger), _allocator(allocator), _digits(nullptr), _count_of_digits(0), _first_digit(0), _multiplication(multiplication), _division(division)
     {
-        // todo:
+        // reading from left to right
+        from.erase(remove_if(from.begin(), from.end(), isalpha), from.end());
+        unsigned k = std::log10(1 << (sizeof(int) << 3)), power = 0;
+        size_t multiply = pow(10, k);
+        int digit = 0;
+        std::string substring;
+
+        while (!from.empty()) {
+            substring = from.substr(0, k);
+            power = substring.size();
+            from.erase(0, power);
+            digit = std::stoi(substring);
+            if (power == k) {
+                this *= multiply;
+            } else {
+                this *= pow(10, power);
+            }
+            this += digit;
+        }
     }
 
     explicit bigint(bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
@@ -354,13 +394,5 @@ public:
     }
 #pragma endregion
 };
-
-inline std::ostream &operator<<(std::ostream &out, const bigint &value) {
-    return out;
-}
-
-inline std::istream &operator>>(std::istream &in, const bigint &value) {
-    return in;
-}
 
 #endif //BIGINT_H

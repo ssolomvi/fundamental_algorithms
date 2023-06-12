@@ -64,10 +64,11 @@ class bigint_impl final : public bigint
 #pragma endregion
 
 #pragma region rule 5
-    explicit bigint_impl(char * from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
+public:
+    explicit bigint_impl(std::string & from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
     : bigint(from, multiplication, division, logger, allocator)
     {
-        // todo:
+
     }
 
     explicit bigint_impl(bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)

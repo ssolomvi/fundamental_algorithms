@@ -523,3 +523,33 @@ bigint *bigint_impl::bigint_column_multiplication::multiply(const bigint *const 
 
 #pragma region division
 #pragma endregion
+
+inline std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
+    unsigned k = std::log10(1 << (sizeof(int) << 3)), power = 0;
+    size_t multiply = pow(10, k);
+    int digit = 0;
+    bigint_impl tmp(value);
+    std::stack<int> result_stack;
+
+    while (tmp != 0) {
+        tmp /= multiply;
+        result.push((tmp % multiply));
+    }
+
+    std::string result_string;
+    while (!(result_stack.empty())) {
+        result_string += std::to_string(result_stack.top());
+        result_stack.pop();
+    }
+
+    out << result_string;
+
+    return out;
+}
+
+inline std::istream &operator>>(std::istream &in, const bigint **value) {
+    std::string input;
+    std::getline(in, input);
+    (*value) = new bigint_impl(input);
+    return in;
+}
