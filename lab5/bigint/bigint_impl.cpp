@@ -362,168 +362,46 @@ bool bigint_impl::not_equals(const bigint *const other) const {
     return (!(equals(other)));
 }
 
+
 #pragma endregion
 
-#pragma region multiplication
-bigint *bigint_impl::bigint_column_multiplication::multiply(const bigint *const left_multiplier,
-                                                            const bigint *const right_multiplier) const
+bool bigint_impl::split(bigint_impl *bi_front, bigint_impl *bi_back, size_t split_digit) const
 {
-    if (!left_multiplier || !right_multiplier) {
-        return nullptr;
+// Split the current bigint into 2 bits at the point specified by split_digit
+    bi_front->init();
+    bi_back->init();
+
+    if (split_digit >= _count_of_digits) {
+        (*bi_front) = (*this);
+        return false;
     }
 
-    // todo: handle signs so we do multiply 2 positive numbers
-    bigint * left = const_cast<bigint *>(left_multiplier), * right = const_cast<bigint *>(right_multiplier);
-    bool left_sign = left->get_sign(), right_sign = right->get_sign();
-    bool result_sign = (left_sign + right_sign) % 2;
+    // Put the first half of the current LongInteger in bi_front
+    bi_front->_count_of_digits = split_digit;
+    bi_front->_first_digit = _first_digit;
+    bi_front->_digits = reinterpret_cast<unsigned *>(bi_front->allocate_with_guard((split_digit - 1) * sizeof(unsigned)));
+    memcpy(bi_front->_digits, _digits, (split_digit - 1) * sizeof(unsigned));
 
-    if (left_sign) {
-        left->change_sign();
+    // Put the second half in bi_back
+    bi_back->_count_of_digits = _count_of_digits - split_digit;
+    bi_back->_first_digit = _digits[split_digit];
+
+    size_t count_of_digits_array_in_back = _count_of_digits - split_digit - 1;
+    if (count_of_digits_array_in_back > 0) {
+        bi_back->_digits = reinterpret_cast<unsigned *>(bi_back->allocate_with_guard(count_of_digits_array_in_back));
+        memcpy(bi_back->_digits, _digits + ((split_digit + 1) * sizeof(unsigned)), (count_of_digits_array_in_back * sizeof(unsigned)));
     }
 
-    if (right_sign) {
-        right->change_sign();
-    }
-
-    bigint * multiplying_result = new bigint_impl(left->get_multiplication(), left->get_division(), left->get_logger(), left->get_memory());
-    multiplying_result->reallocate_digits_array((left->get_count_of_digits() + right->get_count_of_digits()));
-
-    unsigned iter_over_right_num = 0, iter_over_left_num = 0, iter_for_multiply = 0;
-    size_t sum_result = 0, additional = 0, left_len = left->get_count_of_digits() - 1, right_len = right->get_count_of_digits() - 1;
-    long long radix = 2^(sizeof(int) * 8 - 1);
-    int right_last_digit = (*(right->get_ptr_last_digit())), left_last_digit = (*(left->get_ptr_last_digit()));
-
-    // multiplying "digits"
-    if (right_last_digit != 0) {
-        // do the first multiply
-        // right number last digit multiply another last digit
-        for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
-            sum_result += left_last_digit;
-            if (sum_result - radix >= 0) {
-                ++additional;
-                sum_result -= radix;
-            }
-        }
-        (*(multiplying_result->get_ptr_last_digit())) = sum_result;
-        (*(multiplying_result->get_ptr_count_of_digits())) = 1;
-
-        // right number last digit multiply right number digit array
-        for (iter_over_left_num = 0; iter_over_left_num < left_len; iter_over_left_num++) {
-            sum_result = additional;
-            additional = 0;
-
-            unsigned left_digit = (*(left->get_ptr_digit_with_index(iter_over_left_num)));
-
-            if (left_digit != 0) {
-                for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
-                    sum_result += left_digit;
-                    if (sum_result - radix >= 0) {
-                        ++additional;
-                        sum_result -= radix;
-                    }
-                }
-            }
-
-            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num))) = sum_result;
-            ++(*(multiplying_result->get_ptr_count_of_digits()));
-        }
-
-        if (additional) {
-            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num))) = additional;
-            ++(*(multiplying_result->get_ptr_count_of_digits()));
-            additional = 0;
-        }
-    }
-
-    sum_result = 0;
-
-    for (iter_over_right_num = 0; iter_over_right_num < right_len; iter_over_right_num++) {
-        // do the first multiply
-        // right number last digit multiply another last digit
-        unsigned right_digit = (*(right->get_ptr_digit_with_index(iter_over_right_num)));
-        if (right_digit == 0) {
-            continue;
-        }
-
-        for (iter_for_multiply = 0; iter_for_multiply < right_digit; iter_for_multiply++) {
-            sum_result += left_last_digit;
-            if (sum_result - radix >= 0) {
-                ++additional;
-                sum_result -= radix;
-            }
-        }
-
-        if ((iter_over_right_num + 1) > (multiplying_result->get_count_of_digits()) - 1) {
-            (*(multiplying_result->get_ptr_count_of_digits())) = iter_over_right_num + 2;
-        }
-
-        sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num)));
-        if (sum_result - radix >= 0) {
-            ++additional;
-            sum_result -= radix;
-        }
-        (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num))) = (sum_result);
-
-        // right number last digit multiply right number digit array
-        for (iter_over_left_num = 0; iter_over_left_num < left_len; iter_over_left_num++) {
-            sum_result = additional;
-            additional = 0;
-
-            unsigned left_digit = (*(left->get_ptr_digit_with_index(iter_over_left_num)));
-
-            if (left_digit != 0) {
-                for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
-                    sum_result += left_digit;
-                    if (sum_result - radix >= 0) {
-                        ++additional;
-                        sum_result -= radix;
-                    }
-                }
-            }
-
-            if ((iter_over_right_num + iter_over_left_num + 2) > (multiplying_result->get_count_of_digits() - 1)) {
-                (*(multiplying_result->get_ptr_count_of_digits())) = (iter_over_right_num + iter_over_left_num + 3);
-            }
-
-            sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num + iter_over_left_num + 1)));
-            if (sum_result - radix >= 0) {
-                ++additional;
-                sum_result -= radix;
-            }
-            (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num + iter_over_left_num + 1))) = sum_result;
-        }
-
-        if (additional) {
-            (*(multiplying_result->get_ptr_digit_with_index(iter_over_left_num + iter_over_left_num + 1))) = additional;
-            ++(*(multiplying_result->get_ptr_count_of_digits()));
-            additional = 0;
-        }
-    }
-
-    multiplying_result->reallocate_digits_array(multiplying_result->get_count_of_digits());
-
-    if (left_sign) {
-        left->change_sign();
-    }
-
-    if (right_sign) {
-        right->change_sign();
-    }
-
-    if (result_sign) {
-        multiplying_result->change_sign();
-    }
-
-    return multiplying_result;
+    return true;
 }
 
-#pragma endregion
+void bigint_impl::init() {
+    _count_of_digits = 0;
+    deallocate_with_guard(_digits);
+    _first_digit = 0;
+}
 
-
-
-#pragma region division
-#pragma endregion
-
+/*
 inline std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
     unsigned k = std::log10(1 << (sizeof(int) << 3)), power = 0;
     size_t multiply = pow(10, k);
@@ -545,7 +423,7 @@ inline std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
     out << result_string;
 
     return out;
-}
+}*/
 
 inline std::istream &operator>>(std::istream &in, const bigint **value) {
     std::string input;
@@ -553,3 +431,5 @@ inline std::istream &operator>>(std::istream &in, const bigint **value) {
     (*value) = new bigint_impl(input);
     return in;
 }
+
+

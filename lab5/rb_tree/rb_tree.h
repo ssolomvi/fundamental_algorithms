@@ -246,7 +246,7 @@ protected:
             {
                 this->debug_with_guard("rb_tree::removing_rb_tree::remove no value with passed key in tree")
                     ->trace_with_guard("rb_tree::removing_rb_tree::remove method finished");
-                throw typename bs_tree<tkey, tvalue, tkey_comparer>::remove_exception("rb_tree::removing_rb_tree::remove::no value with passed key in tree");
+                throw typename bs_tree<tkey, tvalue, tkey_comparer>::remove_exception   ("rb_tree::removing_rb_tree::remove::no value with passed key in tree");
             }
 
             tvalue result = (*target_ptr)->value;
@@ -348,7 +348,7 @@ protected:
                 return;
             }
             rb_node ** parent = reinterpret_cast<rb_node **>(path.top());
-            rb_node **brother_to_deleted =
+            rb_node ** brother_to_deleted =
                     reinterpret_cast<rb_node **>(((*parent)->left_subtree == nullptr ? &((*parent)->right_subtree) : &((*parent)->left_subtree)));
 
             if ((*brother_to_deleted) == nullptr) {

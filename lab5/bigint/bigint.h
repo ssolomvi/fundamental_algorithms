@@ -11,25 +11,6 @@ class bigint
           protected memory_holder
 {
 public:
-#pragma region multiplication
-    class bigint_multiplication {
-    public:
-        virtual bigint *multiply(bigint const * const left_multiplier,
-                                 bigint const * const right_multiplier) const = 0;
-    };
-    friend class bigint_multiplication;
-#pragma endregion
-
-#pragma region division
-    class bigint_division {
-    public:
-        virtual bigint* divide(bigint const * const dividend, bigint const * const divider,
-                               bigint_multiplication const * const multiplication_impl) const = 0;
-    };
-    friend class bigint_division;
-#pragma endregion
-
-public:
     class parameter_exception final : public std::exception {
     private:
         std::string _message;
@@ -49,38 +30,12 @@ protected:
     size_t _count_of_digits;
     int _first_digit; // has sign in it
     unsigned int *_digits;     // extra digits, begins with last number digit, ends with the greatest number digit
-    bigint_multiplication * _multiplication;
-    bigint_division * _division;
     logger * _logger;
     memory * _allocator;
 
 #pragma region summing
 
 public:
-    bigint_multiplication * get_multiplication()
-    {
-        return _multiplication;
-    };
-
-    bigint_division * get_division()
-    {
-        return _division;
-    }
-
-    bigint_multiplication * set_multiplication(bigint_multiplication * new_multiplication)
-    {
-        auto * tmp = _multiplication;
-        _multiplication = new_multiplication;
-        return tmp;
-    }
-
-    bigint_division * set_division(bigint_division * new_division)
-    {
-        auto * tmp = _division;
-        _division = new_division;
-        return tmp;
-    }
-
     size_t get_count_of_digits() const {
         return _count_of_digits;
     }
@@ -142,6 +97,28 @@ public:
         _digits = new_digits_ptr;
     }
 
+    void mult_by_pow_base(size_t power) {
+        // shift digits to right by power, making new digits == 0
+        // we believe that this number is positive
+        if (power <= 0) {
+            return;
+        }
+
+        size_t tmp = power - 1;
+
+        unsigned * new_digits = reinterpret_cast<unsigned *>(allocate_with_guard(_count_of_digits + tmp));
+        new_digits[tmp] = _first_digit;
+        memcpy(new_digits + power, _digits, sizeof(unsigned) * _count_of_digits - 1);
+        deallocate_with_guard(_digits);
+
+        _first_digit = 0;
+        unsigned i;
+        for (i = 0; i < tmp; i++) {
+            _digits[i] = 0;
+        }
+        _digits = new_digits;
+    }
+
 public:
     // +=
     virtual bigint *add(bigint const * const summand) = 0;
@@ -155,6 +132,7 @@ public:
     // +
     virtual bigint *sum(bigint const * const summand) const
     {
+        // todo: ask if this is a new bigint*
         bigint *to_return{const_cast<bigint *>(this)};
         to_return->add(summand);
         return to_return;
@@ -166,24 +144,6 @@ public:
     }
 
 #pragma endregion
-
-
-    bigint * operator*=(bigint const * const right_multiplier)
-    {
-        bigint * tmp = this->_multiplication->multiply(this, right_multiplier);
-        this->deallocate_with_guard(_digits);
-        this->_count_of_digits = tmp->_count_of_digits;
-        memcpy(_digits, this->_digits, sizeof(unsigned) * (tmp->_count_of_digits - 1));
-        this->_digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * (tmp->_count_of_digits - 1)));
-        this->_first_digit = tmp->_first_digit;
-        delete tmp;
-        return this;
-    }
-
-    bigint * operator*(bigint const * const right_multiplier) const
-    {
-        return this->_multiplication->multiply(this, right_multiplier);
-    }
 
 #pragma region substracting
 public:
@@ -270,39 +230,21 @@ public:
     friend std::istream &operator>>(std::istream &in, const bigint &value);
 
 #pragma region rule 5
-    explicit bigint(std::string & from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
-            : _logger(logger), _allocator(allocator), _digits(nullptr), _count_of_digits(0), _first_digit(0), _multiplication(multiplication), _division(division)
+    explicit bigint(std::string & from, logger * logger = nullptr, memory * allocator = nullptr)
+            : _logger(logger), _allocator(allocator), _digits(nullptr), _count_of_digits(0), _first_digit(0)
     {
-        // reading from left to right
-        from.erase(remove_if(from.begin(), from.end(), isalpha), from.end());
-        unsigned k = std::log10(1 << (sizeof(int) << 3)), power = 0;
-        size_t multiply = pow(10, k);
-        int digit = 0;
-        std::string substring;
 
-        while (!from.empty()) {
-            substring = from.substr(0, k);
-            power = substring.size();
-            from.erase(0, power);
-            digit = std::stoi(substring);
-            if (power == k) {
-                this *= multiply;
-            } else {
-                this *= pow(10, power);
-            }
-            this += digit;
-        }
     }
 
-    explicit bigint(bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
-            : _logger(logger), _allocator(allocator), _digits(nullptr), _count_of_digits(0), _first_digit(0), _multiplication(multiplication), _division(division)
+    explicit bigint(logger * logger = nullptr, memory * allocator = nullptr)
+            : _logger(logger), _allocator(allocator), _digits(nullptr), _count_of_digits(0), _first_digit(0)
     {
 
     }
 
     // copy constructor
     bigint(bigint const &obj)
-            : bigint(obj._multiplication, obj._division, obj._logger, obj._allocator)
+            : bigint(obj._logger, obj._allocator)
     {
         _count_of_digits = obj._count_of_digits;
         _first_digit = obj._first_digit;
@@ -312,7 +254,7 @@ public:
 
     // move constructor
     bigint(bigint &&obj) noexcept
-            : bigint(obj._multiplication, obj._division, obj._logger, obj._allocator)
+            : bigint(obj._logger, obj._allocator)
     {
         _count_of_digits = obj._count_of_digits;
         obj._count_of_digits = 0;
@@ -326,9 +268,6 @@ public:
 
         obj._logger = nullptr;
         obj._allocator = nullptr;
-
-        obj._multiplication = nullptr;
-        obj._division = nullptr;
     }
 
     // copy assignment (оператор присваивания)

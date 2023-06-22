@@ -5,47 +5,8 @@
 
 class bigint_impl final : public bigint
 {
-#pragma region multiplication
-    class bigint_column_multiplication final
-            : public bigint_multiplication
-    {
-        bigint *multiply(bigint const * const left_multiplier,
-                         bigint const * const right_multiplier) const override;
-    };
-
-    class bigint_karatsuba_multiplication final
-            : public  bigint_multiplication
-    {
-        bigint *multiply(bigint const * const left_multiplier,
-                         bigint const * const right_multiplier) const override {return nullptr;}
-    };
-
-    class bigint_schonhage_strassen_multiplication final
-            : public bigint_multiplication
-    {
-        bigint *multiply(bigint const * const left_multiplier,
-                         bigint const * const right_multiplier) const override {return nullptr;}
-    };
-#pragma endregion
-
-#pragma region division
-    class bigint_newton_division final
-            : public bigint_division
-    {
-        bigint* divide(bigint const * const dividend, bigint const * const divider,
-                       bigint_multiplication const * const multiplication_impl) const override {return nullptr;}
-    };
-
-    class bigint_burnikel_ziegler_division final
-            : public  bigint_division
-    {
-        bigint* divide(bigint const * const dividend, bigint const * const divider,
-                       bigint_multiplication const * const multiplication_impl) const override {return nullptr;}
-    };
-#pragma endregion
-
-
 #pragma region add-subtract
+public:
     bigint *add(bigint const * const summand) override;
 
     bigint *subtract(bigint const * const subtrahend) override;
@@ -63,23 +24,52 @@ class bigint_impl final : public bigint
 
 #pragma endregion
 
+public:
+    bool split(bigint_impl * bi_front, bigint_impl * bi_back, size_t split_digit) const;
+    void init();
+
 #pragma region rule 5
 public:
-    explicit bigint_impl(std::string & from, bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
-    : bigint(from, multiplication, division, logger, allocator)
+    explicit bigint_impl(int number, logger * logger = nullptr, memory * allocator = nullptr)
+            : bigint(logger, allocator)
     {
-
+        _first_digit = number;
+        _count_of_digits++;
     }
 
-    explicit bigint_impl(bigint_multiplication * multiplication = nullptr, bigint_division * division = nullptr, logger * logger = nullptr, memory * allocator = nullptr)
-    : bigint(multiplication, division, logger, allocator)
+    explicit bigint_impl(std::string & from, logger * logger = nullptr, memory * allocator = nullptr)
+    : bigint(from, logger, allocator)
+    {
+// reading from left to right
+        from.erase(remove_if(from.begin(), from.end(), isalpha), from.end());
+        size_t k = floor(std::log10(1 << (sizeof(int) << 3))) + 1, power = 0;
+        size_t multiply = pow(10, k);
+        bigint * tmp_digit = new bigint_impl();
+        std::string substring;
+
+        while (!from.empty()) {
+            substring = from.substr(0, k);
+            power = substring.size();
+            from.erase(0, power);
+            tmp_digit = bigint(std::stoi(substring));
+            if (power == k) {
+                this *= multiply;
+            } else {
+                this *= pow(10, power);
+            }
+            this += digit;
+        }
+    }
+
+    explicit bigint_impl(logger * logger = nullptr, memory * allocator = nullptr)
+    : bigint(logger, allocator)
     {
 
     }
 
     // copy constructor
     bigint_impl(bigint_impl const &obj)
-    : bigint_impl(obj._multiplication, obj._division, obj._logger, obj._allocator)
+    : bigint_impl(obj._logger, obj._allocator)
     {
         _count_of_digits = obj._count_of_digits;
         _first_digit = obj._first_digit;
@@ -87,9 +77,16 @@ public:
         memcpy(_digits, obj._digits, (_count_of_digits - 1) * sizeof(unsigned));
     }
 
+    explicit bigint_impl(int const &obj)
+    : bigint_impl()
+    {
+        _count_of_digits++;
+        _first_digit = obj;
+    }
+
     // move constructor
     bigint_impl(bigint_impl &&obj) noexcept
-    : bigint(obj._multiplication, obj._division, obj._logger, obj._allocator)
+    : bigint(obj._logger, obj._allocator)
     {
         _count_of_digits = obj._count_of_digits;
         obj._count_of_digits = 0;
@@ -103,9 +100,6 @@ public:
 
         obj._logger = nullptr;
         obj._allocator = nullptr;
-
-        obj._multiplication = nullptr;
-        obj._division = nullptr;
     }
 
     // copy assignment (оператор присваивания)
@@ -126,6 +120,18 @@ public:
         memcpy(_digits, obj._digits, (_count_of_digits - 1) * sizeof(unsigned));
 
         _logger = obj._logger;
+        return *this;
+    }
+
+    bigint_impl &operator=(int const &obj)
+    {
+        if (this->_first_digit == obj && _digits == nullptr) {
+            return *this;
+        }
+
+        _count_of_digits = 1;
+        _first_digit = obj;
+        deallocate_with_guard(_digits);
         return *this;
     }
 
