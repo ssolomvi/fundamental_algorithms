@@ -15,7 +15,11 @@ add_executable(lab5
         splay_tree/splay_tree.h
         avl_tree/avl_tree.h
         rb_tree/rb_tree.h
-        b_tree_incorrect/b_tree.h b_plus_tree/b_plus_tree.h
+        b_plus_tree/b_plus_tree.h
+        bigint/bigint.h
+        bigint/bigint_impl.h bigint/bigint_impl.cpp
+        bigint/bigint_division.h bigint/bigint_division.cpp
+        bigint/bigint_multiplication.h bigint/bigint_multiplication.cpp
         allocator_from_global_heap/memory_from_global_heap.h allocator_from_global_heap/memory_from_global_heap.cpp
         allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp
         allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp

@@ -1,3 +1,2 @@
 <--- [ warning ]  --->
-[ 31/05/2023 12:09:18 ][ warning ] data_base::add_to_structure insert failed due to non-unique pool name to insert
-[ 31/05/2023 12:09:19 ][ warning ] data_base::add_to_structure insert failed due to non-unique pool name to insert
+[ 02/06/2023 08:13:17 ][ warning ] data_base::~data_base data_base has already been removed

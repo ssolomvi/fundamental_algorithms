@@ -16,6 +16,13 @@
 #include "allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
 #include "allocator_with_buddy_system/memory_with_buddy_system.h"
 
+/*
+ bigint/bigint.h
+        bigint/bigint_impl.h bigint/bigint_impl.cpp
+        bigint/bigint_division.h bigint/bigint_division.cpp
+        bigint/bigint_multiplication.h bigint/bigint_multiplication.cpp
+ * */
+
 class int_comparer
 {
 public:
@@ -58,10 +65,9 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
     }
 
     srand((unsigned)time(nullptr));
-    bool fucked_up = false;
-    int i = 1;
+    int i = 0;
     // todo: DELETE
-    while (!fucked_up)
+    while (i != iterations)
     {
         if (i == iterations)
             break;
@@ -140,13 +146,8 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
 
                     count_of_keys_in_node = std::get<3>(*it);
                     for (i = 0; i < count_of_keys_in_node; i++) {
-                        if (content.contains(std::get<1>(*it)[i])) {
-                            std::cout << " fuck, " << std::get<1>(*it)[i];
-                            fucked_up = true;
-                        } else {
-                            content[std::get<1>(*it)[i]] = false;
-                            std::cout << "key: " << std::get<1>(*it)[i] << "; ";
-                        }
+                        content[std::get<1>(*it)[i]] = false;
+                        std::cout << "key: " << std::get<1>(*it)[i] << "; ";
                     }
                     std::cout << std::endl;
                 }
@@ -155,7 +156,6 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
 
         }
     }
-
     delete tree;
 }
 
@@ -266,71 +266,6 @@ void allocators_demo(size_t trusted_memory_size, memory::Allocation_strategy fit
     delete buddy_system_allocator_logger;
 }
 
-void my_rb_tree_test()
-{
-    logger_builder *allocator_logger_builder = new logger_builder_impl();
-    logger *allocator_logger = allocator_logger_builder
-            ->with_stream("allocator_rb_tests.txt", logger::severity::trace)
-            ->build();
-    delete allocator_logger_builder;
-
-    logger_builder *rb_tree_logger_builder = new logger_builder_impl();
-    logger *rb_tree_logger = rb_tree_logger_builder
-            ->with_stream("rb_t_tests.txt", logger::severity::trace)
-            ->build();
-    delete rb_tree_logger_builder;
-
-    memory *allocator = new memory_from_global_heap(allocator_logger);
-    bs_tree<int, std::string, int_comparer> * rb_t = new rb_tree<int, std::string, int_comparer>(rb_tree_logger, allocator);
-
-    rb_t->insert(10, "a");
-    rb_t->insert(3, "b");
-    rb_t->insert(8, "c");
-    rb_t->insert(7, "d");
-
-    rb_t->remove(8);
-    /*
-    rb_t->insert(4, "a");
-    rb_t->insert(2, "b");
-    rb_t->insert(3, "c");
-    rb_t->insert(1, "d");
-    rb_t->insert(5, "e");
-    rb_t->insert(7, "f");
-    rb_t->insert(6, "g");
-*/
-    auto end_prefix = rb_t->end_prefix();
-    for (auto it = rb_t->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    auto value = rb_t->remove(2);
-    std::cout << value << std::endl;
-    value = rb_t->remove(3);
-    std::cout << value << std::endl;
-    value = rb_t->remove(1);
-    std::cout << value << std::endl;
-
-    for (auto it = rb_t->begin_prefix(); it != end_prefix; ++it)
-    {
-        for (auto x = 0; x < std::get<0>(*it); x++)
-        {
-            std::cout << "    ";
-        }
-
-        std::cout << "key: " << std::get<1>(*it) << ", value: \"" << std::get<2>(*it) << "\"" << std::endl;
-    }
-
-    delete rb_t;
-    delete rb_tree_logger;
-    delete allocator;
-    delete allocator_logger;
-}
 
 void print_b_tree(b_tree<int, char, int_comparer>* tree)
 {
@@ -404,10 +339,9 @@ void my_b_tree_test()
     delete allocator_logger;
 }
 
-
 int main()
 {
-
+    std::cout << (sizeof(int) << 3) * log10(2) << std::endl;
 //#pragma region tree test
 //    unsigned iterations = 1001;
 //
@@ -432,7 +366,9 @@ int main()
 //    delete tree_logger;
 //#pragma endregion
 
+//    std::cout << INT_MAX << std::endl;
+//    std::cout << INT_MIN << std::endl;
 
-    my_b_tree_test();
+    // my_b_tree_test();
     return 0;
 }

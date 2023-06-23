@@ -1,87 +1,87 @@
 <--- [ trace ]  --->
-[ 02/06/2023 07:22:04 ][ trace ] An object of global heap allocator was constructed
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 12 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3ad0
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 3 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3b20
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 32 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3b60
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 12 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3c30
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 3 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3c80
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 32 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3cc0
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 12 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3d90
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 3 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3de0
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 32 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3e20
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 12 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3ef0
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 3 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebde3f40
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution started
-[ 02/06/2023 07:22:04 ][ information ] memory block with _size = 32 was allocated successfully
-[ 02/06/2023 07:22:04 ][ debug ] Allocated block address: 0x000001b0ebf551f0
-[ 02/06/2023 07:22:04 ][ trace ] memory_from_global_heap::allocate method execution finished
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:01 ][ trace ] Block dump: [4 0 0 0 5 0 0 0 7 0 0 0]
-[ 02/06/2023 07:23:01 ][ information ] memory block with address: 0x000001b0ebde3d90 was deallocated successfully
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:01 ][ trace ] Block dump: [97 101 102]
-[ 02/06/2023 07:23:01 ][ information ] memory block with address: 0x000001b0ebde3de0 was deallocated successfully
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:01 ][ trace ] Block dump: [13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186]
-[ 02/06/2023 07:23:01 ][ information ] memory block with address: 0x000001b0ebde3e20 was deallocated successfully
-[ 02/06/2023 07:23:01 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [4 0 0 0 4 0 0 0 4 0 0 0]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3ad0 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [97 97 97]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3b20 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186 13 240 173 186]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3b60 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [5 0 0 0 5 0 0 0 13 240 173 186]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3c30 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [101 101 245]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3c80 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution started
-[ 02/06/2023 07:23:02 ][ trace ] Block dump: [96 58 222 235 176 1 0 0 128 62 222 235 176 1 0 0 128 62 222 235 176 1 0 0 13 240 173 186 13 240 173 186]
-[ 02/06/2023 07:23:02 ][ information ] memory block with address: 0x000001b0ebde3cc0 was deallocated successfully
-[ 02/06/2023 07:23:02 ][ trace ] memory_from_global_heap::deallocate method execution finished
-[ 02/06/2023 07:23:02 ][ trace ] An object of global heap allocator was destructed
+[ 09/06/2023 18:27:51 ][ trace ] An object of global heap allocator was constructed
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 12 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad38b0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 3 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad38d0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 32 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad38f0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 12 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad39e0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 3 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3c00
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 32 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3d80
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 12 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3b60
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 3 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3be0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 32 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3db0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 12 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3b40
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 3 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3a20
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution started
+[ 09/06/2023 18:27:51 ][ information ] memory block with _size = 32 was allocated successfully
+[ 09/06/2023 18:27:51 ][ debug ] Allocated block address: 0x000001668fad3de0
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::allocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [4 0 0 0 5 0 0 0 7 0 0 0]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad3b60 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [97 101 102]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad3be0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [80 1 171 143 102 1 0 0 104 32 95 115 105 122 101 32 61 32 51 0 0 97 114 116 101 100 0 143 102 1 0 0]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad3db0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [4 0 0 0 4 0 0 0 4 0 0 0]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad38b0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [97 97 97]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad38d0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [80 1 171 143 102 1 0 0 97 108 95 104 101 97 112 58 58 97 108 108 111 99 97 116 101 32 109 101 116 104 111 100]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad38f0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [5 0 0 0 5 0 0 0 102 48 0 0]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad39e0 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [101 101 56]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad3c00 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution started
+[ 09/06/2023 18:27:51 ][ trace ] Block dump: [112 56 173 143 102 1 0 0 112 124 171 143 102 1 0 0 112 124 171 143 102 1 0 0 49 54 54 56 102 97 100 51]
+[ 09/06/2023 18:27:51 ][ information ] memory block with address: 0x000001668fad3d80 was deallocated successfully
+[ 09/06/2023 18:27:51 ][ trace ] memory_from_global_heap::deallocate method execution finished
+[ 09/06/2023 18:27:51 ][ trace ] An object of global heap allocator was destructed

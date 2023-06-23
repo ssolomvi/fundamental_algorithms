@@ -12,6 +12,7 @@ void *memory_from_global_heap::allocate(size_t target_size) const {
             ->debug_with_guard("Allocated block address: " + address_to_hex(block_pointer))
             ->trace_with_guard("memory_from_global_heap::allocate method execution finished");
 
+        this->trace_with_guard("memory_from_global_heap::allocate method execution finished");
         return reinterpret_cast<void *>(reinterpret_cast<size_t *>(block_pointer) + 1);
     }
     catch (std::bad_alloc const &) {
@@ -19,7 +20,6 @@ void *memory_from_global_heap::allocate(size_t target_size) const {
             ->trace_with_guard("memory_from_global_heap::allocate method execution finished");
         throw memory::memory_exception("A block cannot be allocated in global heap allocator");
     }
-    this->trace_with_guard("memory_from_global_heap::allocate method execution finished");
 }
 
 void memory_from_global_heap::deallocate(const void *const target_to_dealloc) const {

@@ -79,6 +79,24 @@ build CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj: CXX_COMPILER__lab5_De
   OBJECT_DIR = CMakeFiles\lab5.dir
   OBJECT_FILE_DIR = CMakeFiles\lab5.dir\allocator
 
+build CMakeFiles/lab5.dir/bigint/bigint_impl.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/bigint/bigint_impl.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\bigint\bigint_impl.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\bigint
+
+build CMakeFiles/lab5.dir/bigint/bigint_division.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/bigint/bigint_division.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\bigint\bigint_division.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\bigint
+
+build CMakeFiles/lab5.dir/bigint/bigint_multiplication.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/bigint/bigint_multiplication.cpp || cmake_object_order_depends_target_lab5
+  DEP_FILE = CMakeFiles\lab5.dir\bigint\bigint_multiplication.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\lab5.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab5.dir\bigint
+
 build CMakeFiles/lab5.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths/lab5/allocator_from_global_heap/memory_from_global_heap.cpp || cmake_object_order_depends_target_lab5
   DEP_FILE = CMakeFiles\lab5.dir\allocator_from_global_heap\memory_from_global_heap.cpp.obj.d
   FLAGS = -g -std=gnu++20
@@ -117,7 +135,7 @@ build CMakeFiles/lab5.dir/main.cpp.obj: CXX_COMPILER__lab5_Debug C$:/fund-algths
 #############################################
 # Link the executable lab5.exe
 
-build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/logger/logger.cpp.obj CMakeFiles/lab5.dir/logger/logger_builder.cpp.obj CMakeFiles/lab5.dir/logger/logger_holder.cpp.obj CMakeFiles/lab5.dir/allocator/memory_base_class.cpp.obj CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj CMakeFiles/lab5.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/main.cpp.obj
+build lab5.exe: CXX_EXECUTABLE_LINKER__lab5_Debug CMakeFiles/lab5.dir/logger/logger.cpp.obj CMakeFiles/lab5.dir/logger/logger_builder.cpp.obj CMakeFiles/lab5.dir/logger/logger_holder.cpp.obj CMakeFiles/lab5.dir/allocator/memory_base_class.cpp.obj CMakeFiles/lab5.dir/allocator/memory_holder.cpp.obj CMakeFiles/lab5.dir/bigint/bigint_impl.cpp.obj CMakeFiles/lab5.dir/bigint/bigint_division.cpp.obj CMakeFiles/lab5.dir/bigint/bigint_multiplication.cpp.obj CMakeFiles/lab5.dir/allocator_from_global_heap/memory_from_global_heap.cpp.obj CMakeFiles/lab5.dir/allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.cpp.obj CMakeFiles/lab5.dir/allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.cpp.obj CMakeFiles/lab5.dir/allocator_with_buddy_system/memory_with_buddy_system.cpp.obj CMakeFiles/lab5.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\lab5.dir

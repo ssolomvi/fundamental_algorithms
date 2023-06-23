@@ -47,7 +47,6 @@ public:
 
         void split_child(unsigned index, tkey const &key, b_node * child)
         {
-            // todo: delete
             int j;
             std::string c_str, child_str;
             for (j = 0; j < _key_count; j++) {
@@ -100,7 +99,6 @@ public:
 
             _key_count++;
 
-            // todo: delete
             std::string c1_str, child1_str, brother_str;
             for (j = 0; j < _key_count; j++) {
                 c_str += std::to_string(_key_array[j]) +  " ";
@@ -285,17 +283,19 @@ public:
 
             // перемещаем ключ-разделитель из родительского узла в дочерний
 
-            // todo: delete
-            _target_tree->debug_with_guard("merge current divider: " + std::to_string(_key_array[index]));
-
             child->_key_array[order_of_target_tree - 1] = _key_array[index];
             child->_value_array[order_of_target_tree - 1] = std::move(_value_array[index]);
             _key_count--;
 
+            unsigned k;
             // переносим все ключи-значения из next_to_child в child
-            memmove((child->_key_array + order_of_target_tree), next_to_child->_key_array, sizeof(tkey) * next_to_child->_key_count);
-
-            memmove((child->_value_array + order_of_target_tree), next_to_child->_value_array, sizeof(tvalue) * next_to_child->_key_count);
+            for (k = 0; k < child->_key_count; k++) {
+                new (child->_key_array + order_of_target_tree + k)tkey(next_to_child->_key_array[k]);
+                new (child->_value_array + order_of_target_tree + k)tvalue(std::move(next_to_child->_value_array[k]));
+            }
+//            memmove((child->_key_array + order_of_target_tree), next_to_child->_key_array, sizeof(tkey) * next_to_child->_key_count);
+//            // todo:
+//            memmove((child->_value_array + order_of_target_tree), next_to_child->_value_array, sizeof(tvalue) * next_to_child->_key_count);
 
             child->_key_count += next_to_child->_key_count + 1;
 
@@ -753,8 +753,9 @@ protected:
             if (this->_target_tree->_root == nullptr) {
                 this->debug_with_guard("insertion_template_method::insert inserting to root for the first time");
                 this->_target_tree->_root = new b_node(this->_target_tree);
-                this->_target_tree->_root->_key_array[0] = key;
-                this->_target_tree->_root->_value_array[0] = std::move(value);
+                new (this->_target_tree->_root->_key_array)tkey(key);
+//                (this->_target_tree->_root->_key_array[0]) = key;
+                new (this->_target_tree->_root->_value_array)tvalue(std::move(value));
                 this->_target_tree->_root->_key_count = 1;
             } else {
                 if (this->_target_tree->_root->_key_count == (2 * this->_target_tree->_order_of_tree) - 1) {
@@ -786,9 +787,6 @@ protected:
                     this->_target_tree->_root->insert_in_non_full(key, std::move(value));
                 }
             }
-            // todo: delete
-            this->debug_with_guard("inserted a key " + std::to_string(key));
-            this->trace_with_guard("insertion_template_method::insert method finished");
         }
 
     public:
@@ -829,9 +827,6 @@ protected:
             }
         }
 
-        // todo: delete
-        this->debug_with_guard("removed a key " + std::to_string(key));
-        this->trace_with_guard("removing_template_method::remove method finished");
         return to_return_value;
     }
 
@@ -853,7 +848,7 @@ protected:
     removing_template_method * _removing;
 
 #pragma region rule 5
-private:
+protected:
     b_tree(insertion_template_method * insertion, finding_template_method * finding, removing_template_method * removing, unsigned order_of_tree, logger *logger, memory *allocator)
     : _insertion(insertion), _finding(finding), _removing(removing), _order_of_tree(order_of_tree), _logger(logger), _allocator(allocator), _root(nullptr)
     {

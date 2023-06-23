@@ -1,70 +1,70 @@
 <--- [ trace ]  --->
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] insertion_template_method::insert inserting to root for the first time
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 4
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 2
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 3
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] insertion_template_method::insert splitting a root
-[ 02/06/2023 07:22:04 ][ debug ] current node before split: 
-[ 02/06/2023 07:22:04 ][ debug ] child node before split:   2 3 4 
-[ 02/06/2023 07:22:04 ][ debug ] b_node::split_child method started
-[ 02/06/2023 07:22:04 ][ debug ] current node after split: 3 
-[ 02/06/2023 07:22:04 ][ debug ] child node after split:   2 3 4 2 
-[ 02/06/2023 07:22:04 ][ debug ] brother node after split: 4 
-[ 02/06/2023 07:22:04 ][ debug ] b_node::split_child method finished
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 1
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 5
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 7
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method started
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full splitting child
-[ 02/06/2023 07:22:04 ][ debug ] current node before split: 3 
-[ 02/06/2023 07:22:04 ][ debug ] child node before split:   4 5 7 
-[ 02/06/2023 07:22:04 ][ debug ] b_node::split_child method started
-[ 02/06/2023 07:22:04 ][ debug ] current node after split: 3 3 5 
-[ 02/06/2023 07:22:04 ][ debug ] child node after split:   4 5 7 4 
-[ 02/06/2023 07:22:04 ][ debug ] brother node after split: 7 
-[ 02/06/2023 07:22:04 ][ debug ] b_node::split_child method finished
-[ 02/06/2023 07:22:04 ][ debug ] b_node::insert_in_non_full inserting to leaf
-[ 02/06/2023 07:22:04 ][ debug ] inserted a key 6
-[ 02/06/2023 07:22:04 ][ trace ] insertion_template_method::insert method finished
-[ 02/06/2023 07:22:05 ][ trace ] finding_template_method::find method started
-[ 02/06/2023 07:22:32 ][ trace ] finding_template_method::find method finished
-[ 02/06/2023 07:22:32 ][ trace ] finding_template_method::find method started
-[ 02/06/2023 07:22:36 ][ trace ] finding_template_method::find method finished
-[ 02/06/2023 07:22:36 ][ trace ] finding_template_method::find method started
-[ 02/06/2023 07:22:38 ][ trace ] finding_template_method::find method finished
-[ 02/06/2023 07:22:38 ][ trace ] finding_template_method::find method started
-[ 02/06/2023 07:22:40 ][ trace ] finding_template_method::find method finished
-[ 02/06/2023 07:22:40 ][ trace ] removing_template_method::remove method started
-[ 02/06/2023 07:22:40 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
-[ 02/06/2023 07:22:40 ][ debug ] removed a key 2
-[ 02/06/2023 07:22:40 ][ trace ] removing_template_method::remove method finished
-[ 02/06/2023 07:23:01 ][ trace ] removing_template_method::remove method started
-[ 02/06/2023 07:23:01 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside an inner node
-[ 02/06/2023 07:23:01 ][ trace ] b_node::delete_from_inner_node merging nodes where divider is an element to delete
-[ 02/06/2023 07:23:01 ][ debug ] merge current divider: 3
-[ 02/06/2023 07:23:01 ][ debug ] cur keys: 5 
-[ 02/06/2023 07:23:01 ][ debug ] child keys: 1 3 4 
-[ 02/06/2023 07:23:01 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
-[ 02/06/2023 07:23:01 ][ debug ] removed a key 3
-[ 02/06/2023 07:23:01 ][ trace ] removing_template_method::remove method finished
-[ 02/06/2023 07:23:01 ][ trace ] removing_template_method::remove method started
-[ 02/06/2023 07:23:01 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
-[ 02/06/2023 07:23:01 ][ debug ] removed a key 1
-[ 02/06/2023 07:23:01 ][ trace ] removing_template_method::remove method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] insertion_template_method::insert inserting to root for the first time
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 4
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 2
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 3
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] insertion_template_method::insert splitting a root
+[ 09/06/2023 18:27:51 ][ debug ] current node before split: 
+[ 09/06/2023 18:27:51 ][ debug ] child node before split:   2 3 4 
+[ 09/06/2023 18:27:51 ][ debug ] b_node::split_child method started
+[ 09/06/2023 18:27:51 ][ debug ] current node after split: 3 
+[ 09/06/2023 18:27:51 ][ debug ] child node after split:   2 3 4 2 
+[ 09/06/2023 18:27:51 ][ debug ] brother node after split: 4 
+[ 09/06/2023 18:27:51 ][ debug ] b_node::split_child method finished
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 1
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 5
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 7
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full splitting child
+[ 09/06/2023 18:27:51 ][ debug ] current node before split: 3 
+[ 09/06/2023 18:27:51 ][ debug ] child node before split:   4 5 7 
+[ 09/06/2023 18:27:51 ][ debug ] b_node::split_child method started
+[ 09/06/2023 18:27:51 ][ debug ] current node after split: 3 3 5 
+[ 09/06/2023 18:27:51 ][ debug ] child node after split:   4 5 7 4 
+[ 09/06/2023 18:27:51 ][ debug ] brother node after split: 7 
+[ 09/06/2023 18:27:51 ][ debug ] b_node::split_child method finished
+[ 09/06/2023 18:27:51 ][ debug ] b_node::insert_in_non_full inserting to leaf
+[ 09/06/2023 18:27:51 ][ debug ] inserted a key 6
+[ 09/06/2023 18:27:51 ][ trace ] insertion_template_method::insert method finished
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method started
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method finished
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method started
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method finished
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method started
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method finished
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method started
+[ 09/06/2023 18:27:51 ][ trace ] finding_template_method::find method finished
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
+[ 09/06/2023 18:27:51 ][ debug ] removed a key 2
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method finished
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside an inner node
+[ 09/06/2023 18:27:51 ][ trace ] b_node::delete_from_inner_node merging nodes where divider is an element to delete
+[ 09/06/2023 18:27:51 ][ debug ] merge current divider: 3
+[ 09/06/2023 18:27:51 ][ debug ] cur keys: 5 
+[ 09/06/2023 18:27:51 ][ debug ] child keys: 1 3 4 
+[ 09/06/2023 18:27:51 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
+[ 09/06/2023 18:27:51 ][ debug ] removed a key 3
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method finished
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method started
+[ 09/06/2023 18:27:51 ][ debug ] b_node::delete_key_value_pair key-value to delete is inside a leaf node
+[ 09/06/2023 18:27:51 ][ debug ] removed a key 1
+[ 09/06/2023 18:27:51 ][ trace ] removing_template_method::remove method finished
