@@ -178,7 +178,7 @@ bigint *bigint_karatsuba_multiplication::multiply(const bigint *const left_multi
     size_t half_size = max_size / 2; // m
 
     // Split the digit sequences about the middle
-    auto* bi_left_n1 = new bigint_impl(), * bi_left_n2 = new bigint_impl();  // A0, A1
+    auto * bi_left_n1 = new bigint_impl(), * bi_left_n2 = new bigint_impl();  // A0, A1
     auto * bi_right_n1 = new bigint_impl(), * bi_right_n2 = new bigint_impl();   // B0, B1
     reinterpret_cast<bigint_impl *>(const_cast<bigint *>(left_multiplier))->split(bi_left_n2, bi_left_n1, half_size);
     reinterpret_cast<bigint_impl *>(const_cast<bigint *>(right_multiplier))->split(bi_right_n2, bi_right_n1, half_size);

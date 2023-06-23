@@ -16,6 +16,13 @@
 #include "allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
 #include "allocator_with_buddy_system/memory_with_buddy_system.h"
 
+/*
+ bigint/bigint.h
+        bigint/bigint_impl.h bigint/bigint_impl.cpp
+        bigint/bigint_division.h bigint/bigint_division.cpp
+        bigint/bigint_multiplication.h bigint/bigint_multiplication.cpp
+ * */
+
 class int_comparer
 {
 public:
@@ -334,7 +341,7 @@ void my_b_tree_test()
 
 int main()
 {
-    std::cout << floor(std::log10(1 << (sizeof(int) << 3))) + 1 << std::endl;
+    std::cout << (sizeof(int) << 3) * log10(2) << std::endl;
 //#pragma region tree test
 //    unsigned iterations = 1001;
 //

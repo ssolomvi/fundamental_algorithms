@@ -3,6 +3,9 @@
 
 #include "bigint.h"
 
+class bigint_multiplication;
+class bigint_division;
+
 class bigint_impl final : public bigint
 {
 #pragma region add-subtract
@@ -27,9 +30,32 @@ public:
 public:
     bool split(bigint_impl * bi_front, bigint_impl * bi_back, size_t split_digit) const;
     void init();
+    std::string bi_to_string();
 
 #pragma region rule 5
 public:
+    explicit bigint_impl(size_t number, logger * logger = nullptr, memory * allocator = nullptr)
+        : bigint(logger, allocator)
+    {
+        _count_of_digits = 1;
+        size_t quotient = number / INT_MAX;
+        _first_digit = number % INT_MAX;
+
+        if (quotient != 0) {
+            if (quotient >= INT_MAX) {
+                unsigned quotient2 = quotient / INT_MAX;
+                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * 2));
+                _digits[1] = quotient2;
+                _count_of_digits = 2;
+            }
+            else {
+                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned)));
+                _count_of_digits = 3;
+            }
+            _digits[0] = quotient;
+        }
+    };
+
     explicit bigint_impl(int number, logger * logger = nullptr, memory * allocator = nullptr)
             : bigint(logger, allocator)
     {
@@ -37,30 +63,8 @@ public:
         _count_of_digits++;
     }
 
-    explicit bigint_impl(std::string & from, logger * logger = nullptr, memory * allocator = nullptr)
-    : bigint(from, logger, allocator)
-    {
-// reading from left to right
-        from.erase(remove_if(from.begin(), from.end(), isalpha), from.end());
-        size_t k = floor(std::log10(1 << (sizeof(int) << 3))) + 1, power = 0;
-        size_t multiply = pow(10, k);
-        bigint * tmp_digit = new bigint_impl();
-        std::string substring;
-
-        while (!from.empty()) {
-            substring = from.substr(0, k);
-            power = substring.size();
-            from.erase(0, power);
-            tmp_digit = bigint(std::stoi(substring));
-            if (power == k) {
-                this *= multiply;
-            } else {
-                this *= pow(10, power);
-            }
-            this += digit;
-        }
-    }
-
+    explicit bigint_impl(std::string & from, const bigint_multiplication *const multiplication_impl, logger * logger = nullptr, memory * allocator = nullptr);
+//
     explicit bigint_impl(logger * logger = nullptr, memory * allocator = nullptr)
     : bigint(logger, allocator)
     {
@@ -77,12 +81,12 @@ public:
         memcpy(_digits, obj._digits, (_count_of_digits - 1) * sizeof(unsigned));
     }
 
-    explicit bigint_impl(int const &obj)
-    : bigint_impl()
-    {
-        _count_of_digits++;
-        _first_digit = obj;
-    }
+//    explicit bigint_impl(int const &obj)
+//    : bigint_impl()
+//    {
+//        _count_of_digits++;
+//        _first_digit = obj;
+//    }
 
     // move constructor
     bigint_impl(bigint_impl &&obj) noexcept

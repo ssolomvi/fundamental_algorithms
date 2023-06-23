@@ -1,4 +1,6 @@
+#include "bigint_division.h"
 #include "bigint_impl.h"
+
 
 #pragma region add-subtract
 bigint *bigint_impl::add(const bigint *const summand)
@@ -395,40 +397,100 @@ bool bigint_impl::split(bigint_impl *bi_front, bigint_impl *bi_back, size_t spli
     return true;
 }
 
+bigint_impl::bigint_impl(std::string &from, const bigint_multiplication *const multiplication_impl, logger *logger, memory *allocator)
+        : bigint(from, logger, allocator)
+{
+// reading from left to right
+    from.erase(remove_if(from.begin(), from.end(), isalpha), from.end());
+    // |_ log10(1 « (sizeof(int) « 3)) _|
+    size_t k = (sizeof(int) << 3) * log10(2), power = 0;
+    bigint_impl * multiply = new bigint_impl(size_t(pow(10, k)));
+    bigint_impl * tmp_digit = new bigint_impl();
+    std::string substring;
+    bigint_impl * multiply_result = nullptr;
+
+    while (!from.empty()) {
+        substring = from.substr(0, k);
+        power = substring.size();
+        from.erase(0, power);
+        (*tmp_digit) = bigint_impl(std::stoi(substring));
+        if (power == k) {
+            multiply_result = reinterpret_cast<bigint_impl *>(multiplication_impl->multiply(this, multiply));
+            this->~bigint_impl();
+            (*this) = (*multiply_result);
+            multiply_result = nullptr;
+        } else {
+            // last digits
+            bigint_impl * ten_in_power_last = new bigint_impl(size_t(pow(10, power)));
+            multiply_result = reinterpret_cast<bigint_impl *>(multiplication_impl->multiply(this, ten_in_power_last));
+            this->~bigint_impl();
+            (*this) = (*multiply_result);
+            multiply_result = nullptr;
+            delete ten_in_power_last;
+        }
+        this->add(tmp_digit);
+    }
+    delete multiply;
+    delete tmp_digit;
+}
+
 void bigint_impl::init() {
     _count_of_digits = 0;
     deallocate_with_guard(_digits);
     _first_digit = 0;
 }
 
-/*
-inline std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
-    unsigned k = std::log10(1 << (sizeof(int) << 3)), power = 0;
-    size_t multiply = pow(10, k);
-    int digit = 0;
-    bigint_impl tmp(value);
-    std::stack<int> result_stack;
-
-    while (tmp != 0) {
-        tmp /= multiply;
-        result.push((tmp % multiply));
+std::string bigint_impl::bi_to_string() {
+    if (_count_of_digits == 0) {
+        return "";
     }
+    std::string to_return;
+    to_return += std::to_string(_first_digit);
+    unsigned i;
+    for (i = 0; i < _count_of_digits - 1; i++) {
+        to_return += _digits[i];
+    }
+    std::reverse(to_return.begin(), to_return.end());
+
+    return to_return;
+}
+
+
+inline std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
+    unsigned k = (sizeof(int) << 3) * log10(2), power = 0;
+    bigint_impl * multiply = new bigint_impl(size_t(pow(10, k)));
+    int digit = 0;
+    bigint_impl tmp_res(value), *tmp_div, *bi_zero = new bigint_impl(int(0));
+    std::stack<bigint_impl *> result_stack;
+    std::pair<bigint_impl *, bigint_impl *> returned_by_div;
+    bigint_karatsuba_multiplication * mult_impl = new bigint_karatsuba_multiplication();
+    bigint_burnikel_ziegler_division * div_impl = new bigint_burnikel_ziegler_division();
+
+    while (tmp_res != bi_zero) {
+        returned_by_div = div_impl->divide_with_remainder(&tmp_res, multiply, mult_impl);
+        tmp_res.~bigint_impl();
+        tmp_res = (*returned_by_div.first);
+        result_stack.push(returned_by_div.second);
+    }
+    tmp_res.~bigint_impl();
 
     std::string result_string;
     while (!(result_stack.empty())) {
-        result_string += std::to_string(result_stack.top());
+        result_string += result_stack.top()->bi_to_string();
         result_stack.pop();
     }
 
     out << result_string;
 
     return out;
-}*/
+}
 
 inline std::istream &operator>>(std::istream &in, const bigint **value) {
     std::string input;
     std::getline(in, input);
-    (*value) = new bigint_impl(input);
+    bigint_multiplication * mult_impl = new bigint_karatsuba_multiplication();
+    (*value) = new bigint_impl(input, mult_impl);
+    delete mult_impl;
     return in;
 }
 

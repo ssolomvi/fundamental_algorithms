@@ -12,7 +12,11 @@ bigint *bigint_burnikel_ziegler_division::divide(const bigint *const dividend, c
 std::pair<bigint_impl *, bigint_impl *>
 bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const dividend, const bigint *const divider,
                                                         const bigint_multiplication *const multiplication_impl) const {
-    bigint * dividend_inner = const_cast<bigint *>(dividend), * divider_inner = const_cast<bigint *>(divider);
+// todo: check divider == 0
+    if (!dividend || !divider) {
+        return {nullptr, nullptr};
+    }
+    auto * dividend_inner = const_cast<bigint *>(dividend), * divider_inner = const_cast<bigint *>(divider);
 
 #pragma region handle signs
     bool dividend_sign = dividend->get_sign(), divider_sign = divider->get_sign();
@@ -27,11 +31,11 @@ bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const divi
 
     if (dividend < divider) {
         // handle signs
-        // todo: return 0
+        // todo: return 0 and dividend as a remainder
     }
     else if (dividend == divider) {
         // handle signs
-        // todo: return 1
+        // todo: return 1 with remainder inited
     }
 
     auto * AHigh = new bigint_impl();
@@ -39,7 +43,7 @@ bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const divi
     size_t half_size = dividend->get_count_of_digits() / 2;
     reinterpret_cast<bigint_impl *>(const_cast<bigint *>(dividend))->split(AHigh, ALow, half_size);
     std::pair<bigint_impl *, bigint_impl *> quotient_and_remainder = div_two_digits_by_one(AHigh, ALow,
-                                                                                 dynamic_cast<bigint_impl *>(const_cast<bigint *>(divider)), multiplication_impl);
+                                     dynamic_cast<bigint_impl *>(const_cast<bigint *>(divider)), multiplication_impl);
 
 #pragma region handle signs
     if (dividend_sign) {
@@ -74,7 +78,7 @@ bigint_burnikel_ziegler_division::div_two_digits_by_one(bigint_impl *AHigh, bigi
     reinterpret_cast<bigint_impl *>(ALow)->split(a3, a4, (ALow->get_count_of_digits() / 2));
     bigint_impl * b1 = new bigint_impl(), * b2 = new bigint_impl();
     reinterpret_cast<bigint_impl *>(B)->split(b1, b2, (B->get_count_of_digits() / 2));
-    std::pair<bigint_impl *, bigint_impl *> first_part_quotient_and_R = div_three_halves_by_two(a1, a2, a3, b1, b2);
+    std::pair<bigint_impl *, bigint_impl *> first_part_quotient_and_R = div_three_halves_by_two(a1, a2, a3, b1, b2, multiplication_impl);
     bigint_impl * q1 = first_part_quotient_and_R.first;
 
     bigint_impl * r1 = new bigint_impl(), * r2 = new bigint_impl();
@@ -117,10 +121,11 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     (*a1a2) = (*a1);
     a1a2->mult_by_pow_base(a2->get_count_of_digits());
     a1a2->add(a2);
+    bigint * bi_zero = new bigint_impl(int(0));
 
     bigint_impl * q_quotient = new bigint_impl(),* c_remainder = new bigint_impl();
     // todo:
-    if (b1 != 0) {
+    if (b1 != bi_zero) {
         std::pair<bigint_impl *, bigint_impl *> quot_and_rem = divide_with_remainder(a1a2, b1, multiplication_impl);
         q_quotient = quot_and_rem.first;
         c_remainder = quot_and_rem.second;
@@ -130,16 +135,21 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     bigint * D = multiplication_impl->multiply(q_quotient, b2); // q*b2
     c_remainder->mult_by_pow_base(a3->get_count_of_digits());
     c_remainder->add(a3);
-    bigint_impl * remainder = reinterpret_cast<bigint_impl *>(c_remainder->subtract(D));
+    bigint_impl * remainder = reinterpret_cast<bigint_impl *>(c_remainder->subtraction(D));
 
+    // todo: redo, make a copy
     b1->mult_by_pow_base(b2->get_count_of_digits());
-    bigint * B = b1 + b2;
-    while (remainder < 0) {
-        q--;
-        remainder += B;
+    bigint_impl * B = reinterpret_cast<bigint_impl *>(b1->sum(b2));
+    while (remainder < bi_zero) {
+        q_quotient--; // todo:
+        reinterpret_cast<bigint *>(remainder)->add(reinterpret_cast<bigint *>(B));
     }
-}
 
+    delete a1a2;    delete bi_zero;   delete c_remainder;
+    delete D;
+    return {q_quotient, remainder};
+}
+/*
 vector<LongIntegerUP> LongInteger::DivTwoDigitsByOne(LongIntegerUP & AHigh, LongIntegerUP & ALow, LongIntegerUP & B, UINT uNumDigits) {
     // DivTwoDigitsByOne(AHigh, ALow, B), return quotient Q and remainder S
     //
@@ -339,3 +349,4 @@ vector<LongIntegerUP> LongInteger::DivThreeHalvesByTwo(LongIntegerUP & a2, LongI
     return vResult;
 
 }
+*/
