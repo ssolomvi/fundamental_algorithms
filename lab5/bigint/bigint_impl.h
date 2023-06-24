@@ -32,13 +32,13 @@ public:
 
 #pragma region logic operators
 
-    bool lower_than(bigint const *const other) const override;
+    bool lower_than(bigint const & other) const override;
 
-    bool greater_than(bigint const *const other) const override;
+    bool greater_than(bigint const & other) const override;
 
-    bool lower_than_or_equal_to(bigint const *const other) const override;
+    bool lower_than_or_equal_to(bigint const & other) const override;
 
-    bool greater_than_or_equal_to(bigint const *const other) const override;
+    bool greater_than_or_equal_to(bigint const & other) const override;
 
     bool equals(bigint const &other) const override;
 
@@ -73,17 +73,17 @@ public:
         _first_digit = number % INT_MAX;
 
         if (quotient != 0) {
-            if (quotient >= INT_MAX) {
-                unsigned quotient2 = quotient / INT_MAX;
-                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * 2));
-                _digits[1] = quotient2;
+            if (quotient < INT_MAX) {
+                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned)));
+                _digits[0] = quotient;
                 _count_of_digits = 2;
             }
             else {
-                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned)));
+                _digits = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * 2));
+                _digits[0] = quotient % INT_MAX;
+                _digits[1] = quotient / INT_MAX;
                 _count_of_digits = 3;
             }
-            _digits[0] = quotient;
         }
     };
 
@@ -95,7 +95,7 @@ public:
     }
 
     explicit bigint_impl(std::string & from, const bigint_multiplication *const multiplication_impl, logger * logger = nullptr, memory * allocator = nullptr);
-//
+
     explicit bigint_impl(logger * logger = nullptr, memory * allocator = nullptr)
     : bigint(logger, allocator)
     {

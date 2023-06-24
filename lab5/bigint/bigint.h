@@ -165,35 +165,35 @@ public:
 #pragma region logic operators
 public:
     // <
-    virtual bool lower_than(bigint const * const other) const = 0;
+    virtual bool lower_than(bigint const & other) const = 0;
 
-    bool operator<(bigint const * const other) const
+    bool operator<(bigint const & other) const
     {
         return lower_than(other);
     }
 
 public:
     // >
-    virtual bool greater_than(bigint const * const other) const = 0;
-    bool operator>(bigint const * const other) const
+    virtual bool greater_than(bigint const & other) const = 0;
+    bool operator>(bigint const & other) const
     {
         return greater_than(other);
     }
 
 public:
     // <=
-    virtual bool lower_than_or_equal_to(bigint const * const other) const = 0;
+    virtual bool lower_than_or_equal_to(bigint const & other) const = 0;
 
-    bool operator<=(bigint const * const other) const
+    bool operator<=(bigint const & other) const
     {
         return lower_than_or_equal_to(other);
     }
 
 public:
     // >=
-    virtual bool greater_than_or_equal_to(bigint const * const other) const = 0;
+    virtual bool greater_than_or_equal_to(bigint const & other) const = 0;
 
-    bool operator>=(bigint const * const other) const
+    bool operator>=(bigint const & other) const
     {
         return greater_than_or_equal_to(other);
     }

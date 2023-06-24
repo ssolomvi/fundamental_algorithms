@@ -112,6 +112,18 @@ bigint *bigint_impl::subtract(const bigint *const subtrahend)
         return this;
     }
 
+    bigint_impl bi_0(int(0));
+    if ((*subtrahend) == bi_0) {
+        return this;
+    }
+
+    if ((*this) == bi_0) {
+        // this = -subtrahend
+        (*this) = (*reinterpret_cast<bigint_impl *>(const_cast<bigint *>(subtrahend)));
+        this->change_sign();
+        return this;
+    }
+
 #pragma region handle signs
     bool this_number_sign = get_sign(), subtrahend_sign = subtrahend->get_sign();
 
@@ -209,139 +221,230 @@ bigint *bigint_impl::subtract(const bigint *const subtrahend)
 
 #pragma region logic operators
 
-bool bigint_impl::lower_than(const bigint *const other) const {
-    if (!other) {
+bool bigint_impl::lower_than(const bigint & other) const {
+    bool this_sign = this->get_sign(), other_sign = other.get_sign();
+    if (this_sign && !other_sign) {
+        return true;
+    }
+    if (!this_sign && other_sign) {
         return false;
     }
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
 
-    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other->get_count_of_digits();
+    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
     if (this_count_of_digits > other_count_of_digits) {
         return false;
     } else if (this_count_of_digits < other_count_of_digits) {
         return true;
     }
 
-    auto * tmp_other = const_cast<bigint *>(other);
+    bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
 
-    size_t i;
+    long long i;
     int comparison_result;
-    for (i = _count_of_digits - 1; i >= 0; --i) {
-        comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
-        if (comparison_result < 0) {
-            return true;
-        }
-        else if (comparison_result > 0) {
-            return false;
+    if (_count_of_digits > 1) {
+        for (i = _count_of_digits - 1; i >= 0; --i) {
+            comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
+            if (comparison_result < 0) {
+                delete tmp_other;
+                return true;
+            }
+            else if (comparison_result > 0) {
+                delete tmp_other;
+                return false;
+            }
         }
     }
 
     comparison_result = _first_digit - (*(tmp_other->get_ptr_last_digit()));
     if (comparison_result < 0) {
+        delete tmp_other;
         return true;
     }
+    delete tmp_other;
 
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
     return false;
 }
 
-bool bigint_impl::greater_than(const bigint *const other) const {
-    if (!other) {
+bool bigint_impl::greater_than(const bigint & other) const {
+    bool this_sign = this->get_sign(), other_sign = other.get_sign();
+    if (this_sign && !other_sign) {
+        return false;
+    }
+    if (!this_sign && other_sign) {
         return true;
     }
-
-    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other->get_count_of_digits();
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
+    
+    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
     if (this_count_of_digits > other_count_of_digits) {
         return true;
     } else if (this_count_of_digits < other_count_of_digits) {
         return false;
     }
 
-    bigint * tmp_other = const_cast<bigint *>(other);
+    bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
 
-    size_t i;
+    long long i;
     int comparison_result;
-    for (i = _count_of_digits - 1; i >= 0; --i) {
-        comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
-        if (comparison_result < 0) {
-            return false;
-        }
-        else if (comparison_result > 0) {
-            return true;
+    if (_count_of_digits > 1) {
+        for (i = _count_of_digits - 1; i >= 0; --i) {
+            comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
+            if (comparison_result < 0) {
+                delete tmp_other;
+                return false;
+            }
+            else if (comparison_result > 0) {
+                delete tmp_other;
+                return true;
+            }
         }
     }
 
     comparison_result = _first_digit - (*(tmp_other->get_ptr_last_digit()));
     if (comparison_result > 0) {
+        delete tmp_other;
         return true;
     }
 
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
+    delete tmp_other;
     return false;
 }
 
-bool bigint_impl::lower_than_or_equal_to(const bigint *const other) const {
-    if (!other) {
+bool bigint_impl::lower_than_or_equal_to(const bigint & other) const {
+    bool this_sign = this->get_sign(), other_sign = other.get_sign();
+    if (this_sign && !other_sign) {
+        return true;
+    }
+    if (!this_sign && other_sign) {
         return false;
     }
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
 
-    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other->get_count_of_digits();
+    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
     if (this_count_of_digits > other_count_of_digits) {
         return false;
     } else if (this_count_of_digits < other_count_of_digits) {
         return true;
     }
 
-    bigint * tmp_other = const_cast<bigint *>(other);
+    bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
 
-    size_t i;
+    long long i;
     int comparison_result;
-    for (i = _count_of_digits - 1; i >= 0; --i) {
-        comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
-        if (comparison_result < 0) {
-            return true;
-        }
-        else if (comparison_result > 0) {
-            return false;
+    if (_count_of_digits > 1) {
+        for (i = _count_of_digits - 1; i >= 0; --i) {
+            comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
+            if (comparison_result < 0) {
+                delete tmp_other;
+                return true;
+            }
+            else if (comparison_result > 0) {
+                delete tmp_other;
+                return false;
+            }
         }
     }
 
     comparison_result = _first_digit - (*(tmp_other->get_ptr_last_digit()));
     if (comparison_result <= 0) {
+        delete tmp_other;
         return true;
     }
 
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
+
+    delete tmp_other;
     return false;
 }
 
-bool bigint_impl::greater_than_or_equal_to(const bigint *const other) const {
-    if (!other) {
+bool bigint_impl::greater_than_or_equal_to(const bigint & other) const {
+    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
+
+    bool this_sign = this->get_sign(), other_sign = other.get_sign();
+    if (this_sign && !other_sign) {
+        return false;
+    }
+    if (!this_sign && other_sign) {
         return true;
     }
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
 
-    size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other->get_count_of_digits();
     if (this_count_of_digits > other_count_of_digits) {
         return true;
     } else if (this_count_of_digits < other_count_of_digits) {
         return false;
     }
 
-    bigint * tmp_other = const_cast<bigint *>(other);
+    bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
 
-    size_t i;
+    long long i;
     int comparison_result;
-    for (i = _count_of_digits - 1; i >= 0; --i) {
-        comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
-        if (comparison_result < 0) {
-            return false;
-        }
-        else if (comparison_result > 0) {
-            return true;
+    if (_count_of_digits > 1) {
+        for (i = _count_of_digits - 1; i >= 0; --i) {
+            comparison_result = _digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)));
+            if (comparison_result < 0) {
+                delete tmp_other;
+                return false;
+            }
+            else if (comparison_result > 0) {
+                delete tmp_other;
+                return true;
+            }
         }
     }
 
     comparison_result = _first_digit - (*(tmp_other->get_ptr_last_digit()));
     if (comparison_result >= 0) {
+        delete tmp_other;
         return true;
     }
 
+    delete tmp_other;
+
+    if (this_sign) {
+        reinterpret_cast<bigint_impl *>(this)->change_sign();
+    }
+    if (other_sign) {
+        reinterpret_cast<bigint_impl *>(other)->change_sign();
+    }
     return false;
 }
 
@@ -357,15 +460,18 @@ bool bigint_impl::equals(const bigint & other) const {
         size_t i;
         for (i = _count_of_digits - 1; i >= 0; --i) {
             if ((_digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)))) != 0) {
+                delete tmp_other;
                 return false;
             }
         }
     }
 
     if ((_first_digit - (*(tmp_other->get_ptr_last_digit()))) == 0) {
+        delete tmp_other;
         return true;
     }
 
+    delete tmp_other;
     return false;
 }
 

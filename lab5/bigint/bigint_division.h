@@ -6,6 +6,21 @@
 
 class bigint_division {
 public:
+    class div_by_zero_exception final : public std::exception {
+    private:
+        std::string _message;
+
+    public:
+        explicit div_by_zero_exception(std::string message)
+                : _message(std::move(message)) {
+
+        }
+
+        [[nodiscard]] char const *what() const noexcept override {
+            return _message.c_str();
+        }
+    };
+
     virtual bigint* divide(bigint const * const dividend, bigint const * const divider,
                            bigint_multiplication const * const multiplication_impl) const = 0;
 };

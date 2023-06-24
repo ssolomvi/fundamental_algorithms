@@ -12,10 +12,23 @@ bigint *bigint_burnikel_ziegler_division::divide(const bigint *const dividend, c
 std::pair<bigint_impl *, bigint_impl *>
 bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const dividend, const bigint *const divider,
                                                         const bigint_multiplication *const multiplication_impl) const {
-// todo: check divider == 0
     if (!dividend || !divider) {
         return {nullptr, nullptr};
     }
+
+    bigint_impl bi_zero(int(0));
+    if ((*dividend) == bi_zero) {
+        bigint_impl * to_return_quo = new bigint_impl();
+        (*(to_return_quo->get_ptr_count_of_digits())) = 1;
+        bigint_impl * to_return_rem = new bigint_impl();
+        (*(to_return_rem)->get_ptr_count_of_digits()) = 1;
+        return {to_return_quo, to_return_rem};
+    }
+
+    if ((*divider) == bi_zero) {
+        throw div_by_zero_exception("bigint_burnikel_ziegler_division::divide_with_remainder division by zero is bad manners");
+    }
+
     auto * dividend_inner = const_cast<bigint *>(dividend), * divider_inner = const_cast<bigint *>(divider);
 
 #pragma region handle signs
@@ -29,13 +42,32 @@ bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const divi
     }
 #pragma endregion
 
-    if (dividend < divider) {
-        // handle signs
-        // todo: return 0 and dividend as a remainder
+    if ((*dividend) < (*divider)) {
+        if (dividend_sign) {
+            dividend_inner->change_sign();
+        }
+
+        if (divider_sign) {
+            divider_inner->change_sign();
+        }
+
+        bigint_impl * to_return_quo = new bigint_impl();
+        (*(to_return_quo->get_ptr_count_of_digits())) = 1;
+        bigint_impl * to_return_rem = new bigint_impl();
+        (*to_return_rem) = (*reinterpret_cast<bigint_impl *>(dividend_inner));
+        return {to_return_quo, to_return_rem};
     }
     else if (dividend == divider) {
-        // handle signs
-        // todo: return 1 with remainder inited
+        if (dividend_sign) {
+            dividend_inner->change_sign();
+        }
+
+        if (divider_sign) {
+            divider_inner->change_sign();
+        }
+        bigint_impl * to_return_quo = new bigint_impl(int(1));
+        bigint_impl * to_return_rem = new bigint_impl();
+        return {to_return_quo, to_return_rem};
     }
 
     bigint_impl * AHigh, * ALow;
@@ -70,6 +102,16 @@ bigint_burnikel_ziegler_division::div_two_digits_by_one(bigint_impl *AHigh, bigi
     // 3) Let [r1,r2]=R
     // 4) [q2,S] = DivThreeHalvesByTwo(r1,r2,a4,b1,b2)
     // 5) Return Q=[q1,q2] and S
+    bigint * bi_zero = new bigint_impl(int(0));
+    if ((*AHigh) == (*bi_zero) && (*ALow) == (*bi_zero) || (*B) == (*bi_zero)) {
+        bigint_impl * to_return_quo = new bigint_impl();
+        (*(to_return_quo->get_ptr_count_of_digits())) = 1;
+        bigint_impl * to_return_rem = new bigint_impl();
+        (*(to_return_rem)->get_ptr_count_of_digits()) = 1;
+        return {to_return_quo, to_return_rem};
+    }
+
+    delete bi_zero;
 
     bigint_impl * a1 = new bigint_impl(), * a2 = new bigint_impl();
     reinterpret_cast<bigint_impl *>(AHigh)->split(a1, a2, (AHigh->get_count_of_digits() / 2));
@@ -122,12 +164,19 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     a1a2->add(a2);
     bigint * bi_zero = new bigint_impl(int(0));
 
-    bigint_impl * q_quotient = new bigint_impl(),* c_remainder = new bigint_impl();
-    // todo:
-    if (b1 != bi_zero) {
-        std::pair<bigint_impl *, bigint_impl *> quot_and_rem = divide_with_remainder(a1a2, b1, multiplication_impl);
-        q_quotient = quot_and_rem.first;
-        c_remainder = quot_and_rem.second;
+    bigint_impl * q_quotient, * c_remainder;
+    std::pair<bigint_impl *, bigint_impl *> quot_and_rem;
+    try {
+        quot_and_rem = divide_with_remainder(a1a2, b1, multiplication_impl);
+        q_quotient = (quot_and_rem.first);
+    }
+    catch (div_by_zero_exception const &) {
+        q_quotient = new bigint_impl(int(0));
+    }
+    if ((*q_quotient) != (*bi_zero)) {
+        c_remainder = (quot_and_rem.second);
+    } else {
+        c_remainder = new bigint_impl(*a1a2);
     }
 
     // 9) R=[r1,r2]=[c,a3]-q*b2 = c * base(a3.size) + a3 - q*b2
@@ -136,15 +185,38 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     c_remainder->add(a3);
     bigint_impl * remainder = reinterpret_cast<bigint_impl *>(c_remainder->subtraction(D));
 
-    // todo: redo, make a copy
+    // todo: redo, make a copy, as mult by pow base redoes b1
     b1->mult_by_pow_base(b2->get_count_of_digits());
     bigint_impl * B = reinterpret_cast<bigint_impl *>(b1->sum(b2));
-    while (remainder < bi_zero) {
-        q_quotient--; // todo:
-        reinterpret_cast<bigint *>(remainder)->add(reinterpret_cast<bigint *>(B));
+
+    if ((*remainder) < (*bi_zero) || (*remainder) >= (*B)) {
+        if ((*remainder) >= (*B)) {
+            bigint_impl * bi_100 = new bigint_impl(int(100));
+            bigint_impl * b_mult_by_100 = reinterpret_cast<bigint_impl *>(multiplication_impl->multiply(B, bi_100));
+            while ((*remainder) >= (*b_mult_by_100)) {
+                remainder->subtract(b_mult_by_100);
+                q_quotient->add(bi_100);
+            }
+            delete bi_100;
+            delete b_mult_by_100;
+        }
+
+        bigint_impl * bi_1 = new bigint_impl(1);
+        while ((*remainder) < (*bi_zero)) {
+            remainder->add(B);
+            q_quotient->subtract(bi_1);
+        }
+        while ((*remainder) >= (*B)) {
+            remainder->subtract(B);
+            q_quotient->add(bi_1);
+        }
+        delete bi_1;
     }
 
-    delete a1a2;    delete bi_zero;   delete c_remainder;
+
+    delete a1a2;
+    delete bi_zero;
+    delete c_remainder;
     delete D;
     return {q_quotient, remainder};
 }
