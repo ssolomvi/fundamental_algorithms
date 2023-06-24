@@ -5,6 +5,9 @@
 #pragma region add-subtract
 bigint *bigint_impl::add(const bigint *const summand)
 {
+    if (summand->get_count_of_digits() == 0) {
+        return this;
+    }
     if (!summand) {
         throw parameter_exception("bigint_impl::add incorrect parameter passed");
     }
@@ -44,12 +47,12 @@ bigint *bigint_impl::add(const bigint *const summand)
             }
         }
 
-        if (this->get_count_of_digits() - 1 == max_count_of_digits) {
-            for (j = i; j < max_count_of_digits; j++) {
+        if ((this->get_count_of_digits() - 1) == max_count_of_digits) {
+            for (j = i; j < max_count_of_digits && additional; j++) {
                 sum_digits_result = (*(this->get_ptr_digit_with_index(j))) + additional;
                 (*(this->get_ptr_digit_with_index(i))) = unsigned(sum_digits_result % radix);
 
-                if (sum_digits_result <= radix) {
+                if ((sum_digits_result - radix) <= 0) {
                     additional = true;
                 } else {
                     additional = false;

@@ -94,7 +94,8 @@ public:
             }
         }
 
-        deallocate_with_guard(_digits);
+        // todo: wtf
+//        deallocate_with_guard(_digits);
         _digits = new_digits_ptr;
     }
 
