@@ -20,12 +20,12 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
         right->change_sign();
     }
 
-    bigint * multiplying_result = new bigint_impl(left->get_logger(), left->get_memory());
+    bigint * multiplying_result = new bigint_impl();
     multiplying_result->reallocate_digits_array((left->get_count_of_digits() + right->get_count_of_digits()));
 
     unsigned iter_over_right_num, iter_over_left_num, iter_for_multiply;
     size_t sum_result = 0, additional = 0, left_len = left->get_count_of_digits() - 1, right_len = right->get_count_of_digits() - 1;
-    long long radix = 2^(sizeof(int) * 8 - 1);
+    long long radix = INT_MAX;
     int right_last_digit = (*(right->get_ptr_last_digit())), left_last_digit = (*(left->get_ptr_last_digit()));
 
     // multiplying "digits"
@@ -34,7 +34,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
         // right number last digit multiply another last digit
         for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
             sum_result += left_last_digit;
-            if (sum_result - radix >= 0) {
+            if (sum_result >= radix) {
                 ++additional;
                 sum_result -= radix;
             }
@@ -52,7 +52,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
             if (left_digit != 0) {
                 for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
                     sum_result += left_digit;
-                    if (sum_result - radix >= 0) {
+                    if (sum_result >= radix) {
                         ++additional;
                         sum_result -= radix;
                     }
@@ -82,7 +82,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
 
         for (iter_for_multiply = 0; iter_for_multiply < right_digit; iter_for_multiply++) {
             sum_result += left_last_digit;
-            if (sum_result - radix >= 0) {
+            if (sum_result >= radix) {
                 ++additional;
                 sum_result -= radix;
             }
@@ -93,7 +93,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
         }
 
         sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num)));
-        if (sum_result - radix >= 0) {
+        if (sum_result >= radix) {
             ++additional;
             sum_result -= radix;
         }
@@ -109,7 +109,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
             if (left_digit != 0) {
                 for (iter_for_multiply = 0; iter_for_multiply < right_last_digit; iter_for_multiply++) {
                     sum_result += left_digit;
-                    if (sum_result - radix >= 0) {
+                    if (sum_result >= radix) {
                         ++additional;
                         sum_result -= radix;
                     }
@@ -121,7 +121,7 @@ bigint *bigint_column_multiplication::multiply(const bigint *const left_multipli
             }
 
             sum_result += (*(multiplying_result->get_ptr_digit_with_index(iter_over_right_num + iter_over_left_num + 1)));
-            if (sum_result - radix >= 0) {
+            if (sum_result >= radix) {
                 ++additional;
                 sum_result -= radix;
             }
@@ -158,13 +158,26 @@ bigint *bigint_karatsuba_multiplication::multiply(const bigint *const left_multi
     if (left_multiplier == nullptr || right_multiplier == nullptr) {
         return nullptr;
     }
-//    uint64_t KARATSUBACUTOFF = 50;
-//    if ((left_multiplier->get_count_of_digits() < KARATSUBACUTOFF) && (right_multiplier->get_count_of_digits() < KARATSUBACUTOFF))
-//    {
-//        bigint* returnValue = new bigint_impl((*reinterpret_cast<bigint_impl *>(left_multiplier)));
-//        returnValue->multiplyInternal(liTwo);
-//        return returnValue;
-//    }
+
+    size_t left_m_size = left_multiplier->get_count_of_digits(), right_m_size = right_multiplier->get_count_of_digits();
+
+    bigint_impl * left_m = reinterpret_cast<bigint_impl *>(const_cast<bigint *>(left_multiplier));
+    bigint_impl * right_m = reinterpret_cast<bigint_impl *>(const_cast<bigint *>(right_multiplier));
+
+    if (left_m_size == 0 || right_m_size == 0
+    || (left_m_size == 1 && (*(left_m->get_ptr_last_digit())) == 0)
+    || (right_m_size == 1 && (*(right_m->get_ptr_last_digit())) == 0)) {
+        bigint_impl * to_return = new bigint_impl();
+        (*(to_return->get_ptr_count_of_digits())) = 1;
+        return to_return;
+    }
+
+    if (left_m_size == 1 || right_m_size == 1) {
+        bigint_multiplication * column_mult = new bigint_column_multiplication();
+        bigint * to_return = column_mult->multiply(left_multiplier, right_multiplier);
+        delete column_mult;
+        return to_return;
+    }
 
     // A = [A0 = (Am-1, ..., A0) ; A1 = (An-1, ..., Am)]
     // B = [B0 = (Bm-1, ..., B0) ; B1 = (Bn-1, ..., Bm)]
@@ -178,14 +191,15 @@ bigint *bigint_karatsuba_multiplication::multiply(const bigint *const left_multi
     size_t half_size = max_size / 2; // m
 
     // Split the digit sequences about the middle
-    auto * bi_left_n1 = new bigint_impl(), * bi_left_n2 = new bigint_impl();  // A0, A1
-    auto * bi_right_n1 = new bigint_impl(), * bi_right_n2 = new bigint_impl();   // B0, B1
-    reinterpret_cast<bigint_impl *>(const_cast<bigint *>(left_multiplier))->split(bi_left_n2, bi_left_n1, half_size);
-    reinterpret_cast<bigint_impl *>(const_cast<bigint *>(right_multiplier))->split(bi_right_n2, bi_right_n1, half_size);
+    auto * bi_left_A1 = new bigint_impl(), * bi_left_A0 = new bigint_impl();  // A0, A1
+    auto * bi_right_B1 = new bigint_impl(), * bi_right_B0 = new bigint_impl();   // B0, B1
+    // |123456789|
+    reinterpret_cast<bigint_impl *>(const_cast<bigint *>(left_multiplier))->split(bi_left_A1, bi_left_A0, half_size);
+    reinterpret_cast<bigint_impl *>(const_cast<bigint *>(right_multiplier))->split(bi_right_B1, bi_right_B0, half_size);
 
-    bigint * z0 = this->multiply(bi_left_n2, bi_right_n2); // A0B0
-    bigint * z1 = this->multiply(bi_left_n2->sum(bi_left_n1), bi_right_n2->sum(bi_right_n1));  // (A0+A1)(B0+B1)
-    bigint * z2 = this->multiply(bi_left_n1, bi_right_n1); // A1B1
+    bigint * z0 = this->multiply(bi_left_A0, bi_right_B0); // A0B0
+    bigint * z1 = this->multiply(bi_left_A0->sum(bi_left_A1), bi_right_B0->sum(bi_right_B1));  // (A0+A1)(B0+B1)
+    bigint * z2 = this->multiply(bi_left_A1, bi_right_B1); // A1B1
 
     // The next step is this calculation:
     // return (z2*base^(2*m))+((z1-z2-z0)*base^(m))+(z0)
@@ -200,10 +214,10 @@ bigint *bigint_karatsuba_multiplication::multiply(const bigint *const left_multi
     bigint * return_value = z2->sum(z1);
     return_value->add(z0);
 
-    delete bi_left_n1;
-    delete bi_right_n1;
-    delete bi_left_n2;
-    delete bi_right_n2;
+    delete bi_left_A1;
+    delete bi_right_B1;
+    delete bi_left_A0;
+    delete bi_right_B0;
     delete z0;
     delete z1;
     delete z2;

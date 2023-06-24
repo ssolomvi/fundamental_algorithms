@@ -38,10 +38,9 @@ bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const divi
         // todo: return 1 with remainder inited
     }
 
-    auto * AHigh = new bigint_impl();
-    auto * ALow = new bigint_impl();
+    bigint_impl * AHigh, * ALow;
     size_t half_size = dividend->get_count_of_digits() / 2;
-    reinterpret_cast<bigint_impl *>(const_cast<bigint *>(dividend))->split(AHigh, ALow, half_size);
+    split_for_AHigh_ALow(reinterpret_cast<bigint_impl *>(const_cast<bigint *>(dividend)), &AHigh, &ALow, half_size);
     std::pair<bigint_impl *, bigint_impl *> quotient_and_remainder = div_two_digits_by_one(AHigh, ALow,
                                      dynamic_cast<bigint_impl *>(const_cast<bigint *>(divider)), multiplication_impl);
 
@@ -148,6 +147,20 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     delete a1a2;    delete bi_zero;   delete c_remainder;
     delete D;
     return {q_quotient, remainder};
+}
+
+void bigint_burnikel_ziegler_division::split_for_AHigh_ALow(bigint_impl *to_split, bigint_impl **AH, bigint_impl **AL,
+                                                            size_t half_size) const
+{
+    (*AH) = new bigint_impl();
+    (*AL) = new bigint_impl();
+    if (to_split->get_count_of_digits() > 2) {
+        reinterpret_cast<bigint_impl *>(to_split)->split((*AH), (*AL), half_size);
+        return;
+    }
+
+    (*((*AH)->get_ptr_count_of_digits()))++;
+    (**AL) = (*to_split);
 }
 /*
 vector<LongIntegerUP> LongInteger::DivTwoDigitsByOne(LongIntegerUP & AHigh, LongIntegerUP & ALow, LongIntegerUP & B, UINT uNumDigits) {

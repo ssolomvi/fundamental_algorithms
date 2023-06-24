@@ -15,13 +15,8 @@
 #include "allocator_with_sorted_list_deallocation/memory_with_sorted_list_deallocation.h"
 #include "allocator_with_boundary_tags_deallocation/memory_with_boundary_tags.h"
 #include "allocator_with_buddy_system/memory_with_buddy_system.h"
+#include "bigint/bigint_division.h"
 
-/*
- bigint/bigint.h
-        bigint/bigint_impl.h bigint/bigint_impl.cpp
-        bigint/bigint_division.h bigint/bigint_division.cpp
-        bigint/bigint_multiplication.h bigint/bigint_multiplication.cpp
- * */
 
 class int_comparer
 {
@@ -159,7 +154,6 @@ void my_tree_test(unsigned iterations, memory* allocator, logger* tree_logger, t
     delete tree;
 }
 
-
 void allocator_demo(memory *allocator, unsigned int iterations_count)
 {
     std::list<void *> allocated_blocks;
@@ -266,7 +260,6 @@ void allocators_demo(size_t trusted_memory_size, memory::Allocation_strategy fit
     delete buddy_system_allocator_logger;
 }
 
-
 void print_b_tree(b_tree<int, char, int_comparer>* tree)
 {
     auto end_iteration = tree->end_iter();
@@ -341,7 +334,32 @@ void my_b_tree_test()
 
 int main()
 {
-    std::cout << (sizeof(int) << 3) * log10(2) << std::endl;
+    bigint_multiplication * bi_mult = new bigint_karatsuba_multiplication;
+    std::string number = "123456789123456789123456789";
+    bigint_impl * from_input = new bigint_impl(number, bi_mult);
+    std::cout << (*from_input) << std::endl;
+    delete from_input;
+    delete bi_mult;
+
+    size_t int_max = INT_MAX;
+    bigint_impl * bi_try_pos1 = new bigint_impl(1234567895);
+    bigint_impl * bi_try_pos2 = new bigint_impl(1111111111);
+    bigint_impl * bi_try_pos3 = new bigint_impl(-1999999999);
+    bigint_impl * bi_try_pos4 = new bigint_impl(-1111111111);
+
+
+    // adding test
+    // adding pos to another pos
+    bi_try_pos3->add(bi_try_pos4);
+    // summing pos with negative
+    bigint * summing_result_pos_neg = (bi_try_pos1->sum(bi_try_pos3));
+    delete summing_result_pos_neg;
+    // summing negative with positive
+    bigint * summing_result_neg_pos = bi_try_pos3->sum(bi_try_pos2);
+    delete summing_result_neg_pos;
+    bi_try_pos3->add(bi_try_pos4);
+
+    delete bi_try_pos1; delete bi_try_pos2; delete bi_try_pos3; delete bi_try_pos4;
 //#pragma region tree test
 //    unsigned iterations = 1001;
 //

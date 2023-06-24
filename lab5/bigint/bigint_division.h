@@ -24,6 +24,8 @@ public:
     bigint* divide(bigint const * const dividend, bigint const * const divider,
                    bigint_multiplication const * const multiplication_impl) const override;
 
+    void split_for_AHigh_ALow(bigint_impl * to_split, bigint_impl ** AH, bigint_impl ** AL, size_t half_size) const;
+
     // return quotient and reminder
     std::pair<bigint_impl *, bigint_impl *> divide_with_remainder
     (bigint const * const dividend, bigint const * const divider, bigint_multiplication const * const multiplication_impl) const;

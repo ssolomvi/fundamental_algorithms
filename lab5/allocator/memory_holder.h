@@ -13,7 +13,7 @@ public:
     void deallocate_with_guard(void * block_pointer) const;
 
 protected:
-    virtual memory *get_memory() const noexcept = 0;
+    [[nodiscard]] virtual memory *get_memory() const noexcept = 0;
 };
 
 

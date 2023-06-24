@@ -16,12 +16,12 @@ public:
         std::string _message;
 
     public:
-        explicit parameter_exception(std::string const &message)
-                : _message(message) {
+        explicit parameter_exception(std::string message)
+                : _message(std::move(message)) {
 
         }
 
-        char const *what() const noexcept override {
+        [[nodiscard]] char const *what() const noexcept override {
             return _message.c_str();
         }
     };
@@ -36,7 +36,7 @@ protected:
 #pragma region summing
 
 public:
-    size_t get_count_of_digits() const {
+    [[nodiscard]] size_t get_count_of_digits() const {
         return _count_of_digits;
     }
 
@@ -44,14 +44,14 @@ public:
         return &_count_of_digits;
     }
 
-    bool get_sign() const
+    [[nodiscard]] bool get_sign() const
     {
         return ((this->_first_digit) >> (sizeof(this->_first_digit) * 8 - 1));
     }
 
-    void change_sign() const
+    void change_sign()
     {
-        ~(this->_first_digit) + 1;
+        _first_digit = ~(this->_first_digit) + 1;
     }
 
     int * get_ptr_last_digit()
@@ -65,7 +65,7 @@ public:
 
     void reallocate_digits_array(size_t new_count_of_digits)
     {
-        if (new_count_of_digits == 0) {
+        if (new_count_of_digits == 0 && _count_of_digits > 1) {
             deallocate_with_guard(_digits);
             _digits = nullptr;
             return;
@@ -76,8 +76,9 @@ public:
         }
 
         unsigned * new_digits_ptr = reinterpret_cast<unsigned *>(allocate_with_guard(sizeof(unsigned) * (new_count_of_digits - 1)));
-        unsigned count_of_digits_in_array = _count_of_digits - 1;
-        if (_count_of_digits != 1) {
+        unsigned count_of_digits_in_array = (_count_of_digits > 0 ?
+                _count_of_digits - 1 : 0);
+        if (_count_of_digits > 1) {
             if (new_count_of_digits > _count_of_digits) {
                 memcpy(new_digits_ptr, _digits, sizeof(unsigned) * count_of_digits_in_array);
             }
@@ -87,8 +88,8 @@ public:
         }
 
         if (new_count_of_digits > count_of_digits_in_array) {
-            unsigned i = count_of_digits_in_array;
-            for (i; i < new_count_of_digits; i++) {
+            unsigned i;
+            for (i = count_of_digits_in_array; i < (new_count_of_digits - 1); i++) {
                 new_digits_ptr[i] = 0;
             }
         }
@@ -108,8 +109,10 @@ public:
 
         unsigned * new_digits = reinterpret_cast<unsigned *>(allocate_with_guard(_count_of_digits + tmp));
         new_digits[tmp] = _first_digit;
-        memcpy(new_digits + power, _digits, sizeof(unsigned) * _count_of_digits - 1);
-        deallocate_with_guard(_digits);
+        if (_digits != nullptr) {
+            memcpy(new_digits + power, _digits, sizeof(unsigned) * _count_of_digits - 1);
+            deallocate_with_guard(_digits);
+        }
 
         _first_digit = 0;
         unsigned i;
@@ -130,13 +133,7 @@ public:
 
 public:
     // +
-    virtual bigint *sum(bigint const * const summand) const
-    {
-        // todo: ask if this is a new bigint*
-        bigint *to_return{const_cast<bigint *>(this)};
-        to_return->add(summand);
-        return to_return;
-    }
+    virtual bigint *sum(bigint const * const summand) const = 0;
 
     bigint *operator+(bigint const * const summand) const
     {
@@ -157,12 +154,7 @@ public:
 
 public:
     // -
-    virtual bigint *subtraction(bigint const * const subtrahend) const
-    {
-        bigint *to_return{const_cast<bigint *>(this)};
-        to_return->subtract(subtrahend);
-        return to_return;
-    }
+    virtual bigint *subtraction(bigint const * const subtrahend) const = 0;
 
     bigint *operator-(bigint const * const subtrahend) const
     {
@@ -208,26 +200,25 @@ public:
 
 public:
     // ==
-    virtual bool equals(bigint const * const other) const = 0;
+    virtual bool equals(bigint const & other) const = 0;
 
-    bool operator==(bigint const * const other) const
+    bool operator==(bigint const & other) const
     {
         return equals(other);
     }
 
 public:
     // !=
-    virtual bool not_equals(bigint const * const other) const = 0;
+    virtual bool not_equals(bigint const & other) const = 0;
 
-    bool operator!=(bigint const * const other) const
+    bool operator!=(bigint const & other) const
     {
         return not_equals(other);
     }
 #pragma endregion
 
-    friend std::ostream &operator<<(std::ostream &out, const bigint &value);
-
-    friend std::istream &operator>>(std::istream &in, const bigint &value);
+public:
+    [[nodiscard]] virtual bigint * make_a_copy() const = 0;
 
 #pragma region rule 5
     explicit bigint(std::string & from, logger * logger = nullptr, memory * allocator = nullptr)
@@ -315,19 +306,21 @@ public:
     ~bigint() override {
         _count_of_digits = 0;
         _first_digit = 0;
-        deallocate_with_guard(_digits);
+        if (_digits != nullptr) {
+            deallocate_with_guard(_digits);
+        }
     }
 
 #pragma endregion
 
 #pragma region memory and logger holder contracts
-public:
-    memory *get_memory() const noexcept override
+protected:
+    [[nodiscard]] memory *get_memory() const noexcept override
     {
         return _allocator;
     }
 
-    logger *get_logger() const noexcept override
+    [[nodiscard]] logger *get_logger() const noexcept override
     {
         return _logger;
     }
