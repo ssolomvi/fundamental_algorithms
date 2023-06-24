@@ -230,10 +230,7 @@ bool bigint_impl::lower_than(const bigint & other) const {
         return false;
     }
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
 
     size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
@@ -244,6 +241,9 @@ bool bigint_impl::lower_than(const bigint & other) const {
     }
 
     bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
+    if (other_sign) {
+        tmp_other->change_sign();
+    }
 
     long long i;
     int comparison_result;
@@ -269,10 +269,7 @@ bool bigint_impl::lower_than(const bigint & other) const {
     delete tmp_other;
 
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
     return false;
 }
@@ -286,12 +283,9 @@ bool bigint_impl::greater_than(const bigint & other) const {
         return true;
     }
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
-    }
-    
+
     size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
     if (this_count_of_digits > other_count_of_digits) {
         return true;
@@ -300,6 +294,9 @@ bool bigint_impl::greater_than(const bigint & other) const {
     }
 
     bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
+    if (other_sign) {
+        tmp_other->change_sign();
+    }
 
     long long i;
     int comparison_result;
@@ -324,10 +321,7 @@ bool bigint_impl::greater_than(const bigint & other) const {
     }
 
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
     delete tmp_other;
     return false;
@@ -342,10 +336,7 @@ bool bigint_impl::lower_than_or_equal_to(const bigint & other) const {
         return false;
     }
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        (const_cast<bigint_impl *>(this))->change_sign();
     }
 
     size_t this_count_of_digits = _count_of_digits, other_count_of_digits = other.get_count_of_digits();
@@ -356,6 +347,9 @@ bool bigint_impl::lower_than_or_equal_to(const bigint & other) const {
     }
 
     bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
+    if (other_sign) {
+        tmp_other->change_sign();
+    }
 
     long long i;
     int comparison_result;
@@ -380,12 +374,8 @@ bool bigint_impl::lower_than_or_equal_to(const bigint & other) const {
     }
 
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
+        const_cast<bigint_impl *>(this)->change_sign();
     }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
-    }
-
     delete tmp_other;
     return false;
 }
@@ -401,10 +391,7 @@ bool bigint_impl::greater_than_or_equal_to(const bigint & other) const {
         return true;
     }
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
 
     if (this_count_of_digits > other_count_of_digits) {
@@ -414,6 +401,9 @@ bool bigint_impl::greater_than_or_equal_to(const bigint & other) const {
     }
 
     bigint_impl * tmp_other = reinterpret_cast<bigint_impl *>(other.make_a_copy());
+    if (other_sign) {
+        tmp_other->change_sign();
+    }
 
     long long i;
     int comparison_result;
@@ -440,10 +430,7 @@ bool bigint_impl::greater_than_or_equal_to(const bigint & other) const {
     delete tmp_other;
 
     if (this_sign) {
-        reinterpret_cast<bigint_impl *>(this)->change_sign();
-    }
-    if (other_sign) {
-        reinterpret_cast<bigint_impl *>(other)->change_sign();
+        reinterpret_cast<bigint_impl *>(const_cast<bigint_impl *>(this))->change_sign();
     }
     return false;
 }
