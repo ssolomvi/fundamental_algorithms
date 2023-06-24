@@ -41,6 +41,7 @@ public:
 
     void split_for_AHigh_ALow(bigint_impl * to_split, bigint_impl ** AH, bigint_impl ** AL, size_t half_size) const;
 
+    void fix_reminder(int multiplier, bigint_impl * B, bigint_impl ** remainder, bigint_impl ** quotient, bigint_multiplication const * const multiplication_impl) const;
     // return quotient and reminder
     std::pair<bigint_impl *, bigint_impl *> divide_with_remainder
     (bigint const * const dividend, bigint const * const divider, bigint_multiplication const * const multiplication_impl) const;

@@ -131,12 +131,13 @@ bigint_burnikel_ziegler_division::div_two_digits_by_one(bigint_impl *AHigh, bigi
 
     // to_return_quotient = q1 * base^{q2._count} + q2
     q1->mult_by_pow_base(second_part_quotient_and_remainder.first->get_count_of_digits());
-    bigint_impl * to_return_quotient = reinterpret_cast<bigint_impl *>(second_part_quotient_and_remainder.first->sum(q1));
+    q1->add(q2);
+    bigint_impl * to_return_quotient = reinterpret_cast<bigint_impl *>(q1);
 
     delete a1;  delete a2;  delete a3;  delete a4;
     delete b1;  delete b2;
     delete r1;  delete r2;
-    delete q1;  delete q2;
+//    delete q1;  delete q2;
     return {to_return_quotient, second_part_quotient_and_remainder.second};
 }
 
@@ -185,38 +186,32 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
     c_remainder->add(a3);
     bigint_impl * remainder = reinterpret_cast<bigint_impl *>(c_remainder->subtraction(D));
 
-    // todo: redo, make a copy, as mult by pow base redoes b1
+    // todo: redo, make a copy, because mult by pow base redoes b1
     b1->mult_by_pow_base(b2->get_count_of_digits());
     bigint_impl * B = reinterpret_cast<bigint_impl *>(b1->sum(b2));
 
     if ((*remainder) < (*bi_zero) || (*remainder) >= (*B)) {
-        if ((*remainder) >= (*B)) {
-            bigint_impl * bi_100 = new bigint_impl(int(100));
-            bigint_impl * b_mult_by_100 = reinterpret_cast<bigint_impl *>(multiplication_impl->multiply(B, bi_100));
-            while ((*remainder) >= (*b_mult_by_100)) {
-                remainder->subtract(b_mult_by_100);
-                q_quotient->add(bi_100);
+        if ((*remainder) < (*bi_zero)) {
+            bigint_impl * bi_1 = new bigint_impl(1);
+            while ((*remainder) < (*bi_zero)) {
+                remainder->add(B);
+                q_quotient->subtract(bi_1);
             }
-            delete bi_100;
-            delete b_mult_by_100;
+            delete bi_1;
         }
-
-        bigint_impl * bi_1 = new bigint_impl(1);
-        while ((*remainder) < (*bi_zero)) {
-            remainder->add(B);
-            q_quotient->subtract(bi_1);
+        else {
+//            int, B, multiplication_impl, remainder, quo
+            fix_reminder(1000, B, &remainder, &q_quotient, multiplication_impl);
+            fix_reminder(100, B, &remainder, &q_quotient, multiplication_impl);
+            fix_reminder(10, B, &remainder, &q_quotient, multiplication_impl);
+            fix_reminder(1, B, &remainder, &q_quotient, multiplication_impl);
         }
-        while ((*remainder) >= (*B)) {
-            remainder->subtract(B);
-            q_quotient->add(bi_1);
-        }
-        delete bi_1;
     }
 
 
     delete a1a2;
     delete bi_zero;
-    delete c_remainder;
+//    delete c_remainder;
     delete D;
     return {q_quotient, remainder};
 }
@@ -233,6 +228,22 @@ void bigint_burnikel_ziegler_division::split_for_AHigh_ALow(bigint_impl *to_spli
 
     (*((*AH)->get_ptr_count_of_digits()))++;
     (**AL) = (*to_split);
+}
+
+void bigint_burnikel_ziegler_division::fix_reminder(int multiplier, bigint_impl *B, bigint_impl **remainder,
+                                                    bigint_impl **quotient,
+                                                    const bigint_multiplication *const multiplication_impl) const
+{
+    if ((**remainder) >= (*B)) {
+        bigint_impl * bi_mult = new bigint_impl(multiplier);
+        bigint_impl * b_mult_by_mult = reinterpret_cast<bigint_impl *>(multiplication_impl->multiply(B, bi_mult));
+        while ((**remainder) >= (*b_mult_by_mult)) {
+            (*remainder)->subtract(b_mult_by_mult);
+            (*quotient)->add(bi_mult);
+        }
+        delete bi_mult;
+        delete b_mult_by_mult;
+    }
 }
 /*
 vector<LongIntegerUP> LongInteger::DivTwoDigitsByOne(LongIntegerUP & AHigh, LongIntegerUP & ALow, LongIntegerUP & B, UINT uNumDigits) {

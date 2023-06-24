@@ -101,14 +101,18 @@ public:
     void mult_by_pow_base(size_t power) {
         // shift digits to right by power, making new digits == 0
         // we believe that this number is positive
+        if (_count_of_digits <= 1 && _first_digit == 0) {
+            return;
+        }
+
         if (power <= 0) {
             return;
         }
 
-        size_t tmp = power - 1;
-
-        unsigned * new_digits = reinterpret_cast<unsigned *>(allocate_with_guard(_count_of_digits + tmp));
-        new_digits[tmp] = _first_digit;
+        size_t tmp = power;
+// 1|11 -> 1 == 0|111
+        unsigned * new_digits = reinterpret_cast<unsigned *>(allocate_with_guard(_count_of_digits + tmp - 1));
+        new_digits[tmp - 1] = _first_digit;
         if (_digits != nullptr) {
             memcpy(new_digits + power, _digits, sizeof(unsigned) * _count_of_digits - 1);
             deallocate_with_guard(_digits);
@@ -116,9 +120,10 @@ public:
 
         _first_digit = 0;
         unsigned i;
-        for (i = 0; i < tmp; i++) {
-            _digits[i] = 0;
+        for (i = 0; i < tmp - 1; i++) {
+            new_digits[i] = 0;
         }
+        _count_of_digits += power;
         _digits = new_digits;
     }
 

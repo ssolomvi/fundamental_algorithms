@@ -21,14 +21,15 @@ bigint *bigint_impl::add(const bigint *const summand)
         long long radix = INT_MAX;
         bool additional = false;
         long long sum_digits_result = 0;
-        unsigned i, j, this_number_count_of_digits = get_count_of_digits(), summand_count_of_digits = summand->get_count_of_digits();
+        long long i, j, this_number_count_of_digits = get_count_of_digits(), summand_count_of_digits = summand->get_count_of_digits();
         bool comparison_result_count_of_digits = this_number_count_of_digits > summand_count_of_digits;
-        unsigned max_count_of_digits = (comparison_result_count_of_digits ? this_number_count_of_digits : summand_count_of_digits) - 1, min_count_of_digits = (comparison_result_count_of_digits ? summand_count_of_digits : this_number_count_of_digits) - 1;
+        unsigned max_count_of_digits = (comparison_result_count_of_digits ? this_number_count_of_digits : summand_count_of_digits) - 1;
+        unsigned min_count_of_digits = (comparison_result_count_of_digits ? summand_count_of_digits : this_number_count_of_digits) - 1;
 
         sum_digits_result = (long long)(*(this->get_ptr_last_digit())) + (long long)(*(const_cast<bigint *>(summand)->get_ptr_last_digit()));
         (*(this->get_ptr_last_digit())) = int(sum_digits_result % radix);
 
-        if ((sum_digits_result - radix) >= 0) {
+        if (sum_digits_result >= radix) {
             additional = true;
         }
 
@@ -36,7 +37,7 @@ bigint *bigint_impl::add(const bigint *const summand)
             sum_digits_result = (*(this->get_ptr_digit_with_index(i))) + (*(const_cast<bigint *>(summand)->get_ptr_digit_with_index(i))) + additional;
             (*(this->get_ptr_digit_with_index(i))) = unsigned(sum_digits_result % radix);
 
-            if ((sum_digits_result - radix) <= 0) {
+            if (sum_digits_result <= radix) {
                 additional = true;
             } else {
                 additional = false;
@@ -44,11 +45,11 @@ bigint *bigint_impl::add(const bigint *const summand)
         }
 
         if (this->get_count_of_digits() - 1 == max_count_of_digits) {
-            for (j = i; j < max_count_of_digits && additional; j++) {
+            for (j = i; j < max_count_of_digits; j++) {
                 sum_digits_result = (*(this->get_ptr_digit_with_index(j))) + additional;
                 (*(this->get_ptr_digit_with_index(i))) = unsigned(sum_digits_result % radix);
 
-                if ((sum_digits_result - radix) <= 0) {
+                if (sum_digits_result <= radix) {
                     additional = true;
                 } else {
                     additional = false;
@@ -63,7 +64,7 @@ bigint *bigint_impl::add(const bigint *const summand)
                 sum_digits_result = (*(const_cast<bigint *>(summand)->get_ptr_digit_with_index(j))) + additional;
                 (*(this->get_ptr_digit_with_index(i))) = unsigned (sum_digits_result % radix);
 
-                if ((sum_digits_result - radix) <= 0) {
+                if (sum_digits_result <= radix) {
                     additional = true;
                 } else {
                     additional = false;
@@ -129,7 +130,7 @@ bigint *bigint_impl::subtract(const bigint *const subtrahend)
 
     if (!this_number_sign && !subtrahend_sign) {
         bigint_impl * tmp_subtrahend = new bigint_impl();
-        if (this < subtrahend) {
+        if ((*this) < (*subtrahend)) {
             // pos1 < pos2 = neg
             (*tmp_subtrahend) = (*this);
             (*this) = (*(reinterpret_cast<bigint_impl *>(const_cast<bigint *>(subtrahend))));
@@ -189,7 +190,7 @@ bigint *bigint_impl::subtract(const bigint *const subtrahend)
 #pragma region get rid of extra zeros
         long long count_of_zeros = 0;
         for (i = max_count_of_digits; i > 0; i--) {
-            if (this->get_ptr_digit_with_index(i - 1)) {
+            if ((*(this->get_ptr_digit_with_index(i - 1)))) {
                 break;
             }
             else {
@@ -199,11 +200,12 @@ bigint *bigint_impl::subtract(const bigint *const subtrahend)
 
         if (count_of_zeros) {
             reallocate_digits_array(max_count_of_digits - count_of_zeros);
+            _count_of_digits -= count_of_zeros;
         }
 #pragma endregion
 
-        if (tmp_subtrahend != subtrahend) {
-//            (*this) = (*tmp_subtrahend);
+        if (tmp_subtrahend == subtrahend) {
+            (*this) = (*tmp_subtrahend);
             this->change_sign();
         }
     }
@@ -444,7 +446,7 @@ bool bigint_impl::equals(const bigint & other) const {
     bigint * tmp_other = other.make_a_copy();
 
     if (_count_of_digits != 1) {
-        size_t i;
+        long long i;
         for (i = _count_of_digits - 1; i >= 0; --i) {
             if ((_digits[i] - (*(tmp_other->get_ptr_digit_with_index(i)))) != 0) {
                 delete tmp_other;
