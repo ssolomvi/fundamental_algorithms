@@ -310,11 +310,12 @@ public:
     }
 
     ~bigint() override {
-        _count_of_digits = 0;
-        _first_digit = 0;
         if (_digits != nullptr) {
             deallocate_with_guard(_digits);
+            _digits = nullptr;
         }
+        _count_of_digits = 0;
+        _first_digit = 0;
     }
 
 #pragma endregion

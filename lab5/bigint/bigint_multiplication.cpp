@@ -218,9 +218,9 @@ bigint *bigint_karatsuba_multiplication::multiply(const bigint *const left_multi
     delete bi_right_B1;
     delete bi_left_A0;
     delete bi_right_B0;
-    delete z0;
-    delete z1;
-    delete z2;
+//    delete z0;
+//    delete z1;
+//    delete z2;
 
     return return_value;
 }

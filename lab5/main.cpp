@@ -335,10 +335,15 @@ void my_b_tree_test()
 int main()
 {
     bigint_multiplication * bi_mult = new bigint_karatsuba_multiplication;
-    std::string number = "123456789123456789123456789";
-    bigint_impl * from_input = new bigint_impl(number, bi_mult);
+    std::string number1 = "123456789123456789123456789";
+//    std::string number2 = "222222222222222222222222222";
+    bigint_impl * from_input = new bigint_impl(number1, bi_mult);
+//    bigint_impl * from_str = new bigint_impl(number2, bi_mult);
+//    bigint * mult_result = bi_mult->multiply(from_input, from_str);
     std::cout << (*from_input) << std::endl;
     delete from_input;
+//    delete from_str;
+//    delete mult_result;
     delete bi_mult;
 
     size_t int_max = INT_MAX;

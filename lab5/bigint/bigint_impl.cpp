@@ -580,27 +580,29 @@ std::string bigint_impl::bi_to_string() {
 std::ostream &operator<<(std::ostream &out, const bigint_impl &value) {
     unsigned k = (sizeof(int) << 3) * log10(2), power = 0;
     bigint_impl * multiply = new bigint_impl(size_t(pow(10, k)));
-    int digit = 0;
-    bigint_impl tmp_res(value), *tmp_div, *bi_zero = new bigint_impl(int(0));
+    bigint_impl tmp_res(value), bi_zero(int(0));
     std::stack<bigint_impl *> result_stack;
     std::pair<bigint_impl *, bigint_impl *> returned_by_div;
     bigint_karatsuba_multiplication * mult_impl = new bigint_karatsuba_multiplication();
     bigint_burnikel_ziegler_division * div_impl = new bigint_burnikel_ziegler_division();
 
-    while (tmp_res != (*bi_zero)) {
+    while (tmp_res != bi_zero) {
         returned_by_div = div_impl->divide_with_remainder(&tmp_res, multiply, mult_impl);
-        tmp_res.~bigint_impl();
+//        tmp_res.~bigint_impl();
         tmp_res = (*returned_by_div.first);
+        delete returned_by_div.first;
         result_stack.push(returned_by_div.second);
     }
-    tmp_res.~bigint_impl();
+//    tmp_res.~bigint_impl();
+    delete mult_impl; delete div_impl;
+    delete multiply;
 
     std::string result_string;
     while (!(result_stack.empty())) {
         result_string += result_stack.top()->bi_to_string();
+        delete result_stack.top();
         result_stack.pop();
     }
-
     out << result_string;
 
     return out;

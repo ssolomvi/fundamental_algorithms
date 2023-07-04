@@ -70,7 +70,7 @@ bigint_burnikel_ziegler_division::divide_with_remainder(const bigint *const divi
         return {to_return_quo, to_return_rem};
     }
 
-    bigint_impl * AHigh, * ALow;
+    bigint_impl * AHigh, * ALow; // 2|23 AH = 00 AL = 22
     size_t half_size = dividend->get_count_of_digits() / 2;
     split_for_AHigh_ALow(reinterpret_cast<bigint_impl *>(const_cast<bigint *>(dividend)), &AHigh, &ALow, half_size);
     std::pair<bigint_impl *, bigint_impl *> quotient_and_remainder = div_two_digits_by_one(AHigh, ALow,
@@ -137,7 +137,7 @@ bigint_burnikel_ziegler_division::div_two_digits_by_one(bigint_impl *AHigh, bigi
     delete a1;  delete a2;  delete a3;  delete a4;
     delete b1;  delete b2;
     delete r1;  delete r2;
-//    delete q1;  delete q2;
+    delete q2;
     return {to_return_quotient, second_part_quotient_and_remainder.second};
 }
 
@@ -201,10 +201,14 @@ bigint_burnikel_ziegler_division::div_three_halves_by_two(bigint_impl *a1, bigin
         }
         else {
 //            int, B, multiplication_impl, remainder, quo
-            fix_reminder(1000, B, &remainder, &q_quotient, multiplication_impl);
-            fix_reminder(100, B, &remainder, &q_quotient, multiplication_impl);
-            fix_reminder(10, B, &remainder, &q_quotient, multiplication_impl);
-            fix_reminder(1, B, &remainder, &q_quotient, multiplication_impl);
+            unsigned tmp = 1000;
+            while (tmp) {
+                fix_reminder(tmp, B, &remainder, &q_quotient, multiplication_impl);
+                tmp /= 10;
+            }
+//            fix_reminder(100, B, &remainder, &q_quotient, multiplication_impl);
+//            fix_reminder(10, B, &remainder, &q_quotient, multiplication_impl);
+//            fix_reminder(1, B, &remainder, &q_quotient, multiplication_impl);
         }
     }
 

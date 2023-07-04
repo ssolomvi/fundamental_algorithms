@@ -157,9 +157,9 @@ public:
         _allocator = obj._allocator;
 
         if (obj._count_of_digits > 1) {
-            _digits = reinterpret_cast<unsigned *>(::operator new(sizeof(unsigned) * (obj._count_of_digits - 1)));
+//            _digits = reinterpret_cast<unsigned *>(::operator new(sizeof(unsigned) * (obj._count_of_digits - 1)));
             // todo: ask Ilya
-//            _digits = reinterpret_cast<unsigned *>(this->allocate_with_guard(sizeof(unsigned) * (obj._count_of_digits - 1)));
+            _digits = reinterpret_cast<unsigned *>(this->allocate_with_guard(sizeof(unsigned) * (obj._count_of_digits - 1)));
             memcpy(_digits, obj._digits, (obj._count_of_digits - 1) * sizeof(unsigned));
         }
 
